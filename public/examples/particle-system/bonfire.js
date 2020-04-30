@@ -2,9 +2,7 @@ const app = new Exo.Application({
     width: 800,
     height: 600,
     clearColor: Exo.Color.Black,
-    loader: {
-        resourcePath: 'assets/',
-    },
+    resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
@@ -27,18 +25,15 @@ app.start(new Exo.Scene({
         this._particleSystem.setBlendMode(Exo.BlendModes.ADDITIVE);
         this._particleSystem.addAffector(this._colorAffector);
         this._particleSystem.addEmitter(this._particleEmitter);
-
-        this._random = new Exo.Random();
     },
 
     update(delta) {
         const { x, y } = this._particleSystem;
-        const random = this._random;
-        const angle = random.next(90, 100) * (Math.PI / 180);
-        const speed = random.next(60, 80);
+        const angle = Exo.rand(90, 100) * (Math.PI / 180);
+        const speed = Exo.rand(60, 80);
 
-        this._particleOptions.totalLifetime.set(random.next(5, 10), Exo.TimeInterval.SECONDS);
-        this._particleOptions.position.set(x + random.next(-50, 50), y + random.next(-10, 10));
+        this._particleOptions.totalLifetime.copy(Exo.seconds(Exo.rand(5, 10)));
+        this._particleOptions.position.set(x + Exo.rand(-50, 50), y + Exo.rand(-10, 10));
         this._particleOptions.velocity.set(Math.cos(angle) * speed, -Math.sin(angle) * speed);
 
         this._particleSystem.update(delta);

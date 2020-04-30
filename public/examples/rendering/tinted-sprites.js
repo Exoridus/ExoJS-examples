@@ -2,9 +2,7 @@ const app = new Exo.Application({
     width: 800,
     height: 600,
     clearColor: Exo.Color.Black,
-    loader: {
-        resourcePath: 'assets/',
-    },
+    resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
@@ -35,7 +33,7 @@ app.start(new Exo.Scene({
         this._bunnies.setPosition(width / 2 | 0, height / 2 | 0);
         this._bunnies.setAnchor(0.5, 0.5);
 
-        this._timer = new Exo.Timer({ limit: 500, autoStart: true });
+        this._timer = new Exo.Timer(Exo.milliseconds(500), true);
         this._random = new Exo.Random();
 
         this.tintBunnies();

@@ -4,43 +4,74 @@
         "examples": [
             {
                 "title": "Sprite",
-                "path": "sprite.js"
+                "path": "rendering/sprite.js"
             },
             {
                 "title": "Container",
-                "path": "container.js"
-            },
-            {
-                "title": "Spritesheet",
-                "path": "spritesheet.js"
+                "path": "rendering/container.js"
             },
             {
                 "title": "Blendmodes",
-                "path": "blendmodes.js"
+                "path": "rendering/blendmodes.js"
             },
             {
                 "title": "Tinted Sprites",
-                "path": "tinted-sprites.js"
+                "path": "rendering/tinted-sprites.js"
             },
             {
-                "title": "Camera Handling",
-                "path": "camera-handling.js"
+                "title": "View handling",
+                "path": "rendering/view.js"
             },
             {
                 "title": "Render to Texture",
-                "path": "render-to-texture.js"
+                "path": "rendering/render-to-texture.js"
             },
             {
                 "title": "Display Text",
-                "path": "display-text.js"
+                "path": "rendering/display-text.js"
             },
             {
                 "title": "Display Video",
-                "path": "display-video.js"
+                "path": "rendering/display-video.js"
             },
             {
                 "title": "Display SVG",
-                "path": "display-svg.js"
+                "path": "rendering/display-svg.js"
+            },
+            {
+                "title": "Spritesheet",
+                "path": "rendering/spritesheet.js"
+            }
+        ]
+    },
+    {
+        "title": "Input",
+        "examples": [
+            {
+                "title": "Gamepad",
+                "path": "input/gamepad.js"
+            }
+        ]
+    },
+    {
+        "title": "Collision Detection",
+        "examples": [
+            {
+                "title": "Rectangles",
+                "path": "collision-detection/rectangles.js"
+            }
+        ]
+    },
+    {
+        "title": "Particle System",
+        "examples": [
+            {
+                "title": "Bonfire",
+                "path": "particle-system/bonfire.js"
+            },
+            {
+                "title": "Fireworks",
+                "path": "particle-system/fireworks.js"
             }
         ]
     },
@@ -48,24 +79,12 @@
         "title": "Extras",
         "examples": [
             {
-                "title": "Collision Detection",
-                "path": "collision-detection.js"
-            },
-            {
-                "title": "Particle System",
-                "path": "particle-system.js"
-            },
-            {
-                "title": "Gamepad Tester",
-                "path": "gamepad-tester.js"
-            },
-            {
                 "title": "Audio Visualisation",
-                "path": "audio-visualisation.js"
+                "path": "extras/audio-visualisation.js"
             },
             {
                 "title": "Benchmark",
-                "path": "benchmark.js"
+                "path": "extras/benchmark.js"
             }
         ]
     }

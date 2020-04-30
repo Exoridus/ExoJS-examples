@@ -2,9 +2,7 @@ const app = new Exo.Application({
     width: 800,
     height: 600,
     clearColor: Exo.Color.Black,
-    loader: {
-        resourcePath: 'assets/',
-    },
+    resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
