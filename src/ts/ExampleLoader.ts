@@ -1,99 +1,46 @@
-import $ from "jquery";
-import CodeMirror from "codemirror";
+import $ from 'jquery';
+import CodeMirror from 'codemirror';
 
-interface Example {
-    title: string;
-    path: string;
-}
-
-interface ExamplesCategory {
-    title: string;
-    examples: Array<Example>;
-}
-
-type ExamplesConfig = Array<ExamplesCategory>;
+import { config, ExamplesConfig, IExample, IExampleCategory } from './config';
 
 export class ExampleLoader {
-    private readonly $navigation: JQuery<HTMLDivElement> = $('.navigation-list');
-    private readonly $preview: JQuery<HTMLDivElement> = $('.example-preview');
-    private readonly $title: JQuery<HTMLDivElement> = $('.editor-title');
-    private readonly $code: JQuery<HTMLTextAreaElement> = $('.editor-code');
-    private readonly $refresh: JQuery<HTMLDivElement> = $('.refresh-button');
-    private readonly requestOptions: RequestInit = {
-        cache: "no-cache",
-        method: "GET",
-        mode: "cors",
-    };
-
-    private activeExample: Example | null = null;
-    private activeEditor: CodeMirror.EditorFromTextArea | null = null;
+    private basePath: string;
+    private requestOptions: RequestInit;
     private activePath = location.hash.slice(1);
 
-    async init() {
-        const response = await fetch(`examples.json?no-cache=${Date.now()}`, this.requestOptions);
-        const examples = await response.json();
-
-        await this.createNavigation(examples);
-
-        this.$refresh.on('click', () => {
-            if (this.activeEditor) {
-                this.createExample(this.activeEditor.getValue());
-            }
-        })
+    constructor(basePath: string, requestOptions: RequestInit) {
+        this.basePath = basePath;
+        this.requestOptions = requestOptions;
     }
 
-    createExample(source: string) {
-        const $frame: JQuery<HTMLIFrameElement> = $('<iframe>', {
-            'class': 'preview-frame',
-            'src': 'preview.html',
-        });
-
-        this.$preview.empty();
-        this.$preview.append($frame);
-
-        $frame.contents()
-            .find('body')
-            .append($(`<script>window.onload = function() { ${source} }</script>`));
-
-        this.$code.html(source);
-
-        if (this.activeEditor) {
-            $(this.activeEditor.getWrapperElement()).remove();
-        }
-
-        this.activeEditor = CodeMirror.fromTextArea(this.$code[0], {
-            mode: 'javascript',
-            theme: 'monokai',
-            lineNumbers: true,
-            styleActiveLine: true,
-            matchBrackets: true,
-            viewportMargin: Infinity,
-            lineWrapping: true,
-            indentUnit: 4,
-        });
-    }
-
-    async loadExample(example: Example) {
+    private async loadExample(category: IExampleCategory, example: IExample): Promise<string | null> {
         if (this.activeExample === example) {
-            return;
+            return null;
         }
 
         this.activeExample = example;
-        this.activePath = example.path;
+        this.activePath = `${category.path}${example.path}`;
         window.location.hash = this.activePath;
         document.title = `${example.title} - ExoJS Examples`;
         this.$title.html(`Example Code: ${example.title}`);
 
-        const response = await fetch(`examples/${this.activePath}?no-cache=${Date.now()}`, {
-            cache: "no-cache",
-            method: "GET",
-            mode: "cors",
-        });
+        const response = await fetch(`${this.basePath}${this.activePath}?no-cache=${Date.now()}`, this.requestOptions);
 
-        this.createExample(await response.text());
+        return response.text();
     }
 
-    async createNavigation(examplesCategories: ExamplesConfig) {
+    public async loadExampleContent(path: string): Promise<string | null> {
+        try {
+            const response = await fetch(`${this.basePath}${path}?no-cache=${Date.now()}`, this.requestOptions);
+
+            return response && response.text();
+        } catch (e) {
+            return null;
+        }
+    }
+
+    private async createNavigation(examplesCategories: ExamplesConfig): Promise<void> {
+
         for (const category of examplesCategories) {
             this.$navigation.append($('<div>', {
                 'class': 'navigation-sub-header',
@@ -104,10 +51,10 @@ export class ExampleLoader {
                 this.$navigation.append($('<div>', {
                     'class': 'navigation-item',
                     'html': example.title
-                }).on('click', () => this.loadExample(example)));
+                }).on('click', () => this.loadExample(category, example)));
 
                 if (!this.activePath || this.activePath === example.path) {
-                    this.loadExample(example);
+                    await this.loadExample(category, example);
                 }
             }
         }

@@ -1,19 +1,48 @@
-const { PORT = 3000 } = process.env;
-const path = require("path");
+const { resolve } = require("path");
 const express = require('express');
 const serveStatic = require('serve-static');
-const setTitle = require('console-title');
+const consoleTitle = require('console-title');
+const { program } = require('commander');
+
+const closeProcess = (...errors) => {
+    const list = errors.filter(err => err);
+
+    if (list.length > 0) {
+        console.error(...list);
+        process.exit(1);
+    }
+
+    process.exit(0);
+};
 
 const app = express();
-const projectRoot = process.cwd();
+const projectDir = resolve(__dirname, '..');
+const { libPath, port, host } = program
+    .option('-l, --lib-path [path]', 'ExoJS library path relative to current directory', 'node_modules/exo-js-core/dist')
+    .option('-h, --host [hostname]', 'Server host', '127.0.0.1')
+    .option('-p, --port [number]', 'Server port', (port) => parseInt(port, 10), 3000)
+    .parse(process.argv);
 
-app.use('/dist', serveStatic(path.resolve(projectRoot, 'dist')));
-app.use('/node_modules', serveStatic(path.resolve(projectRoot, 'node_modules')));
-app.use(serveStatic(path.resolve(projectRoot, 'public'), { 'index': 'index.html' }));
+app.use('/dist', serveStatic(resolve(projectDir, 'dist')));
+app.use('/vendor', serveStatic(resolve(projectDir, 'node_modules/stats-js/build')));
+app.use('/vendor', serveStatic(resolve(process.cwd(), libPath)));
+app.use(serveStatic(resolve(projectDir, 'public'), { 'index': 'index.html' }));
 
-app.listen(PORT, () => {
-    const title = `App running: http://localhost:${PORT}`;
+const server = app.listen(port, host, () => {
+    const { port, address } = server.address();
+    const message = `App running: http://${address}:${port}`;
 
-    setTitle(title);
-    console.log(title);
+    consoleTitle(message);
+    console.log(message);
+}).on('error', (err) => {
+    if(err.errno === 'EADDRINUSE') {
+        closeProcess(`Port ${port} is busy.`);
+    } else {
+        closeProcess(err);
+    }
 });
+
+const shutdown = () => server.close((err) => closeProcess(err));
+
+process.on('SIGTERM', () => shutdown());
+process.on('SIGINT', () => shutdown());
