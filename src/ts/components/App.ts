@@ -1,32 +1,22 @@
-import { css, customElement, html, LitElement, property } from 'lit-element';
+import { css, customElement, html, LitElement, property, TemplateResult } from 'lit-element';
+import config from '../config.json';
 
 import $ from 'jquery';
 import CodeMirror from 'codemirror';
-import { config, ExamplesConfig, IExample, IExampleCategory } from '../config';
-import { ExampleLoader } from 'src/ts/ExampleLoader';
+import { IExample, ILoadExamplesEvent } from "../types";
+import { Config } from "../classes/Config";
 
 @customElement('my-app')
 export default class App extends LitElement {
 
-    private exampleLoader: ExampleLoader = new ExampleLoader(config.examplesPath, config.requestOptions)
-    private activeExample: IExample | null = null;
-    private activeEditor: CodeMirror.EditorFromTextArea | null = null;
-    private title = 'Example Code';
+  @property({ type: String }) editorTitle = 'Example Code';
+  private activeExample: IExample | null = null;
+  private activeEditor: CodeMirror.EditorFromTextArea | null = null;
+  private config: Config = new Config(config);
 
-    public constructor() {
-        super();
+  static get styles() {
 
-
-    }
-
-    public async connectedCallback() {
-        super.connectedCallback();
-
-
-    }
-
-    static get styles() {
-        return css`
+    return css`
             .app {
                 padding: 16px;
                 overflow: hidden;
@@ -34,26 +24,26 @@ export default class App extends LitElement {
                 margin-bottom: 57px
             }
         `;
-    }
+  }
 
-    public render(): string {
-        return html`
+  public render(): TemplateResult {
+    return html`
             <div class="page-wrap">
-                ${this.renderNavigation(config.examples)}
+                <my-navigation categories="${this.config.examples}" @click-example="${this.handleExampleClick}"/>
                 ${this.renderContent()}
             </div>
         `;
-    }
+  }
 
-    private renderContent(): string {
+  private renderContent(): TemplateResult {
 
-        return html`
+    return html`
             <main class="main">
                 <div class="main-content">
                     <div class="example-preview"></div>
                     <div class="example-editor">
                         <div class="editor-header">
-                            <div class="editor-title">${this.title}</div>
+                            <div class="editor-title">${this.editorTitle}</div>
                             <div class="refresh-button">
                                 <div class="button-content">REFRESH</div>
                             </div>
@@ -65,88 +55,76 @@ export default class App extends LitElement {
                 </div>
             </main>
         `;
+  }
+
+  private async handleExampleClick(event: CustomEvent<ILoadExamplesEvent>): Promise<void> {
+
+    const example = event.detail?.example ? ? null;
+
+    if (this.activeExample === example || example === null) {
+      return;
     }
 
-    private renderNavigation(categories: Array<IExampleCategory>): string {
+    this.activeExample = example;
 
-        return html`
-            <nav class="navigation">
-                <div class="navigation-content">
-                    <h1 class="navigation-header">ExoJS Examples</h1>
-                    <div class="navigation-list">
-                        ${categories.map(category => this.renderCategory(category))}
-                    </div>
-                </div>
-            </nav>
-        `;
+    const { path, title } = example;
+
+    window.location.hash = path;
+
+    this.setTitle(title);
+
+    await this.initExample(example);
+  }
+
+  private async loadExampleText(path: string): Promise<string | null> {
+
+    const { examplesPath, requestOptions } = this.config;
+
+    try {
+      const response = await fetch(`${examplesPath}/${path}?no-cache=${Date.now()}`, requestOptions);
+
+      return response && response.text() || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private async initExample(example: IExample): Promise<void> {
+
+    const source = await this.loadExampleText(example.path);
+
+    const $frame: JQuery<HTMLIFrameElement> = $('<iframe>', {
+      'class': 'preview-frame',
+      'src': 'preview.html',
+    });
+
+    this.$preview.empty();
+    this.$preview.append($frame);
+
+    $frame.contents()
+      .find('body')
+      .append($(`<script>window.onload = function() { ${source} }</script>`));
+
+    this.$code.html(source);
+
+    if (this.activeEditor) {
+      $(this.activeEditor.getWrapperElement()).remove();
     }
 
-    private renderCategory(category: IExampleCategory): string {
+    this.activeEditor = CodeMirror.fromTextArea(this.$code[0], {
+      mode: 'javascript',
+      theme: 'monokai',
+      lineNumbers: true,
+      styleActiveLine: true,
+      matchBrackets: true,
+      viewportMargin: Infinity,
+      lineWrapping: true,
+      indentUnit: 4,
+    });
+  }
 
-        return html`
-            <div class="navigation-sub-header">${category.title}</div>
-            ${category.examples.map(example => this.renderExample(example, category))}
-        `;
-    }
-
-    private renderExample(example: IExample, category: IExampleCategory): string {
-
-        const clickHandler = (): Promise<void> => this.loadExample(example, category);
-
-        return html`<div class="navigation-item" @click="${clickHandler}">${example.title}</div>`;
-    }
-
-    private async loadExample(example: IExample, category: IExampleCategory): Promise<void> {
-
-        if (this.activeExample === example) {
-            return;
-        }
-
-        this.activeExample = example;
-
-        const path = `${category.path}${example.path}`;
-
-        this.createExample(path);
-
-        window.location.hash = path;
-        this.setTitle(example.title);
-    }
-
-    private async createExample(path: string): void {
-        const source = await this.exampleLoader.loadExampleContent(path);
-
-        const $frame: JQuery<HTMLIFrameElement> = $('<iframe>', {
-            'class': 'preview-frame',
-            'src': 'preview.html',
-        });
-
-        this.$preview.empty();
-        this.$preview.append($frame);
-
-        $frame.contents()
-            .find('body')
-            .append($(`<script>window.onload = function() { ${source} }</script>`));
-
-        this.$code.html(source);
-
-        if (this.activeEditor) {
-            $(this.activeEditor.getWrapperElement()).remove();
-        }
-
-        this.activeEditor = CodeMirror.fromTextArea(this.$code[0], {
-            mode: 'javascript',
-            theme: 'monokai',
-            lineNumbers: true,
-            styleActiveLine: true,
-            matchBrackets: true,
-            viewportMargin: Infinity,
-            lineWrapping: true,
-            indentUnit: 4,
-        });
-    }
-
-    private setTitle(title: string): void {
-        document.title = `${title} - ExoJS Examples`;
-        this.title = `Example Code: ${title}`;
-    }
+  private setTitle(title: string): void {
+    document.title = `${title} - ExoJS Examples`;
+    this.editorTitle = `Example Code: ${title}`;
+  }
 }

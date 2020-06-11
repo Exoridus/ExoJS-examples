@@ -1,5 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import cleaner from 'rollup-plugin-cleaner';
+import json from 'rollup-plugin-json';
 import typescript from 'rollup-plugin-typescript2';
 import pkg from './package.json';
 
@@ -17,7 +18,7 @@ export default {
         {
             file: pkg.browser,
             format: 'iife',
-            name: 'Exo',
+            name: 'Examples',
         },
     ],
     plugins: [
@@ -27,6 +28,7 @@ export default {
         resolve({
             mainFields: ['module', 'main', 'browser'],
         }),
+        json(),
         typescript({
             typescript: require('typescript'),
         }),

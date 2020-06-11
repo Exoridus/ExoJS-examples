@@ -1,62 +1,70 @@
 import { css, customElement, LitElement, property } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { CSSResult } from 'lit-element/src/lib/css-tag';
+import { IExample, ILoadExamplesEvent } from "../../types";
 
 @customElement('my-navigation-link')
 export default class NavigationLink extends LitElement {
-    @property({type : String}) path: string = '';
+    @property({type : Object}) example: IExample | null = null;
 
     public static get styles(): CSSResult {
+
         return css`
-            .navigation-item {
-                @include transition(background-color 120ms cubic-bezier(0, 0, 0.2, 1));
-                @include unitize(padding, 0, 16);
-                @include unitize(height, 48);
-                @include unitize(font-size, 16);
-                @include unitize(line-height, 48);
-                -webkit-tap-highlight-color: $color-transparent;
-                font-weight: $font-weight-regular;
-                color: $color-text;
+            .navigation-link {
+                transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);
+                padding: 0 16px;
+                height: 48px;
+                font-size: 16px;
+                line-height: 48px;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                font-weight: 400;
+                color: #fff;
                 text-decoration: none;
                 position: relative;
                 cursor: pointer;
                 display: block;
                 width: 100%;
-    
-                &:hover {
-                    background-color: rgba($color-white, 0.12);
-                }
-    
-                &:active {
-                    background-color: rgba($color-white, 0.18);
-                }
+            }
+            
+            .navigation-link:hover {
+                background-color: rgba(255, 255, 255, 0.12);
+            }
+            
+            .navigation-link:active {
+                background-color: rgba(255, 255, 255, 0.18);
             }
         `;
     }
 
     public render(): TemplateResult {
 
+        if (this.example === null) {
+            throw new Error('[NavigationSection]: prop example must be set!');
+        }
+
+        const { title, path } = this.example;
+
         return html`
             <a 
-                href="#${this.path}" 
-                title="${this.title}" 
-                class="navigation-item"
+                href="#${path}" 
+                title="${title}"
+                class="navigation-link"
                 @click="${this.handleClick}"
             >
-                ${this.title}
+                ${title}
             </a>`;
     }
 
     private handleClick(event: Event): void {
 
-        this.dispatchEvent(new CustomEvent('load-example', {
+        event.preventDefault();
+
+        this.dispatchEvent(new CustomEvent<ILoadExamplesEvent>('click-example', {
             detail: {
-                path: this.path,
+                example: this.example
             },
             bubbles: true,
             composed: true,
         }));
-
-        event.preventDefault();
     }
 }
