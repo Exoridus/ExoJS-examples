@@ -5,44 +5,66 @@ const consoleTitle = require('console-title');
 const { program } = require('commander');
 
 const closeProcess = (...errors) => {
-    const list = errors.filter(err => err);
+    const errorMessages = errors
+        .filter(error => error)
+        .map(error => error.message);
 
-    if (list.length > 0) {
-        console.error(...list);
+    if (errorMessages.length > 0) {
+        console.error(...errorMessages);
         process.exit(1);
     }
 
     process.exit(0);
 };
 
-const app = express();
-const projectDir = resolve(__dirname, '..');
-const { libPath, port, host } = program
+const createApp = (libPath) => {
+    const app = express();
+    const basePath = resolve(__dirname, '..');
+
+    app.use('/dist', serveStatic(resolve(basePath, 'dist')));
+    app.use('/vendor', serveStatic(resolve(basePath, 'node_modules/stats-js/build')));
+    app.use('/vendor', serveStatic(resolve(process.cwd(), libPath)));
+    app.use('/examples', serveStatic(resolve(basePath, 'examples')));
+    app.use('/', serveStatic(basePath, { index: 'index.html' }));
+
+    return app;
+}
+
+const createServer = (app, port, host) => new Promise((resolve, reject) => {
+    const server = app.listen(port, host, err => {
+        if (err) {
+            return reject(err);
+        }
+
+        const shutdown = () => server.close(err => closeProcess(err));
+
+        process.on('SIGTERM', () => shutdown());
+        process.on('SIGINT', () => shutdown());
+        process.on('uncaughtException', () => shutdown());
+
+        resolve(server);
+    });
+});
+
+const { port, address, libPath } = program
     .option('-l, --lib-path [path]', 'ExoJS library path relative to current directory', 'node_modules/exo-js-core/dist')
-    .option('-h, --host [hostname]', 'Server host', '127.0.0.1')
+    .option('-a, --address [hostname]', 'Server address', '127.0.0.1')
     .option('-p, --port [number]', 'Server port', (port) => parseInt(port, 10), 3000)
     .parse(process.argv);
 
-app.use('/dist', serveStatic(resolve(projectDir, 'dist')));
-app.use('/vendor', serveStatic(resolve(projectDir, 'node_modules/stats-js/build')));
-app.use('/vendor', serveStatic(resolve(process.cwd(), libPath)));
-app.use(serveStatic(resolve(projectDir, 'public'), { 'index': 'index.html' }));
+(async () => {
+    try {
+        const app = createApp(libPath);
+        const server = await createServer(app, port, address);
+        const message = `App running: http://${address}:${port}`;
 
-const server = app.listen(port, host, () => {
-    const { port, address } = server.address();
-    const message = `App running: http://${address}:${port}`;
-
-    consoleTitle(message);
-    console.log(message);
-}).on('error', (err) => {
-    if(err.errno === 'EADDRINUSE') {
-        closeProcess(`Port ${port} is busy.`);
-    } else {
-        closeProcess(err);
+        consoleTitle(message);
+        console.log(message);
+    } catch (err) {
+        if(err.code === 'EADDRINUSE') {
+            closeProcess(new Error(`Port ${port} seems to be busy.`));
+        } else {
+            closeProcess(err);
+        }
     }
-});
-
-const shutdown = () => server.close((err) => closeProcess(err));
-
-process.on('SIGTERM', () => shutdown());
-process.on('SIGINT', () => shutdown());
+})();

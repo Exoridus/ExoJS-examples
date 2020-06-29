@@ -1,12 +1,11 @@
 import { css, customElement, html, LitElement, property, TemplateResult } from 'lit-element';
-
 import { CSSResult } from 'lit-element/src/lib/css-tag';
-import { IExampleCategory } from "../../types";
-
+import { ExampleEntries, ExampleEntry } from '../../classes/ExampleService';
 
 @customElement('my-navigation')
 export default class Navigation extends LitElement {
-    @property({type : Array}) categories: Array<IExampleCategory> = [];
+
+    @property({type : Object}) exampleEntries?: ExampleEntries;
 
     public static get styles(): CSSResult {
 
@@ -55,9 +54,30 @@ export default class Navigation extends LitElement {
             <nav class="navigation">
                 <div class="viewport">
                     <h1 class="navigation-header">ExoJS Examples</h1>
-                    ${this.categories.map(category => html`<my-navigation-section category="${category}" />`)}
+                    ${this.renderNavigation()}
                 </div>
             </nav>
+        `;
+    }
+
+    private renderNavigation(): TemplateResult {
+
+        if (!this.exampleEntries) {
+            return html`<my-loading-spinner centered />`;
+        }
+
+        return html`
+            ${Array.from(this.exampleEntries, ([category, examples]) => this.renderCategory(category, examples))}
+        `;
+    }
+
+    private renderCategory(title: string, examples: Array<ExampleEntry>): TemplateResult {
+
+        return html`
+            <div class="navigation-section">
+                <my-navigation-title>${title}</my-navigation-title>
+                ${examples.map(example => html`<my-navigation-link example="${example}" />` )}
+            </div>
         `;
     }
 }

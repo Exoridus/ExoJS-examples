@@ -1,3 +1,8 @@
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/addon/selection/active-line';
-import 'codemirror/mode/javascript/javascript';
+import { javascript } from '@codemirror/next/lang-javascript';
+import { highlightActiveLine } from '@codemirror/next/highlight-selection';
+import { bracketMatching } from '@codemirror/next/matchbrackets';
+import './components/index';
+
+javascript();
+highlightActiveLine();
+bracketMatching();

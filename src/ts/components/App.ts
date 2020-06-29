@@ -1,130 +1,188 @@
-import { css, customElement, html, LitElement, property, TemplateResult } from 'lit-element';
-import config from '../config.json';
-
-import $ from 'jquery';
-import CodeMirror from 'codemirror';
-import { IExample, ILoadExamplesEvent } from "../types";
-import { Config } from "../classes/Config";
+import { customElement, html, internalProperty, LitElement, TemplateResult } from 'lit-element';
+import { ExampleEntries, ExampleEntry, ExampleService } from '../classes/ExampleService';
+import { NavLinkClicked } from './navigation/NavigationLink';
+import styles from './App.module.scss';
 
 @customElement('my-app')
 export default class App extends LitElement {
 
-  @property({ type: String }) editorTitle = 'Example Code';
-  private activeExample: IExample | null = null;
-  private activeEditor: CodeMirror.EditorFromTextArea | null = null;
-  private config: Config = new Config(config);
+    // @query('.editor-code') private codeElement: HTMLTextAreaElement | null = null;
+    //
+    // private activeEditor: CodeMirror.EditorFromTextArea | null = null;
+    // private config: Config = new Config(config as IConfigOptions);
 
-  static get styles() {
+    @internalProperty() private exampleEntries: ExampleEntries | null = null;
+    @internalProperty() private activeExample: ExampleEntry | null = null;
+    private exampleService = new ExampleService();
 
-    return css`
-            .app {
-                padding: 16px;
-                overflow: hidden;
-                min-height: 100vh;
-                margin-bottom: 57px
-            }
-        `;
-  }
+    public async connectedCallback(): Promise<void> {
+        super.connectedCallback();
 
-  public render(): TemplateResult {
-    return html`
-            <div class="page-wrap">
-                <my-navigation categories="${this.config.examples}" @click-example="${this.handleExampleClick}"/>
-                ${this.renderContent()}
+        this.exampleEntries = await this.exampleService.fetchExampleEntries();
+    }
+
+    public render(): TemplateResult {
+
+        return html`
+            <div class="${styles.app}">
+                <my-navigation .exampleEntries="${this.exampleEntries}" @nav-link-clicked="${this.handleEntryClicked}" />
+                <div class="${styles.appContent}">
+                    Current Example: ${this.renderTest()}
+                </div>
             </div>
         `;
-  }
-
-  private renderContent(): TemplateResult {
-
-    return html`
-            <main class="main">
-                <div class="main-content">
-                    <div class="example-preview"></div>
-                    <div class="example-editor">
-                        <div class="editor-header">
-                            <div class="editor-title">${this.editorTitle}</div>
-                            <div class="refresh-button">
-                                <div class="button-content">REFRESH</div>
-                            </div>
-                        </div>
-                        <div class="editor-content">
-                            <textarea class="editor-code"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        `;
-  }
-
-  private async handleExampleClick(event: CustomEvent<ILoadExamplesEvent>): Promise<void> {
-
-    const example = event.detail?.example ? ? null;
-
-    if (this.activeExample === example || example === null) {
-      return;
     }
 
-    this.activeExample = example;
+    private renderTest(): TemplateResult {
 
-    const { path, title } = example;
+        if (!this.activeExample) {
+            return html`NONE`;
+        }
 
-    window.location.hash = path;
-
-    this.setTitle(title);
-
-    await this.initExample(example);
-  }
-
-  private async loadExampleText(path: string): Promise<string | null> {
-
-    const { examplesPath, requestOptions } = this.config;
-
-    try {
-      const response = await fetch(`${examplesPath}/${path}?no-cache=${Date.now()}`, requestOptions);
-
-      return response && response.text() || null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  private async initExample(example: IExample): Promise<void> {
-
-    const source = await this.loadExampleText(example.path);
-
-    const $frame: JQuery<HTMLIFrameElement> = $('<iframe>', {
-      'class': 'preview-frame',
-      'src': 'preview.html',
-    });
-
-    this.$preview.empty();
-    this.$preview.append($frame);
-
-    $frame.contents()
-      .find('body')
-      .append($(`<script>window.onload = function() { ${source} }</script>`));
-
-    this.$code.html(source);
-
-    if (this.activeEditor) {
-      $(this.activeEditor.getWrapperElement()).remove();
+        return html`Name: ${this.activeExample.name}, File: ${this.activeExample.file}`;
     }
 
-    this.activeEditor = CodeMirror.fromTextArea(this.$code[0], {
-      mode: 'javascript',
-      theme: 'monokai',
-      lineNumbers: true,
-      styleActiveLine: true,
-      matchBrackets: true,
-      viewportMargin: Infinity,
-      lineWrapping: true,
-      indentUnit: 4,
-    });
-  }
+    private handleEntryClicked(event: CustomEvent<NavLinkClicked>): void {
 
-  private setTitle(title: string): void {
-    document.title = `${title} - ExoJS Examples`;
-    this.editorTitle = `Example Code: ${title}`;
-  }
+        const exampleEntry = event.detail?.exampleEntry ?? null;
+
+        if (exampleEntry && exampleEntry !== this.activeExample) {
+            this.activeExample = exampleEntry;
+        }
+    }
+
+    //
+    // private setTitle(title: string): void {
+    //     document.title = `${title} - ExoJS Examples`;
+    // }
+    //
+    // private setCurrentHash(path: string): void {
+    //     window.location.hash = path;
+    // }
+    //
+    // private updateActiveEditor(source: string): void {
+    //
+    //     if (this.activeEditor) {
+    //         const wrapper = this.activeEditor.getWrapperElement();
+    //
+    //         wrapper.parentNode?.removeChild(wrapper);
+    //
+    //         this.activeEditor = null;
+    //     }
+    //
+    //     if (this.codeElement === null) {
+    //         console.log('Could not find editor code element!');
+    //
+    //         return;
+    //     }
+    //
+    //     this.codeElement.innerText = source;
+    //
+    //     this.activeEditor = CodeMirror.fromTextArea(this.codeElement, {
+    //         mode: 'javascript',
+    //         theme: 'monokai',
+    //         lineNumbers: true,
+    //         styleActiveLine: true,
+    //         matchBrackets: true,
+    //         viewportMargin: Infinity,
+    //         lineWrapping: true,
+    //         indentUnit: 4,
+    //     });
+    // }
+    //
+    // private async createIframeElement(source: string): Promise<HTMLIFrameElement> {
+    //
+    //     return new Promise<HTMLIFrameElement>(((resolve, reject) => {
+    //
+    //         const iframe = document.createElement('iframe');
+    //
+    //         iframe.classList.add('preview-frame');
+    //
+    //         iframe.onload = (): void => {
+    //             try {
+    //                 this.addIframeScript(iframe, source);
+    //             } catch (e) {
+    //                 return reject();
+    //             }
+    //
+    //             resolve(iframe);
+    //         };
+    //
+    //         iframe.onerror = (): void => reject();
+    //
+    //         iframe.src = 'preview.html';
+    //     }));
+    // }
+    //
+    // private addIframeScript(iframe: HTMLIFrameElement, source: string): void {
+    //
+    //     const iframeBody = iframe.contentWindow?.document.body;
+    //
+    //     if (!iframeBody) {
+    //         throw new Error('Could not access iframe body element!');
+    //     }
+    //
+    //     const script = document.createElement('script');
+    //
+    //     script.type = 'text/javascript';
+    //     script.innerHTML = dedent`
+    //         window.onload = function () {
+    //             ${source}
+    //         }
+    //     `;
+    //
+    //     iframeBody.appendChild(script);
+    // }
+    //
+    // private getActiveExample(): IExample | null {
+    //
+    //     const activePath = window.location.hash.slice(1);
+    //
+    //     for (const category of this.config.examples) {
+    //         for (const example of category.examples) {
+    //             if (!activePath || activePath === example.path) {
+    //                 return example;
+    //             }
+    //         }
+    //     }
+    //
+    //     return null;
+    // }
+    //
+    // private async initExample({ path, title }: IExample): Promise<void> {
+    //
+    //     this.setTitle(title);
+    //     this.setCurrentHash(path);
+    //
+    //     const source = await this.loadExampleText(path);
+    //
+    //     if (source === null) {
+    //         console.log(`Error loading example text with path ${path}`);
+    //
+    //         return;
+    //     }
+    //
+    //     const iframe = await this.createIframeElement(source);
+    //
+    //     this.updateActiveEditor(source);
+    // }
+    //
+    // private async loadExampleText(path: string): Promise<string | null> {
+    //
+    //     try {
+    //         const response = await fetch(`examples/js/${path}?no-cache=${Date.now()}`, {
+    //             cache: 'no-cache',
+    //             method: 'GET',
+    //             mode: 'cors',
+    //         });
+    //
+    //         if (!response || !response.ok) {
+    //             return null;
+    //         }
+    //
+    //         return response.text();
+    //     } catch (e) {
+    //         return null;
+    //     }
+    // }
 }

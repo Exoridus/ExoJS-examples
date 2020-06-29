@@ -1,11 +1,16 @@
 import { css, customElement, LitElement, property } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { CSSResult } from 'lit-element/src/lib/css-tag';
-import { IExample, ILoadExamplesEvent } from "../../types";
+import { ExampleEntry } from '../../classes/ExampleService';
+
+export interface NavLinkClicked {
+    exampleEntry: ExampleEntry;
+}
 
 @customElement('my-navigation-link')
 export default class NavigationLink extends LitElement {
-    @property({type : Object}) example: IExample | null = null;
+
+    @property({type : Object}) exampleEntry?: ExampleEntry;
 
     public static get styles(): CSSResult {
 
@@ -38,20 +43,20 @@ export default class NavigationLink extends LitElement {
 
     public render(): TemplateResult {
 
-        if (this.example === null) {
-            throw new Error('[NavigationSection]: prop example must be set!');
+        if (!this.exampleEntry) {
+            return html``;
         }
 
-        const { title, path } = this.example;
+        const { name, file } = this.exampleEntry;
 
         return html`
             <a 
-                href="#${path}" 
-                title="${title}"
+                href="#${file}" 
+                title="${name}"
                 class="navigation-link"
                 @click="${this.handleClick}"
             >
-                ${title}
+                ${name}
             </a>`;
     }
 
@@ -59,9 +64,9 @@ export default class NavigationLink extends LitElement {
 
         event.preventDefault();
 
-        this.dispatchEvent(new CustomEvent<ILoadExamplesEvent>('click-example', {
+        this.dispatchEvent(new CustomEvent<NavLinkClicked>('nav-link-clicked', {
             detail: {
-                example: this.example
+                exampleEntry: this.exampleEntry!
             },
             bubbles: true,
             composed: true,

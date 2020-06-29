@@ -1,7 +1,7 @@
-import resolve from '@rollup/plugin-node-resolve';
+import resolve  from '@rollup/plugin-node-resolve';
 import cleaner from 'rollup-plugin-cleaner';
-import json from 'rollup-plugin-json';
 import typescript from 'rollup-plugin-typescript2';
+import postcss from 'rollup-plugin-postcss';
 import pkg from './package.json';
 
 export default {
@@ -28,10 +28,12 @@ export default {
         resolve({
             mainFields: ['module', 'main', 'browser'],
         }),
-        json(),
         typescript({
             typescript: require('typescript'),
         }),
+        postcss({
+            modules: true,
+        })
     ],
     external: [
         ...Object.keys(pkg.dependencies || {}),

@@ -1,0 +1,72 @@
+{
+  "rendering": [
+    {
+      "name": "Sprite",
+      "file": "sprite.js"
+    },
+    {
+      "name": "Container",
+      "file": "container.js"
+    },
+    {
+      "name": "Blendmodes",
+      "file": "blendmodes.js"
+    },
+    {
+      "name": "Tinted Sprites",
+      "file": "tinted-sprites.js"
+    },
+    {
+      "name": "View Handling",
+      "file": "view-handling.js"
+    },
+    {
+      "name": "Render to Texture",
+      "file": "render-to-texture.js"
+    },
+    {
+      "name": "Display Text",
+      "file": "display-text.js"
+    },
+    {
+      "name": "Display Video",
+      "file": "display-video.js"
+    },
+    {
+      "name": "Display SVG",
+      "file": "display-svg.js"
+    }
+  ],
+  "input": [
+    {
+      "name": "Gamepad",
+      "file": "gamepad.js"
+    }
+  ],
+  "collision-detection": [
+    {
+      "name": "Rectangles",
+      "file": "rectangles.js"
+    }
+  ],
+  "particle-system": [
+    {
+      "name": "Bonfire",
+      "file": "bonfire.js"
+    },
+    {
+      "name": "Fireworks",
+      "file": "fireworks.js"
+    }
+  ],
+  "extras": [
+    {
+      "name": "Audio Visualisation",
+      "file": "audio-visualisation.js"
+    },
+    {
+      "name": "Benchmark",
+      "file": "benchmark.js"
+    }
+  ]
+}
