@@ -1,0 +1,33 @@
+@import "../../scss/variables";
+
+.app {
+    min-width: 1120px;
+    transition: transform 350ms ease;
+    padding-left: 320px;
+    position: absolute;
+    display: block;
+    width: 100%;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.app-navigation-headline {
+    height: 64px;
+    padding: 8px 16px;
+    line-height: 48px;
+    font-size: 20px;
+    font-weight: $font-weight-medium;
+    color: $color-white;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    margin: 0;
+}
+
+.app-content {
+    position: relative;
+    overflow: auto;
+    overflow-x: hidden;
+    height: 100%;
+}

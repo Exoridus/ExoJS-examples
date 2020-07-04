@@ -1,0 +1,48 @@
+@import "../../scss/variables";
+
+.button {
+    height: 48px;
+    padding: 6px 4px;
+    -webkit-tap-highlight-color: $color-transparent;
+    background: $color-transparent;
+    border: 0 none;
+    display: inline-block;
+    outline: none;
+    cursor: pointer;
+    text-decoration: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &:hover,
+    &:focus {
+        .button-content {
+            background-color: rgba($color-white, 0.12);
+        }
+    }
+
+    &:active {
+        .button-content {
+            background-color: rgba(#CCCCCC, 0.25);
+        }
+    }
+}
+
+.button-content {
+    transition: background-color 0.3s linear;
+    height: 36px;
+    min-width: 64px;
+    line-height: 36px;
+    padding: 0 8px;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    display: block;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: $font-weight-medium;
+    position: relative;
+    border: 0 none;
+    outline: none;
+    background-color: $color-transparent;
+    color: $color-accent;
+}

@@ -1,0 +1,17 @@
+@import "../../scss/variables";
+
+.navigation-title {
+    transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);
+    padding: 0 16px;
+    height: 48px;
+    font-size: 14px;
+    line-height: 48px;
+    -webkit-tap-highlight-color: $color-transparent;
+    font-weight: $font-weight-medium;
+    color: $color-accent;
+    text-decoration: none;
+    position: relative;
+    cursor: default;
+    display: block;
+    width: 100%;
+}

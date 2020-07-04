@@ -1,0 +1,16 @@
+@import "../../scss/variables";
+
+.editor-code {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    border-radius: 2px;
+    background: $color-card;
+    position: relative;
+    height: auto;
+    width: 100%;
+}
+
+.codemirror-element {
+    background: transparent;
+    resize: none;
+    border: 0;
+}

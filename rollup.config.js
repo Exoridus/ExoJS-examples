@@ -2,10 +2,12 @@ import resolve  from '@rollup/plugin-node-resolve';
 import cleaner from 'rollup-plugin-cleaner';
 import typescript from 'rollup-plugin-typescript2';
 import postcss from 'rollup-plugin-postcss';
+import autoprefixer from 'autoprefixer';
+import sass from 'rollup-plugin-sass';
 import pkg from './package.json';
 
 export default {
-    input: 'src/ts/index.ts',
+    input: 'src/index.ts',
     output: [
         {
             file: pkg.main,
@@ -32,8 +34,14 @@ export default {
             typescript: require('typescript'),
         }),
         postcss({
-            modules: true,
-        })
+            plugins: [
+                autoprefixer(),
+            ],
+            output: false,
+            modules: {
+                localsConvention: 'dashesOnly'
+            }
+        }),
     ],
     external: [
         ...Object.keys(pkg.dependencies || {}),
