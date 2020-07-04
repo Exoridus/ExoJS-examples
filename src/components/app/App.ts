@@ -16,6 +16,8 @@ export default class App extends MobxLitElement {
     public connectedCallback(): void {
         super.connectedCallback();
 
+        console.log('styles', styles);
+
         autorun(() => {
             const currentHash = this.locationService.currentHash;
 
@@ -210,8 +212,4 @@ export default class App extends MobxLitElement {
     //         return null;
     //     }
     // }
-
-    public createRenderRoot() {
-        return this;
-    }
 }

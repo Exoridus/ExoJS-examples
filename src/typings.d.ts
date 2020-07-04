@@ -1,7 +1,5 @@
 declare module '*.module.scss' {
-    interface IClassNames {
-        [className: string]: string
-    }
-    const classNames: IClassNames;
+    const classNames: { [className: string]: string; app: any };
     export = classNames;
 }
+

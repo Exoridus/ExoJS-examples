@@ -15,8 +15,4 @@ export default class Navigation extends LitElement {
             </aside>
         `;
     }
-
-    public createRenderRoot() {
-        return this;
-    }
 }
