@@ -42,17 +42,15 @@ export default {
             mainFields: ['module', 'main', 'browser'],
         }),
         styles({
-            extensions: ['.css', '.scss'],
-            mode: 'emit',
-            dts: true,
             import: true,
+            extensions: ['.css', '.scss'],
+            include: ['*.scss'],
+            mode: 'inject',
+            dts: true,
             modules: true,
             autoModules: true,
             sourcemap: true,
-            sass: {
-                fibers: true
-            }
-            // include: ['*.scss']
+
         }),
         // litcss(),
         // postcss({
