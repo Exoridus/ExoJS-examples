@@ -1,9 +1,11 @@
 import styles, { css } from './Navigation.module.scss';
 
-import { customElement, html, LitElement, TemplateResult } from 'lit-element';
+import { CSSResult, customElement, html, LitElement, TemplateResult, unsafeCSS } from 'lit-element';
 
 @customElement('my-navigation')
 export default class Navigation extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     public render(): TemplateResult {
 

@@ -12,8 +12,6 @@ export class LocationService {
 
     @autobind
     private handleHashChange(): void {
-        console.log('hash changed', window.location.hash);
-
         this.updateCurrentHash();
     }
 

@@ -1,4 +1,5 @@
 import './index.scss';
+
 import './components/index';
 import { html, render } from 'lit-html';
 import { javascript } from '@codemirror/next/lang-javascript';
@@ -18,5 +19,5 @@ globalDependencies
             mode: 'cors',
         }
     })
-    .then(() => render(html`<my-app></my-app>`, window.document.body))
+    .then(() => render(html`<my-app />`, window.document.body))
     .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));

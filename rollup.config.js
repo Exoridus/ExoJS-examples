@@ -46,17 +46,18 @@ export default [
             typescript({ typescript: require('typescript') }),
             styles({
                 extensions: ['.scss'],
-                include: ['**/*.scss'],
                 use: ['sass'],
                 mode: ['extract', 'examples.css'],
                 modules: {
-                    generateScopedName: '[name][local]_[hash:8]',
+                    generateScopedName: '[local]_[hash:8]',
                     failOnWrongOrder: true,
                 },
-                autoModules: '[name].module.[ext]',
+                autoModules: true,
                 sourcemap: true,
                 dts: true,
-                import: true,
+                import: {
+                    extensions: ['.css', '.scss']
+                },
                 url: {
                     publicPath: './public',
                     hash: false,

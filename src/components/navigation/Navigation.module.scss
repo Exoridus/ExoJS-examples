@@ -1,4 +1,5 @@
 @import "../../scss/variables";
+@import "../../scss/scrollbars";
 
 .navigation {
     transition: all 350ms ease;
@@ -6,7 +7,7 @@
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     background: $color-navigation;
     position: absolute;
-    overflow: visible;
+    overflow: hidden;
     outline: none;
     height: 100%;
     bottom: 0;
@@ -16,7 +17,7 @@
 
 .viewport {
     position: absolute;
-    overflow: auto;
+    overflow-y: auto;
     width: 100%;
     bottom: 0;
     left: 0;

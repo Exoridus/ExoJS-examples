@@ -19,7 +19,7 @@ const closeProcess = (...errors) => {
 
 const createApp = (libPath) => {
     const app = express();
-    const basePath = resolve(__dirname, '..');
+    const basePath = __dirname;
 
     app.use('/dist', serveStatic(resolve(basePath, 'dist')));
     app.use('/vendor', serveStatic(resolve(basePath, 'node_modules/stats-js/build')));
