@@ -1,10 +1,12 @@
-import styles from './NavigationSection.module.scss';
+import styles, { css } from './NavigationSection.module.scss';
 
-import { customElement, LitElement, property } from 'lit-element';
+import { CSSResult, customElement, LitElement, property, unsafeCSS } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 
 @customElement('my-navigation-section')
 export default class NavigationSection extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: String }) headline?: string;
 
@@ -16,9 +18,5 @@ export default class NavigationSection extends LitElement {
                 <slot></slot>
             </div>
         `;
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

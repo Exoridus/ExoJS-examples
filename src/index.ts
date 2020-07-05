@@ -1,5 +1,4 @@
-import './scss/index.scss';
-
+import './index.scss';
 import './components/index';
 import { html, render } from 'lit-html';
 import { javascript } from '@codemirror/next/lang-javascript';

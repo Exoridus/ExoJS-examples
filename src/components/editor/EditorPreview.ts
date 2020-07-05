@@ -1,17 +1,20 @@
-import styles from './EditorPreview.module.scss';
+import styles, { css } from './EditorPreview.module.scss';
 
 import {
+    CSSResult,
     customElement,
     html,
     LitElement,
     property,
-    TemplateResult,
+    TemplateResult, unsafeCSS,
 } from 'lit-element';
 import dedent from 'dedent';
 import { until } from 'lit-html/directives/until';
 
 @customElement('my-editor-preview')
 export default class EditorPreview extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property() private previewUrl: string = '';
     @property() private code: string = '';
@@ -72,9 +75,5 @@ export default class EditorPreview extends LitElement {
         `;
 
         iframeBody.appendChild(script);
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

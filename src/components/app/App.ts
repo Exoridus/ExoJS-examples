@@ -1,6 +1,6 @@
-import styles from './App.module.scss';
+import styles, { css } from './App.module.scss';
 
-import { customElement, html, TemplateResult } from 'lit-element';
+import { CSSResult, customElement, html, TemplateResult, unsafeCSS } from 'lit-element';
 import { MobxLitElement } from '@adobe/lit-mobx';
 import { ExampleEntries, ExampleEntry, ExampleService } from '../../classes/ExampleService';
 import { globalDependencies } from '../../classes/globalDependencies';
@@ -13,10 +13,10 @@ export default class App extends MobxLitElement {
     private exampleService: ExampleService = globalDependencies.get('exampleService');
     private locationService: LocationService = globalDependencies.get('locationService');
 
+    public static styles: CSSResult = unsafeCSS(css);
+
     public connectedCallback(): void {
         super.connectedCallback();
-
-        console.log('styles', styles);
 
         autorun(() => {
             const currentHash = this.locationService.currentHash;
@@ -197,7 +197,7 @@ export default class App extends MobxLitElement {
     // private async loadExampleText(path: string): Promise<string | null> {
     //
     //     try {
-    //         const response = await fetch(`examples/js/${path}?no-cache=${Date.now()}`, {
+    //         const response = await fetch(`public/js/${path}?no-cache=${Date.now()}`, {
     //             cache: 'no-cache',
     //             method: 'GET',
     //             mode: 'cors',

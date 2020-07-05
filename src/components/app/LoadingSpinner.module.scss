@@ -1,4 +1,4 @@
-@keyframes dash-loading {
+@keyframes dashLoading {
     0%{
         stroke-dasharray: 1,200;
         stroke-dashoffset: 0;
@@ -13,7 +13,7 @@
     }
 }
 
-.loading-indicator {
+.loadingIndicator {
     width:  100px;
     height:  100px;
     position: relative;
@@ -37,7 +37,7 @@
 }
 
 .path {
-    animation: dash-loading 1.5s ease-in-out infinite;
+    animation: dashLoading 1.5s ease-in-out infinite;
     fill: rgba(0, 0, 0, 0);
     stroke: #FFFF00;
     stroke-dasharray: 1,200;

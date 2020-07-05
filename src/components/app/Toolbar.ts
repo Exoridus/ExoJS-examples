@@ -1,14 +1,11 @@
-import styles from './Toolbar.module.scss';
+import styles, { css } from './Toolbar.module.scss';
 
-import {
-    customElement,
-    html,
-    LitElement, property,
-    TemplateResult,
-} from 'lit-element';
+import { CSSResult, customElement, html, LitElement, property, TemplateResult, unsafeCSS } from 'lit-element';
 
 @customElement('my-toolbar')
 export default class Toolbar extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: String }) public title = '';
 
@@ -22,9 +19,5 @@ export default class Toolbar extends LitElement {
                 </div>
             </div>
         `;
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

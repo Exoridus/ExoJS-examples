@@ -1,79 +1,74 @@
 import pkg from './package.json';
 import resolve  from '@rollup/plugin-node-resolve';
-import cleaner from 'rollup-plugin-cleaner';
 import typescript from 'rollup-plugin-typescript2';
-import dev from 'rollup-plugin-dev'
 import progress from 'rollup-plugin-progress';
 import styles from "rollup-plugin-styles";
-import litcss from "rollup-plugin-lit-css";
+import externals from "rollup-plugin-node-externals";
+import json from "@rollup/plugin-json";
+import commonjs from "@rollup/plugin-commonjs";
+import del from 'rollup-plugin-delete';
+import autoprefixer from 'autoprefixer';
 
-export default {
-    input: 'src/index.ts',
-    output: [
-        {
-            file: pkg.main,
-            format: 'cjs',
-            sourcemap: true,
-        },
-        {
-            file: pkg.module,
-            format: 'es',
-            sourcemap: true,
-        },
-        {
-            file: pkg.browser,
-            format: 'iife',
-            name: 'Examples',
-            sourcemap: true,
-        },
-    ],
-    plugins: [
-        dev(),
-        progress({
-            clearLine: true,
-        }),
-        cleaner({
-            targets: ['dist'],
-        }),
-        typescript({
-            typescript: require('typescript'),
-        }),
-        resolve({
-            mainFields: ['module', 'main', 'browser'],
-        }),
-        styles({
-            import: true,
-            extensions: ['.css', '.scss'],
-            include: ['*.scss'],
-            mode: 'inject',
-            dts: true,
-            modules: true,
-            autoModules: true,
-            sourcemap: true,
-
-        }),
-        // litcss(),
-        // postcss({
-        //     preprocessor: (content, id) => new Promise((resolve, reject) => {
-        //         const result = sass.renderSync({ file: id })
-        //
-        //         console.log('result', result);
-        //
-        //         resolve({ code: result.css.toString() })
-        //     }),
-        //     plugins: [
-        //         autoprefixer(),
-        //     ],
-        //     modules: {
-        //         localsConvention: 'dashesOnly',
-        //     },
-        //     extensions: ['.scss'],
-        //     extract: true,
-        //     sourceMap: true,
-        // }),
-    ],
-    external: [
-        ...Object.keys(pkg.dependencies || {}),
-        ...Object.keys(pkg.peerDependencies || {}),
-    ],
-};
+export default [
+    {
+        input: 'src/index.ts',
+        output: [
+            {
+                file: pkg.main,
+                format: 'cjs',
+                sourcemap: true,
+                assetFileNames: "[name][extname]",
+            },
+            {
+                file: pkg.module,
+                format: 'es',
+                sourcemap: true,
+                assetFileNames: "[name][extname]",
+            },
+            {
+                file: pkg.browser,
+                format: 'iife',
+                name: 'Examples',
+                sourcemap: true,
+                assetFileNames: "[name][extname]",
+            },
+        ],
+        plugins: [
+            progress({ clearLine: true }),
+            del({ targets: ['dist/*'] }),
+            resolve({
+                mainFields: ['module', 'main', 'browser'],
+                extensions: [".ts", ".mjs", ".js", ".json"],
+            }),
+            externals(),
+            json(),
+            commonjs(),
+            typescript({ typescript: require('typescript') }),
+            styles({
+                extensions: ['.scss'],
+                include: ['**/*.scss'],
+                use: ['sass'],
+                mode: ['extract', 'examples.css'],
+                modules: {
+                    generateScopedName: '[name][local]_[hash:8]',
+                    failOnWrongOrder: true,
+                },
+                autoModules: '[name].module.[ext]',
+                sourcemap: true,
+                dts: true,
+                import: true,
+                url: {
+                    publicPath: './public',
+                    hash: false,
+                },
+                plugins: [
+                    autoprefixer,
+                ]
+            }),
+        ],
+        external: [
+            ...Object.keys(pkg.dependencies || {}),
+            ...Object.keys(pkg.peerDependencies || {}),
+        ],
+    },
+];

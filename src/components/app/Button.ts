@@ -1,14 +1,11 @@
-import styles from './Button.module.scss';
+import styles, { css } from './Button.module.scss';
 
-import {
-    customElement,
-    html,
-    LitElement,
-    TemplateResult,
-} from 'lit-element';
+import { CSSResult, customElement, html, LitElement, TemplateResult, unsafeCSS } from 'lit-element';
 
 @customElement('my-button')
 export default class Button extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     public render(): TemplateResult {
 
@@ -19,9 +16,5 @@ export default class Button extends LitElement {
                 </div>
             </div>
         `;
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

@@ -1,4 +1,4 @@
-import styles from './Navigation.module.scss';
+import styles, { css } from './Navigation.module.scss';
 
 import { customElement, html, LitElement, TemplateResult } from 'lit-element';
 

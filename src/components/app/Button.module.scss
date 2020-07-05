@@ -16,19 +16,19 @@
 
     &:hover,
     &:focus {
-        .button-content {
+        .buttonContent {
             background-color: rgba($color-white, 0.12);
         }
     }
 
     &:active {
-        .button-content {
+        .buttonContent {
             background-color: rgba(#CCCCCC, 0.25);
         }
     }
 }
 
-.button-content {
+.buttonContent {
     transition: background-color 0.3s linear;
     height: 36px;
     min-width: 64px;

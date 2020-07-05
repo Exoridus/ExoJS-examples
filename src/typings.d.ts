@@ -1,5 +1,8 @@
 declare module '*.module.scss' {
-    const classNames: { [className: string]: string; app: any };
+    const classNames: {
+        [className: string]: string;
+        css: string;
+    };
     export = classNames;
 }
 

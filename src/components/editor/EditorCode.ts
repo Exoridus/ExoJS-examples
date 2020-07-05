@@ -1,10 +1,12 @@
-import styles from './EditorCode.module.scss';
+import styles, { css } from './EditorCode.module.scss';
 
-import { customElement, html, LitElement, property, query, TemplateResult } from 'lit-element';
+import { CSSResult, customElement, html, LitElement, property, query, TemplateResult, unsafeCSS } from 'lit-element';
 import CodeMirror from 'codemirror';
 
 @customElement('my-editor-code')
 export default class EditorCode extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: String }) public title = '';
     @property({ type: String }) public code = '';
@@ -57,9 +59,5 @@ export default class EditorCode extends LitElement {
         //     bubbles: true,
         //     composed: true,
         // }));
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

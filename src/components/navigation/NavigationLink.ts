@@ -1,10 +1,12 @@
-import styles from './NavigationLink.module.scss';
+import styles, { css } from './NavigationLink.module.scss';
 
-import { customElement, LitElement, property } from 'lit-element';
+import { CSSResult, customElement, LitElement, property, unsafeCSS } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 
 @customElement('my-navigation-link')
 export default class NavigationLink extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: String }) href?: string;
 
@@ -15,9 +17,5 @@ export default class NavigationLink extends LitElement {
                 <slot></slot>
             </a>
         `;
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

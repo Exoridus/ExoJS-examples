@@ -1,9 +1,20 @@
-import styles from './Editor.module.scss';
+import styles, { css } from './Editor.module.scss';
 
-import { customElement, html, internalProperty, LitElement, property, TemplateResult } from 'lit-element';
+import {
+    CSSResult,
+    customElement,
+    html,
+    internalProperty,
+    LitElement,
+    property,
+    TemplateResult,
+    unsafeCSS,
+} from 'lit-element';
 
 @customElement('my-editor')
 export default class Editor extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: String }) public code: string = '';
     @property({ type: String }) public examplePath: string = '';
@@ -33,7 +44,7 @@ export default class Editor extends LitElement {
     //     }
     //
     //     try {
-    //         const response = await fetch(`examples/js/${this.examplePath}?no-cache=${Date.now()}`, {
+    //         const response = await fetch(`public/js/${this.examplePath}?no-cache=${Date.now()}`, {
     //             cache: 'no-cache',
     //             method: 'GET',
     //             mode: 'cors',
@@ -59,8 +70,4 @@ export default class Editor extends LitElement {
     //
     //     this.code = code;
     // }
-
-    public createRenderRoot() {
-        return this;
-    }
 }

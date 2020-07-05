@@ -1,15 +1,12 @@
-import styles from './LoadingSpinner.module.scss';
+import styles, { css } from './LoadingSpinner.module.scss';
 
-import {
-    customElement,
-    html,
-    LitElement, property,
-    TemplateResult,
-} from 'lit-element';
+import { CSSResult, customElement, html, LitElement, property, TemplateResult, unsafeCSS } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 
 @customElement('my-loading-spinner')
 export default class LoadingSpinner extends LitElement {
+
+    public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: Boolean }) public centered = false;
 
@@ -22,9 +19,5 @@ export default class LoadingSpinner extends LitElement {
                 </svg>
             </div>
         `;
-    }
-
-    public createRenderRoot() {
-        return this;
     }
 }

@@ -15,8 +15,8 @@ export type ExampleEntries = Map<string, Array<ExampleEntry>>;
 export class ExampleService {
 
     private readonly requestService: RequestService;
-    private readonly sourcePath = `examples/js`;
-    private readonly manifestPath = `examples/manifest.json`;
+    private readonly sourcePath = `public/js`;
+    private readonly manifestPath = `public/examples.json`;
 
     @observable
     public exampleEntries: ExampleEntries | null = null;
