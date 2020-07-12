@@ -1,5 +1,6 @@
 **/*.d.ts
 **/*.js
+**/*.scss
 dist/*
 public/*
-scripts/*
+node_modules/*

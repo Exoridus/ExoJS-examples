@@ -6,10 +6,9 @@ import { javascript } from '@codemirror/next/lang-javascript';
 import { highlightActiveLine } from '@codemirror/next/highlight-selection';
 import { bracketMatching } from '@codemirror/next/matchbrackets';
 import { globalDependencies } from './classes/globalDependencies';
+import { configure } from 'mobx';
 
-javascript();
-highlightActiveLine();
-bracketMatching();
+configure({ enforceActions: 'observed' });
 
 globalDependencies
     .loadDependencies({

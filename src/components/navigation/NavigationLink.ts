@@ -8,7 +8,7 @@ export default class NavigationLink extends LitElement {
 
     public static styles: CSSResult = unsafeCSS(css);
 
-    @property({ type: String }) href?: string;
+    @property({ type: String }) public href?: string;
 
     public render(): TemplateResult {
 

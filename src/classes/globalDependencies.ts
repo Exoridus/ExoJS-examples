@@ -14,7 +14,7 @@ export interface DependencyConfig {
 }
 
 export const globalDependencies = new DependencyContainer<DependencyTypes, DependencyConfig>({
-    requestService: (container, config) => new RequestService(config.requestOptions),
-    exampleService: async (container) => new ExampleService(container.get('requestService')),
-    locationService: () => new LocationService(),
+    requestService: (container, config): RequestService => new RequestService(config.requestOptions),
+    exampleService: (container): ExampleService => new ExampleService(container.get('requestService')),
+    locationService: (): LocationService => new LocationService(),
 });

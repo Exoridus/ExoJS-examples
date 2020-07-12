@@ -8,15 +8,15 @@ export default class NavigationSection extends LitElement {
 
     public static styles: CSSResult = unsafeCSS(css);
 
-    @property({ type: String }) headline?: string;
+    @property({ type: String }) public headline?: string;
 
     public render(): TemplateResult {
 
         return html`
-            <div class=${styles.navigationSection}>
+            <section class=${styles.navigationSection}>
                 <my-navigation-title>${this.headline}</my-navigation-title>
                 <slot></slot>
-            </div>
+            </section>
         `;
     }
 }

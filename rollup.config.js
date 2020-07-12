@@ -8,6 +8,7 @@ import json from "@rollup/plugin-json";
 import commonjs from "@rollup/plugin-commonjs";
 import del from 'rollup-plugin-delete';
 import autoprefixer from 'autoprefixer';
+import { eslint } from "rollup-plugin-eslint";
 
 export default [
     {
@@ -32,10 +33,25 @@ export default [
                 sourcemap: true,
                 assetFileNames: "[name][extname]",
             },
+            {
+                file: pkg.minimized,
+                format: 'iife',
+                name: 'Examples',
+                sourcemap: true,
+                assetFileNames: "[name][extname]",
+            },
         ],
         plugins: [
             progress({ clearLine: true }),
-            del({ targets: ['dist/*'] }),
+            del({
+                targets: [
+                    'dist/*',
+                    'src/**/*.scss.d.ts',
+                ],
+            }),
+            eslint({
+                fix: true,
+            }),
             resolve({
                 mainFields: ['module', 'main', 'browser'],
                 extensions: [".ts", ".mjs", ".js", ".json"],
@@ -43,7 +59,6 @@ export default [
             externals(),
             json(),
             commonjs(),
-            typescript({ typescript: require('typescript') }),
             styles({
                 extensions: ['.scss'],
                 use: ['sass'],
@@ -66,6 +81,7 @@ export default [
                     autoprefixer,
                 ]
             }),
+            typescript({ typescript: require('typescript') }),
         ],
         external: [
             ...Object.keys(pkg.dependencies || {}),

@@ -3,37 +3,84 @@ import styles, { css } from './EditorPreview.module.scss';
 import {
     CSSResult,
     customElement,
-    html,
+    html, internalProperty,
     LitElement,
     property,
     TemplateResult, unsafeCSS,
 } from 'lit-element';
-import dedent from 'dedent';
-import { until } from 'lit-html/directives/until';
 
 @customElement('my-editor-preview')
 export default class EditorPreview extends LitElement {
 
     public static styles: CSSResult = unsafeCSS(css);
 
-    @property() private previewUrl: string = '';
-    @property() private code: string = '';
+    @property({ type: String }) public sourceCode: string | null = null;
+    // @internalProperty() iframeElement: HTMLIFrameElement | null = null;
 
-    private pendingIframe: Promise<HTMLIFrameElement> | null = null;
-
-    public connectedCallback(): void {
-        super.connectedCallback();
-
-        this.pendingIframe = this.createIframeElement();
-    }
+    // private pendingIframe: Promise<HTMLIFrameElement> | null = null;
+    //
+    // public connectedCallback(): void {
+    //     super.connectedCallback();
+    //
+    //     this.pendingIframe = this.createIframeElement();
+    // }
 
     public render(): TemplateResult {
 
-        if (this.pendingIframe === null) {
-            throw new Error('Pending iframe must be set!');
+        if (this.sourceCode === null) {
+            return html`<span>No Sourcecode to preview...</span>`;
         }
 
-        return html`${until(this.pendingIframe, html`<span>Loading preview...</span>`)}`;
+        const iframeSrc = 'preview.html';
+
+        return html`
+            <iframe 
+                class=${styles.preview} 
+                onload=${this.onLoadIframe}
+                onerror=${this.onErrorIframe}
+                src=${iframeSrc}
+             />
+        `;
+    }
+
+    // public updated() {
+    //     const iframe = this.shadowRoot!.querySelector(styles.preview) as HTMLIFrameElement;
+    //
+    //     if (!iframe) {
+    //         throw new Error('Could not find iframe element!');
+    //     }
+    //
+    //     iframe.onload = (): void => {
+    //         try {
+    //             this.addIframeScript(iframe, this.sourceCode!);
+    //         } catch (error) {
+    //             console.error('Could not add source code to iframe!', error);
+    //         }
+    //     };
+    //
+    //     iframe.onerror = (error): void => {
+    //         console.error('Could not load iframe source!', error);
+    //     };
+    //
+    //     iframe.src = 'preview.html';
+    // }
+
+    private onLoadIframe(event: any): void {
+        console.log('onLoadIframe', event);
+        // try {
+        //     this.addIframeScript(iframe, this.sourceCode);
+        // } catch (e) {
+        //     return reject();
+        // }
+    }
+
+    private onErrorIframe(event: any): void {
+        console.log('onErrorIframe', event);
+        // try {
+        //     this.addIframeScript(iframe, this.sourceCode);
+        // } catch (e) {
+        //     return reject();
+        // }
     }
 
     private async createIframeElement(): Promise<HTMLIFrameElement> {
@@ -45,7 +92,7 @@ export default class EditorPreview extends LitElement {
             iframe.classList.add(styles.preview);
             iframe.onload = (): void => {
                 try {
-                    this.addIframeScript(iframe, this.code);
+                    this.addIframeScript(iframe, this.sourceCode!);
                 } catch (e) {
                     return reject();
                 }
@@ -53,7 +100,7 @@ export default class EditorPreview extends LitElement {
                 resolve(iframe);
             };
             iframe.onerror = (): void => reject();
-            iframe.src = this.previewUrl;
+            iframe.src = 'preview.html';
         }));
     }
 
@@ -68,7 +115,7 @@ export default class EditorPreview extends LitElement {
         const script = document.createElement('script');
 
         script.type = 'text/javascript';
-        script.innerHTML = dedent`
+        script.innerHTML = `
             window.onload = function () {
                 ${source}
             }

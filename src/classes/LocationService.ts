@@ -1,5 +1,4 @@
 import { action, observable } from 'mobx';
-import autobind from 'autobind-decorator';
 
 export class LocationService {
 
@@ -10,17 +9,14 @@ export class LocationService {
         window.addEventListener('hashchange', this.handleHashChange);
     }
 
-    @autobind
-    private handleHashChange(): void {
-        this.updateCurrentHash();
+    public setHash(hash: string): void {
+        if (hash && hash !== this.currentHash) {
+            window.location.hash = hash;
+        }
     }
 
-    @action
-    private updateCurrentHash(): void {
-        const hash = window.location.hash.slice(1);
-
-        if (this.currentHash !== hash) {
-            this.currentHash = hash;
-        }
+    @action.bound
+    private handleHashChange(): void {
+        this.currentHash = window.location.hash.slice(1);
     }
 }

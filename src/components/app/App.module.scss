@@ -17,7 +17,37 @@
     bottom: 0;
 }
 
-.appNavigationHeadline {
+.navigation {
+    transition: all 350ms ease;
+    width: 320px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    background: $color-navigation;
+    position: absolute;
+    overflow: hidden;
+    outline: none;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    top: 0;
+}
+
+.viewport {
+    position: absolute;
+    overflow-y: auto;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    top: 0;
+}
+
+.content {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.title {
     height: 64px;
     padding: 8px 16px;
     line-height: 48px;
@@ -28,11 +58,4 @@
     overflow: hidden;
     cursor: default;
     margin: 0;
-}
-
-.appContent {
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 100%;
 }

@@ -1,42 +1,42 @@
-export interface URLParams {
+import { FetchRequest } from './Request';
+
+export interface UrlParams {
     [param: string]: string | number;
 }
 
 export class RequestService {
 
     private readonly requestOptions: RequestInit;
+    private readonly uniqueRequests: Map<string, FetchRequest> = new Map();
 
     public constructor(requestOptions: RequestInit) {
         this.requestOptions = requestOptions;
     }
 
-    public async fetchJsonData<T>(path: string, params?: URLParams): Promise<T | null> {
+    public createRequest(path: string, urlParams?: UrlParams): FetchRequest {
 
-        const response = await this.fetch(path, params);
+        const url = this.buildUrl(path, urlParams);
 
-        return response && (await response.json() as T);
+        return new FetchRequest(url.toString(), this.requestOptions);
     }
 
-    public async fetchTextData(path: string, params?: URLParams): Promise<string | null> {
+    public createUniqueRequest(path: string, urlParams?: UrlParams): FetchRequest {
 
-        const response = await this.fetch(path, params);
+        const url = this.buildUrl(path, urlParams);
+        const uniqueRequest = this.uniqueRequests.get(url);
 
-        return response && (await response.text());
-    }
-
-    private async fetch(path: string, params?: URLParams): Promise<Response | null> {
-
-        const url = this.createUrl(path, params);
-        const response = await fetch(url.toString(), this.requestOptions);
-
-        if (!response || !response.ok) {
-            return null;
+        if (uniqueRequest) {
+            uniqueRequest.cancel();
         }
 
-        return response;
+        const request = new FetchRequest(url, this.requestOptions);
+
+        this.uniqueRequests.set(url, request);
+
+        return request;
     }
 
-    private createUrl(path: string, params?: URLParams): URL {
+    private buildUrl(path: string, params?: UrlParams): string {
 
         const url = new URL(path, window.location.origin);
 
@@ -46,6 +46,6 @@ export class RequestService {
             }
         }
 
-        return url;
+        return url.toString();
     }
 }

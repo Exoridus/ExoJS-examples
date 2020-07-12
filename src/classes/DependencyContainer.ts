@@ -1,10 +1,12 @@
-export type DependencyFactories<Dependencies extends object, Config extends object> = {
+import { Obj } from '../typings';
+
+export type DependencyFactories<Dependencies extends Obj, Config extends Obj> = {
     [Name in keyof Dependencies]: (container: DependencyContainer<Dependencies, Config>, data: Config) => Dependencies[Name] | Promise<Dependencies[Name]>;
 };
 
-type DependencyMap<Dependencies extends object> = Map<keyof Dependencies, Dependencies[keyof Dependencies]>;
+type DependencyMap<Dependencies extends Obj> = Map<keyof Dependencies, Dependencies[keyof Dependencies]>;
 
-export class DependencyContainer<Dependencies extends object, Config extends object> {
+export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
 
     private readonly dependencyFactories: DependencyFactories<Dependencies, Config>;
     private readonly dependencies: DependencyMap<Dependencies> = new Map();

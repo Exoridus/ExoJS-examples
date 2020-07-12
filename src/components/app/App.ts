@@ -2,10 +2,10 @@ import styles, { css } from './App.module.scss';
 
 import { CSSResult, customElement, html, TemplateResult, unsafeCSS } from 'lit-element';
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { ExampleEntries, ExampleEntry, ExampleService } from '../../classes/ExampleService';
+import { ExampleService } from '../../classes/ExampleService';
 import { globalDependencies } from '../../classes/globalDependencies';
 import { LocationService } from '../../classes/LocationService';
-import { autorun, toJS } from 'mobx';
+import { reaction } from 'mobx';
 
 @customElement('my-app')
 export default class App extends MobxLitElement {
@@ -18,10 +18,23 @@ export default class App extends MobxLitElement {
     public connectedCallback(): void {
         super.connectedCallback();
 
-        autorun(() => {
-            const currentHash = this.locationService.currentHash;
+        reaction(() => [
+            this.locationService.currentHash,
+            this.exampleService.hasExamples,
+        ] as [string, boolean], ([currentHash, hasExamples]) => {
+            if (!hasExamples) {
+                return;
+            }
 
-            console.log('autorun() triggered. currentHash: ', currentHash);
+            if (!currentHash) {
+                this.locationService.setHash(this.exampleService.examplesList[0]?.path);
+
+                return;
+            }
+
+            const example = this.exampleService.getExampleByPath(currentHash);
+
+            this.exampleService.setCurrentExample(example);
         });
     }
 
@@ -29,75 +42,19 @@ export default class App extends MobxLitElement {
 
         return html`
             <div class="${styles.app}">
-                <my-navigation>
-                    <h1 class=${styles.appNavigationHeadline}>ExoJs Examples</h1>
-                    ${this.renderNavigationContent(this.exampleService.exampleEntries)}
-                </my-navigation>
-                <div class="${styles.appContent}">
-                    Current Example: ${this.renderTest()}
-                </div>
+                <aside class=${styles.navigation}>
+                    <div class=${styles.viewport}>
+                        <header>
+                            <h1 class=${styles.title}>ExoJs Examples</h1>
+                        </header>
+                        <my-navigation />
+                    </div>
+                </aside>
+                <main class="${styles.content}">
+                    <my-editor></my-editor>
+                </main>
             </div>
         `;
-    }
-
-    private renderNavigationContent(exampleEntries: ExampleEntries | null): TemplateResult | Array<TemplateResult> {
-
-        if (exampleEntries === null) {
-            return html`<my-loading-indicator />`;
-        }
-
-        const entries = Array.from(exampleEntries.entries());
-
-        return entries.map(([category, entries]) => this.renderNavigationCategory(category, entries));
-    }
-
-    private renderNavigationCategory(headline: string, entries: Array<ExampleEntry>): TemplateResult {
-
-        return html`
-            <my-navigation-section headline=${headline}>
-                ${toJS(entries).map(({ name, path }) => this.renderNavigationLink(name, path))}
-            </my-navigation-section>
-        `;
-    }
-
-    private renderNavigationLink(name: string, path: string): TemplateResult {
-
-        return html`
-            <my-navigation-link href="#${path}">${name}</my-navigation-link>
-        `;
-    }
-
-    private renderTest(): TemplateResult {
-
-        const { activeExample } = this.exampleService;
-
-        if (activeExample === null) {
-            return html`
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-            `;
-        }
-
-        return html`Name: ${activeExample.name}, Path: ${activeExample.path}`;
     }
 
     //

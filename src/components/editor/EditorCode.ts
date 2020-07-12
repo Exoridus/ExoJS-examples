@@ -1,63 +1,70 @@
 import styles, { css } from './EditorCode.module.scss';
 
-import { CSSResult, customElement, html, LitElement, property, query, TemplateResult, unsafeCSS } from 'lit-element';
-import CodeMirror from 'codemirror';
+import {
+    CSSResult,
+    customElement,
+    html,
+    property, PropertyValues,
+    TemplateResult,
+    unsafeCSS,
+} from 'lit-element';
+import { MobxLitElement } from '@adobe/lit-mobx';
+import { EditorState } from '@codemirror/next/state';
+import { EditorView } from '@codemirror/next/view';
+import { javascript } from '@codemirror/next/lang-javascript';
+import { highlightActiveLine } from '@codemirror/next/highlight-selection';
+import { bracketMatching } from '@codemirror/next/matchbrackets';
+import { lineNumbers } from '@codemirror/next/gutter';
+import { oneDark } from '@codemirror/next/theme-one-dark';
 
 @customElement('my-editor-code')
-export default class EditorCode extends LitElement {
+export default class EditorCode extends MobxLitElement {
 
     public static styles: CSSResult = unsafeCSS(css);
 
-    @property({ type: String }) public title = '';
-    @property({ type: String }) public code = '';
+    @property() public sourceCode: string | null = null;
 
-    @query('.codemirror-element') private codeMirrorElement?: HTMLTextAreaElement;
+    private editorState: EditorState = EditorState.create({
+        doc: 'Hello World',
+        extensions: [
+            lineNumbers(),
+            javascript(),
+            highlightActiveLine(),
+            bracketMatching(),
+            // EditorState.indentUnit.of(4),
+            oneDark,
+        ],
+    });
 
-    private codeMirrorEditor: CodeMirror.EditorFromTextArea | null = null;
-
-    public connectedCallback(): void {
-        super.connectedCallback();
-
-        console.log(this.codeMirrorElement);
-
-        if (!this.codeMirrorElement) {
-            throw new Error('Could not codemirror element!');
-        }
-
-        this.codeMirrorEditor = CodeMirror.fromTextArea(this.codeMirrorElement, {
-            mode: 'javascript',
-            theme: 'monokai',
-            lineNumbers: true,
-            viewportMargin: Infinity,
-            lineWrapping: true,
-            indentUnit: 4,
-        });
-    }
+    private editorView: EditorView = new EditorView({
+        state: this.editorState,
+    });
 
     public render(): TemplateResult {
 
         return html`
-            <div class=${styles.editorCode}>
-                <my-toolbar title="${`Example Code: ${this.title}`}">
-                    <my-button @click="${this.triggerRefreshPreview}">REFRESH</my-button>
-                </my-toolbar>
-                <textarea class=${styles.codemirrorElement}>${this.code}</textarea>
-            </div>
+            <textarea class=${styles.codemirrorElement}></textarea>
         `;
     }
 
-    private triggerRefreshPreview(): void {
+    public firstUpdated(_changedProperties: PropertyValues): void {
+        const textArea = this.shadowRoot!.querySelector(styles.codemirrorElement) as HTMLTextAreaElement;
 
-        if (this.codeMirrorEditor === null) {
-            throw new Error('No Editor was found!');
+        if (!textArea) {
+            throw new Error('Could not find textArea element!');
         }
 
-        // this.dispatchEvent(new CustomEvent<IRefreshPreviewEvent>('refresh-preview', {
-        //     detail: {
-        //         code: this.codeMirrorEditor.getValue(),
-        //     },
-        //     bubbles: true,
-        //     composed: true,
-        // }));
+        // this.codeMirrorEditor = CodeMirror.fromTextArea(textArea, {
+        //     value: this.sourceCode || '',
+        //     viewportMargin: Infinity,
+        //     lineWrapping: true,
+        //     indentUnit: 4,
+        // });
+    }
+
+    public updated(changedProperties: PropertyValues): void {
+        // if (changedProperties.has('sourceCode')) {
+        //     this.codeMirrorEditor?.setValue(this.sourceCode || '');
+        // }
     }
 }

@@ -13,7 +13,13 @@
     "moduleResolution": "node",
     "strict": true
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "public",
+    "**/*.scss.d.ts"
   ]
 }
