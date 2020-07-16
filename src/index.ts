@@ -1,22 +1,21 @@
-import './index.scss';
-
 import './components/index';
+import { css } from './index.scss';
 import { html, render } from 'lit-html';
-import { javascript } from '@codemirror/next/lang-javascript';
-import { highlightActiveLine } from '@codemirror/next/highlight-selection';
-import { bracketMatching } from '@codemirror/next/matchbrackets';
-import { globalDependencies } from './classes/globalDependencies';
 import { configure } from 'mobx';
+import { globalDependencies } from './classes/globalDependencies';
+import { injectStyles } from './classes/utils';
+
+injectStyles(css, document.head);
 
 configure({ enforceActions: 'observed' });
 
 globalDependencies
-    .loadDependencies({
-        requestOptions: {
-            cache: 'no-cache',
-            method: 'GET',
-            mode: 'cors',
-        }
-    })
-    .then(() => render(html`<my-app />`, window.document.body))
-    .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));
+  .loadDependencies({
+    requestOptions: {
+      cache: 'no-cache',
+      method: 'GET',
+      mode: 'cors',
+    }
+  })
+  .then(() => render(html`<my-app />`, document.body))
+  .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));

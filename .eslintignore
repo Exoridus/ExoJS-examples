@@ -1,6 +1,6 @@
 **/*.d.ts
 **/*.js
 **/*.scss
-dist/*
-public/*
-node_modules/*
+dist
+public
+node_modules

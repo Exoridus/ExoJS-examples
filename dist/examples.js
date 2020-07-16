@@ -1,5 +1,7 @@
-(function () {
-    'use strict';
+(function (factory) {
+    typeof define === 'function' && define.amd ? define(factory) :
+    factory();
+}((function () { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -23,7 +25,7 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
-    const css = ".button_e3169063 {\n  height: 48px;\n  padding: 6px 4px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  background: rgba(0, 0, 0, 0);\n  border: 0 none;\n  display: inline-block;\n  outline: none;\n  cursor: pointer;\n  text-decoration: none;\n  position: absolute;\n  right: 0;\n  top: 0; }\n  .button_e3169063:hover .buttonContent_e3169063, .button_e3169063:focus .buttonContent_e3169063 {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .button_e3169063:active .buttonContent_e3169063 {\n    background-color: rgba(204, 204, 204, 0.25); }\n\n.buttonContent_e3169063 {\n  transition: background-color 0.3s linear;\n  height: 36px;\n  min-width: 64px;\n  line-height: 36px;\n  padding: 0 8px;\n  letter-spacing: 0.5px;\n  border-radius: 2px;\n  display: block;\n  text-transform: uppercase;\n  text-align: center;\n  font-weight: 500;\n  position: relative;\n  border: 0 none;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0);\n  color: #FFFF00; }\n";
+    const css = ".button_e3169063{height:48px;padding:6px 4px;-webkit-tap-highlight-color:rgba(0,0,0,0);background:transparent;border:0;display:inline-block;outline:none;cursor:pointer;text-decoration:none;position:absolute;right:0;top:0}.button_e3169063:focus .buttonContent_e3169063,.button_e3169063:hover .buttonContent_e3169063{background-color:hsla(0,0%,100%,.12)}.button_e3169063:active .buttonContent_e3169063{background-color:hsla(0,0%,80%,.25)}.buttonContent_e3169063{transition:background-color .3s linear;height:36px;min-width:64px;line-height:36px;padding:0 8px;letter-spacing:.5px;border-radius:2px;display:block;text-transform:uppercase;text-align:center;font-weight:500;position:relative;border:0;outline:none;background-color:transparent;color:#ff0}";
     const modules_79b43374 = {"button":"button_e3169063","buttonContent":"buttonContent_e3169063"};
 
     /**
@@ -2641,7 +2643,7 @@
         customElement('my-button')
     ], Button);
 
-    const css$1 = ".toolbar_4a429c0a {\n  padding: 16px;\n  line-height: 16px;\n  display: flex; }\n\n.toolbarTitle_4a429c0a {\n  font-weight: 500;\n  display: flex;\n  flex: 1 0 auto; }\n\n.toolbarOptions_4a429c0a {\n  font-weight: 500; }\n";
+    const css$1 = ".toolbar_4a429c0a{padding:16px;line-height:16px;display:flex}.toolbarTitle_4a429c0a{font-weight:500;display:flex;flex:1 0 auto}.toolbarOptions_4a429c0a{font-weight:500}";
     const modules_b2e3cb74 = {"toolbar":"toolbar_4a429c0a","toolbarTitle":"toolbarTitle_4a429c0a","toolbarOptions":"toolbarOptions_4a429c0a"};
 
     let Toolbar = class Toolbar extends LitElement {
@@ -2668,7 +2670,7 @@
         customElement('my-toolbar')
     ], Toolbar);
 
-    const css$2 = "@-webkit-keyframes dashLoading_15cc1833 {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n@keyframes dashLoading_15cc1833 {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n.loadingIndicator_15cc1833 {\n  width: 100px;\n  height: 100px;\n  position: relative;\n  display: inline-block; }\n\n.centered_15cc1833 {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  margin: auto; }\n\n.spinner_15cc1833 {\n  width: 100px;\n  height: 100px;\n  -webkit-animation: spin_15cc1833 3s linear infinite;\n          animation: spin_15cc1833 3s linear infinite;\n  position: relative; }\n\n.path_15cc1833 {\n  -webkit-animation: dashLoading_15cc1833 1.5s ease-in-out infinite;\n          animation: dashLoading_15cc1833 1.5s ease-in-out infinite;\n  fill: rgba(0, 0, 0, 0);\n  stroke: #FFFF00;\n  stroke-dasharray: 1,200;\n  stroke-dashoffset: 0;\n  stroke-width: 6;\n  stroke-miterlimit: 20;\n  stroke-linecap: round; }\n";
+    const css$2 = "@-webkit-keyframes dashLoading_15cc1833{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}@keyframes dashLoading_15cc1833{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}.loadingIndicator_15cc1833{width:100px;height:100px;position:relative;display:inline-block}.centered_15cc1833{position:absolute;top:0;bottom:0;left:0;right:0;margin:auto}.spinner_15cc1833{width:100px;height:100px;-webkit-animation:spin_15cc1833 3s linear infinite;animation:spin_15cc1833 3s linear infinite;position:relative}.path_15cc1833{-webkit-animation:dashLoading_15cc1833 1.5s ease-in-out infinite;animation:dashLoading_15cc1833 1.5s ease-in-out infinite;fill:transparent;stroke:#ff0;stroke-dasharray:1,200;stroke-dashoffset:0;stroke-width:6;stroke-miterlimit:20;stroke-linecap:round}";
     const modules_b42352cd = {"loadingIndicator":"loadingIndicator_15cc1833","centered":"centered_15cc1833","spinner":"spinner_15cc1833","spin":"spin_15cc1833","path":"path_15cc1833","dashLoading":"dashLoading_15cc1833"};
 
     /**
@@ -2794,7 +2796,7 @@
         customElement('my-loading-spinner')
     ], LoadingSpinner);
 
-    const css$3 = "::-webkit-scrollbar {\n  width: 6px;\n  height: 6px; }\n\n::-webkit-scrollbar-button {\n  width: 0;\n  height: 0; }\n\n::-webkit-scrollbar-thumb {\n  background: rgba(255, 255, 255, 0.1);\n  border: 0 none;\n  border-radius: 0; }\n\n::-webkit-scrollbar-thumb:hover {\n  background: rgba(255, 255, 255, 0.1); }\n\n::-webkit-scrollbar-thumb:active {\n  background: rgba(255, 255, 255, 0.1); }\n\n::-webkit-scrollbar-track {\n  background: rgba(0, 0, 0, 0.2);\n  border: 0 none;\n  border-radius: 0; }\n\n::-webkit-scrollbar-track:hover {\n  background: rgba(0, 0, 0, 0.2); }\n\n::-webkit-scrollbar-track:active {\n  background: rgba(0, 0, 0, 0.2); }\n\n::-webkit-scrollbar-corner {\n  background: transparent; }\n\n* {\n  box-sizing: border-box; }\n\n.app_e274581c {\n  min-width: 1120px;\n  transition: transform 350ms ease;\n  padding-left: 320px;\n  position: absolute;\n  display: block;\n  width: 100%;\n  left: 0;\n  top: 0;\n  bottom: 0; }\n\n.navigation_e274581c {\n  transition: all 350ms ease;\n  width: 320px;\n  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);\n  background: #232323;\n  position: absolute;\n  overflow: hidden;\n  outline: none;\n  height: 100%;\n  bottom: 0;\n  left: 0;\n  top: 0; }\n\n.viewport_e274581c {\n  position: absolute;\n  overflow-y: auto;\n  width: 100%;\n  bottom: 0;\n  left: 0;\n  top: 0; }\n\n.content_e274581c {\n  position: relative;\n  overflow-x: hidden;\n  overflow-y: auto;\n  height: 100%; }\n\n.title_e274581c {\n  height: 64px;\n  padding: 8px 16px;\n  line-height: 48px;\n  font-size: 20px;\n  font-weight: 500;\n  color: #FFFFFF;\n  position: relative;\n  overflow: hidden;\n  cursor: default;\n  margin: 0; }\n";
+    const css$3 = "::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-button{width:0;height:0}::-webkit-scrollbar-thumb{border:0;border-radius:0}::-webkit-scrollbar-thumb,::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.1)}::-webkit-scrollbar-thumb:active{background:hsla(0,0%,100%,.1)}::-webkit-scrollbar-track{background:rgba(0,0,0,.2);border:0;border-radius:0}::-webkit-scrollbar-track:active,::-webkit-scrollbar-track:hover{background:rgba(0,0,0,.2)}::-webkit-scrollbar-corner{background:transparent}*{box-sizing:border-box}.app_e274581c{min-width:1120px;transition:transform .35s ease;padding-left:320px;display:block;width:100%}.app_e274581c,.navigation_e274581c{position:absolute;left:0;top:0;bottom:0}.navigation_e274581c{transition:all .35s ease;width:320px;box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);background:#232323;overflow:hidden;outline:none;height:100%}.viewport_e274581c{position:absolute;overflow-y:auto;width:100%;bottom:0;left:0;top:0}.content_e274581c{position:relative;overflow-x:hidden;overflow-y:auto;height:100%}.title_e274581c{height:64px;padding:8px 16px;line-height:48px;font-size:20px;font-weight:500;color:#fff;position:relative;overflow:hidden;cursor:default;margin:0}";
     const modules_5209ed1c = {"app":"app_e274581c","navigation":"navigation_e274581c","viewport":"viewport_e274581c","content":"content_e274581c","title":"title_e274581c"};
 
     /** MobX - (c) Michel Weststrate 2015 - 2020 - MIT Licensed */
@@ -7352,7 +7354,7 @@
         customElement('my-app')
     ], App);
 
-    const css$4 = ".navigationLink_0ccc2d3d {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 16px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  font-weight: 400;\n  color: white;\n  text-decoration: none;\n  position: relative;\n  cursor: pointer;\n  display: block;\n  box-sizing: border-box; }\n  .navigationLink_0ccc2d3d:hover {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .navigationLink_0ccc2d3d:active {\n    background-color: rgba(255, 255, 255, 0.18); }\n";
+    const css$4 = ".navigationLink_0ccc2d3d{transition:background-color .12s cubic-bezier(0,0,.2,1);padding:0 16px;height:48px;font-size:16px;line-height:48px;-webkit-tap-highlight-color:rgba(0,0,0,0);font-weight:400;color:#fff;text-decoration:none;position:relative;cursor:pointer;display:block;box-sizing:border-box}.navigationLink_0ccc2d3d:hover{background-color:hsla(0,0%,100%,.12)}.navigationLink_0ccc2d3d:active{background-color:hsla(0,0%,100%,.18)}";
     const modules_a55a6909 = {"navigationLink":"navigationLink_0ccc2d3d"};
 
     let NavigationLink = class NavigationLink extends LitElement {
@@ -7372,7 +7374,7 @@
         customElement('my-navigation-link')
     ], NavigationLink);
 
-    const css$5 = ".navigationTitle_84ac336b {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 14px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  font-weight: 500;\n  color: #FFFF00;\n  text-decoration: none;\n  position: relative;\n  cursor: default;\n  display: block; }\n";
+    const css$5 = ".navigationTitle_84ac336b{transition:background-color .12s cubic-bezier(0,0,.2,1);padding:0 16px;height:48px;font-size:14px;line-height:48px;-webkit-tap-highlight-color:rgba(0,0,0,0);font-weight:500;color:#ff0;text-decoration:none;position:relative;cursor:default;display:block}";
     const modules_f2f75330 = {"navigationTitle":"navigationTitle_84ac336b"};
 
     let NavigationTitle = class NavigationTitle extends LitElement {
@@ -7389,7 +7391,7 @@
         customElement('my-navigation-title')
     ], NavigationTitle);
 
-    const css$6 = ".navigationSection_4cdca904 {\n  display: flex;\n  flex-direction: column; }\n";
+    const css$6 = ".navigationSection_4cdca904{display:flex;flex-direction:column}";
     const modules_60c5df30 = {"navigationSection":"navigationSection_4cdca904"};
 
     let NavigationSection = class NavigationSection extends LitElement {
@@ -7410,7 +7412,7 @@
         customElement('my-navigation-section')
     ], NavigationSection);
 
-    const css$7 = ".navigation_d61dfd22 {\n  padding: 8px 0; }\n";
+    const css$7 = ".navigation_d61dfd22{padding:8px 0}";
     const modules_2fe7e3bc = {"navigation":"navigation_d61dfd22"};
 
     let Navigation = class Navigation extends MobxLitElement {
@@ -7447,7 +7449,7 @@
         customElement('my-navigation')
     ], Navigation);
 
-    const css$8 = ".preview_2e09ccf0 {\n  width: 100%;\n  height: 100%;\n  border: 0; }\n\ncanvas {\n  display: block; }\n";
+    const css$8 = ".preview_2e09ccf0{width:100%;height:100%;border:0}canvas{display:block}";
     const modules_bbec92b6 = {"preview":"preview_2e09ccf0"};
 
     let EditorPreview = class EditorPreview extends LitElement {
@@ -7555,7 +7557,7 @@
         customElement('my-editor-preview')
     ], EditorPreview);
 
-    const css$9 = ".codemirrorElement_e2494e1a {\n  background: transparent;\n  resize: none;\n  border: 0; }\n\n.CodeMirror_e2494e1a {\n  background: #232323;\n  color: white;\n  height: auto; }\n  .CodeMirror_e2494e1a .CodeMirrorCursor_e2494e1a {\n    border-left: 2px solid #FFFFFF; }\n  .CodeMirror_e2494e1a .CodeMirrorActivelineBackground_e2494e1a {\n    background: #303030; }\n  .CodeMirror_e2494e1a .CodeMirrorSelected_e2494e1a {\n    background: #3d3d3d; }\n  .CodeMirror_e2494e1a .CodeMirrorGutters_e2494e1a {\n    background: #232323; }\n  .CodeMirror_e2494e1a .CodeMirrorLinenumber_e2494e1a {\n    color: rgba(255, 255, 255, 0.7); }\n  .CodeMirror_e2494e1a .cmComment_e2494e1a {\n    color: rgba(255, 255, 255, 0.3); }\n  .CodeMirror_e2494e1a .cmString_e2494e1a {\n    color: #e6db74; }\n  .CodeMirror_e2494e1a .cmNumber_e2494e1a {\n    color: #66d9ef; }\n  .CodeMirror_e2494e1a .cmAtom_e2494e1a {\n    color: #66d9ef; }\n  .CodeMirror_e2494e1a .cmKeyword_e2494e1a {\n    color: #f92672; }\n  .CodeMirror_e2494e1a .cmVariable_e2494e1a {\n    color: #a6e22e; }\n  .CodeMirror_e2494e1a .cmDef_e2494e1a {\n    font-style: italic;\n    color: #FD971F; }\n  .CodeMirror_e2494e1a .cmVariable2_e2494e1a {\n    color: #f92672; }\n  .CodeMirror_e2494e1a .cmProperty_e2494e1a {\n    color: #66d9ef; }\n  .CodeMirror_e2494e1a .cmOperator_e2494e1a {\n    color: #A6A5A5; }\n";
+    const css$9 = ".codemirrorElement_e2494e1a{background:transparent;resize:none;border:0}.CodeMirror_e2494e1a{background:#232323;color:#fff;height:auto}.CodeMirror_e2494e1a .CodeMirrorCursor_e2494e1a{border-left:2px solid #fff}.CodeMirror_e2494e1a .CodeMirrorActivelineBackground_e2494e1a{background:#303030}.CodeMirror_e2494e1a .CodeMirrorSelected_e2494e1a{background:#3d3d3d}.CodeMirror_e2494e1a .CodeMirrorGutters_e2494e1a{background:#232323}.CodeMirror_e2494e1a .CodeMirrorLinenumber_e2494e1a{color:hsla(0,0%,100%,.7)}.CodeMirror_e2494e1a .cmComment_e2494e1a{color:hsla(0,0%,100%,.3)}.CodeMirror_e2494e1a .cmString_e2494e1a{color:#e6db74}.CodeMirror_e2494e1a .cmAtom_e2494e1a,.CodeMirror_e2494e1a .cmNumber_e2494e1a{color:#66d9ef}.CodeMirror_e2494e1a .cmKeyword_e2494e1a{color:#f92672}.CodeMirror_e2494e1a .cmVariable_e2494e1a{color:#a6e22e}.CodeMirror_e2494e1a .cmDef_e2494e1a{font-style:italic;color:#fd971f}.CodeMirror_e2494e1a .cmVariable2_e2494e1a{color:#f92672}.CodeMirror_e2494e1a .cmProperty_e2494e1a{color:#66d9ef}.CodeMirror_e2494e1a .cmOperator_e2494e1a{color:#a6a5a5}";
     const modules_e6e9bf22 = {"codemirrorElement":"codemirrorElement_e2494e1a","CodeMirror":"CodeMirror_e2494e1a","CodeMirror-cursor":"CodeMirrorCursor_e2494e1a","CodeMirror-activeline-background":"CodeMirrorActivelineBackground_e2494e1a","CodeMirror-selected":"CodeMirrorSelected_e2494e1a","CodeMirror-gutters":"CodeMirrorGutters_e2494e1a","CodeMirror-linenumber":"CodeMirrorLinenumber_e2494e1a","cm-comment":"cmComment_e2494e1a","cm-string":"cmString_e2494e1a","cm-number":"cmNumber_e2494e1a","cm-atom":"cmAtom_e2494e1a","cm-keyword":"cmKeyword_e2494e1a","cm-variable":"cmVariable_e2494e1a","cm-def":"cmDef_e2494e1a","cm-variable-2":"cmVariable2_e2494e1a","cm-property":"cmProperty_e2494e1a","cm-operator":"cmOperator_e2494e1a"};
 
     // Compressed representation of the Grapheme_Cluster_Break=Extend
@@ -20322,7 +20324,7 @@
         customElement('my-editor-code')
     ], EditorCode);
 
-    const css$a = ".editor_c8c1fdf6 {\n  position: relative;\n  overflow: auto;\n  overflow-x: hidden;\n  height: 100%; }\n\n.editorCode_c8c1fdf6 {\n  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);\n  border-radius: 2px;\n  background: #232323;\n  position: relative;\n  height: auto;\n  width: 100%; }\n";
+    const css$a = ".editor_c8c1fdf6{position:relative;overflow:auto;overflow-x:hidden;height:100%}.editorCode_c8c1fdf6{box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);border-radius:2px;background:#232323;position:relative;height:auto;width:100%}";
     const modules_eb861c89 = {"editor":"editor_c8c1fdf6","editorCode":"editorCode_c8c1fdf6"};
 
     let Editor = class Editor extends MobxLitElement {
@@ -20409,6 +20411,16 @@
         customElement('my-editor')
     ], Editor);
 
+    const css$b = "@import url(\"https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap\");html{font-family:Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body,html{font-size:14px;min-height:100%}body{color:#fff;font-weight:400;background:#131313;background-size:cover;line-height:20px;margin:0}";
+
+    const injectStyles = (css, container) => {
+        const style = document.createElement('style');
+        style.setAttribute('type', 'text/css');
+        style.appendChild(document.createTextNode(css));
+        container.appendChild(style);
+    };
+
+    injectStyles(css$b, document.head);
     configure({ enforceActions: 'observed' });
     globalDependencies
         .loadDependencies({
@@ -20418,8 +20430,8 @@
             mode: 'cors',
         }
     })
-        .then(() => render(html `<my-app />`, window.document.body))
+        .then(() => render(html `<my-app />`, document.body))
         .catch((error) => console.error('An error occurred while loading dependencies!', error));
 
-}());
+})));
 //# sourceMappingURL=examples.js.map

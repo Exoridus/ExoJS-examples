@@ -1,34 +1,38 @@
 {
   "name": "exojs-examples",
+  "description": "Playground for ExoJS examples.",
   "version": "1.0.0",
-  "description": "",
+  "license": "MIT",
+  "author": "Dieter Giesler",
+  "homepage": "https://exoridus.github.io/ExoJS-examples/",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Exoridus/ExoJS-examples.git"
+  },
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -cw",
     "serve": "node serve.js",
     "start": "npm-run-all -p serve watch",
+    "lint": "eslint ./src",
     "ts-check": "tsc --noEmit --pretty",
     "ts-declarations": "tsc --declaration --emitDeclarationOnly --outFile dist/examples.d.ts"
   },
   "pre-commit": [
+    "lint",
     "ts-check",
     "ts-declarations",
     "build"
   ],
-  "author": "Dieter Giesler",
-  "license": "MIT",
-  "main": "dist/examples.common.js",
-  "module": "dist/examples.esm.js",
-  "browser": "dist/examples.js",
-  "minimized": "dist/examples.min.js",
+  "main": "dist/examples.js",
+  "browser": "dist/examples.min.js",
   "typings": "dist/examples.d.ts",
   "devDependencies": {
     "@adobe/lit-mobx": "0.0.4",
     "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-html": "^0.2.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.0.1",
-    "@rollup/plugin-virtual": "^2.0.3",
-    "@rollup/pluginutils": "^3.1.0",
     "@types/dedent": "^0.7.0",
     "@types/express": "^4.17.6",
     "@types/node": "^13.13.12",
@@ -61,7 +65,8 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
-    "@codemirror/next": "^0.7.1"
+    "@codemirror/next": "^0.7.1",
+    "dedent": "^0.7.0"
   },
   "peerDependencies": {}
 }
