@@ -2670,8 +2670,8 @@
         customElement('my-toolbar')
     ], Toolbar);
 
-    const css$2 = "@-webkit-keyframes dashLoading_15cc1833{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}@keyframes dashLoading_15cc1833{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}.loadingIndicator_15cc1833{width:100px;height:100px;position:relative;display:inline-block}.centered_15cc1833{position:absolute;top:0;bottom:0;left:0;right:0;margin:auto}.spinner_15cc1833{width:100px;height:100px;-webkit-animation:spin_15cc1833 3s linear infinite;animation:spin_15cc1833 3s linear infinite;position:relative}.path_15cc1833{-webkit-animation:dashLoading_15cc1833 1.5s ease-in-out infinite;animation:dashLoading_15cc1833 1.5s ease-in-out infinite;fill:transparent;stroke:#ff0;stroke-dasharray:1,200;stroke-dashoffset:0;stroke-width:6;stroke-miterlimit:20;stroke-linecap:round}";
-    const modules_b42352cd = {"loadingIndicator":"loadingIndicator_15cc1833","centered":"centered_15cc1833","spinner":"spinner_15cc1833","spin":"spin_15cc1833","path":"path_15cc1833","dashLoading":"dashLoading_15cc1833"};
+    const css$2 = "@-webkit-keyframes dashLoading_0b39348a{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}@keyframes dashLoading_0b39348a{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:89,200;stroke-dashoffset:-35}to{stroke-dasharray:89,200;stroke-dashoffset:-124}}@-webkit-keyframes spin_0b39348a{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}@keyframes spin_0b39348a{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.loadingIndicator_0b39348a{width:100px;height:100px;position:relative;display:inline-block}.centered_0b39348a{position:absolute;top:0;bottom:0;left:0;right:0;margin:auto}.spinner_0b39348a{width:100px;height:100px;-webkit-animation:spin_0b39348a 3s linear infinite;animation:spin_0b39348a 3s linear infinite;position:relative}.path_0b39348a{-webkit-animation:dashLoading_0b39348a 1.5s ease-in-out infinite;animation:dashLoading_0b39348a 1.5s ease-in-out infinite;fill:transparent;stroke:#ff0;stroke-dasharray:1,200;stroke-dashoffset:0;stroke-width:6;stroke-miterlimit:20;stroke-linecap:round}";
+    const modules_b42352cd = {"loadingIndicator":"loadingIndicator_0b39348a","centered":"centered_0b39348a","spinner":"spinner_0b39348a","spin":"spin_0b39348a","path":"path_0b39348a","dashLoading":"dashLoading_0b39348a"};
 
     /**
      * @license
@@ -7025,8 +7025,8 @@
 
     class ExampleService {
         constructor(requestService) {
-            this.sourcePath = 'public/js';
-            this.manifestPath = 'public/examples.json';
+            this.sourcePath = 'examples';
+            this.manifestPath = 'examples.json';
             this.exampleData = null;
             this.currentExample = null;
             this.requestService = requestService;
@@ -7449,64 +7449,56 @@
         customElement('my-navigation')
     ], Navigation);
 
-    const css$8 = ".preview_2e09ccf0{width:100%;height:100%;border:0}canvas{display:block}";
-    const modules_bbec92b6 = {"preview":"preview_2e09ccf0"};
+    const css$8 = ".editorPreview_f3d8cd65{width:800px;height:600px;margin-bottom:64px;background:#232323;position:relative}.preview_f3d8cd65{width:100%;height:100%;border:0}";
+    const modules_bbec92b6 = {"editorPreview":"editorPreview_f3d8cd65","preview":"preview_f3d8cd65"};
 
     let EditorPreview = class EditorPreview extends LitElement {
         constructor() {
             super(...arguments);
-            this.sourceCode = null;
+            this.updateId = 0;
         }
-        // @internalProperty() iframeElement: HTMLIFrameElement | null = null;
-        // private pendingIframe: Promise<HTMLIFrameElement> | null = null;
-        //
-        // public connectedCallback(): void {
-        //     super.connectedCallback();
-        //
-        //     this.pendingIframe = this.createIframeElement();
-        // }
         render() {
-            if (this.sourceCode === null) {
-                return html `<span>No Sourcecode to preview...</span>`;
-            }
-            const iframeSrc = 'preview.html';
             return html `
-            <iframe 
-                class=${modules_bbec92b6.preview} 
-                onload=${this.onLoadIframe}
-                onerror=${this.onErrorIframe}
-                src=${iframeSrc}
-             />
+            <div class=${modules_bbec92b6.editorPreview}>
+                ${this.renderContent()}
+            </div>
         `;
         }
-        // public updated() {
-        //     const iframe = this.shadowRoot!.querySelector(styles.preview) as HTMLIFrameElement;
-        //
-        //     if (!iframe) {
-        //         throw new Error('Could not find iframe element!');
-        //     }
-        //
-        //     iframe.onload = (): void => {
-        //         try {
-        //             this.addIframeScript(iframe, this.sourceCode!);
-        //         } catch (error) {
-        //             console.error('Could not add source code to iframe!', error);
-        //         }
-        //     };
-        //
-        //     iframe.onerror = (error): void => {
-        //         console.error('Could not load iframe source!', error);
-        //     };
-        //
-        //     iframe.src = 'preview.html';
-        // }
+        renderContent() {
+            if (!this.sourceCode) {
+                return html `<my-loading-spinner centered></my-loading-spinner>`;
+            }
+            return html `
+            <iframe
+                class=${modules_bbec92b6.preview}
+                @load=${this.onLoadIframe}
+                @error=${this.onErrorIframe}
+                src="preview.html?update=${this.updateId}"
+            ></iframe>
+        `;
+        }
+        update(changedProperties) {
+            if (changedProperties.has('sourceCode')) {
+                this.updateId += 1;
+            }
+            super.update(changedProperties);
+        }
         onLoadIframe(event) {
-            console.log('onLoadIframe', event);
-            // try {
-            //     this.addIframeScript(iframe, this.sourceCode);
-            // } catch (e) {
-            //     return reject();
-            // }
+            var _a;
+            const iframe = event.composedPath()[0];
+            const iframeBody = (_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.body;
+            if (!iframeBody) {
+                throw new Error('Could not access iframe body element!');
+            }
+            if (!this.sourceCode) {
+                throw new Error('No source code provided!');
+            }
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.innerHTML = `
+            ${this.sourceCode}
+        `;
+            iframeBody.appendChild(script);
         }
         onErrorIframe(event) {
             console.log('onErrorIframe', event);
@@ -7516,49 +7508,19 @@
             //     return reject();
             // }
         }
-        async createIframeElement() {
-            return new Promise(((resolve, reject) => {
-                const iframe = document.createElement('iframe');
-                iframe.classList.add(modules_bbec92b6.preview);
-                iframe.onload = () => {
-                    try {
-                        this.addIframeScript(iframe, this.sourceCode);
-                    }
-                    catch (e) {
-                        return reject();
-                    }
-                    resolve(iframe);
-                };
-                iframe.onerror = () => reject();
-                iframe.src = 'preview.html';
-            }));
-        }
-        addIframeScript(iframe, source) {
-            var _a;
-            const iframeBody = (_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.body;
-            if (!iframeBody) {
-                throw new Error('Could not access iframe body element!');
-            }
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.innerHTML = `
-            window.onload = function () {
-                ${source}
-            }
-        `;
-            iframeBody.appendChild(script);
-        }
     };
     EditorPreview.styles = unsafeCSS(css$8);
     __decorate([
         property({ type: String })
     ], EditorPreview.prototype, "sourceCode", void 0);
+    __decorate([
+        internalProperty()
+    ], EditorPreview.prototype, "updateId", void 0);
     EditorPreview = __decorate([
         customElement('my-editor-preview')
     ], EditorPreview);
 
     const css$9 = ".codemirrorElement_e2494e1a{background:transparent;resize:none;border:0}.CodeMirror_e2494e1a{background:#232323;color:#fff;height:auto}.CodeMirror_e2494e1a .CodeMirrorCursor_e2494e1a{border-left:2px solid #fff}.CodeMirror_e2494e1a .CodeMirrorActivelineBackground_e2494e1a{background:#303030}.CodeMirror_e2494e1a .CodeMirrorSelected_e2494e1a{background:#3d3d3d}.CodeMirror_e2494e1a .CodeMirrorGutters_e2494e1a{background:#232323}.CodeMirror_e2494e1a .CodeMirrorLinenumber_e2494e1a{color:hsla(0,0%,100%,.7)}.CodeMirror_e2494e1a .cmComment_e2494e1a{color:hsla(0,0%,100%,.3)}.CodeMirror_e2494e1a .cmString_e2494e1a{color:#e6db74}.CodeMirror_e2494e1a .cmAtom_e2494e1a,.CodeMirror_e2494e1a .cmNumber_e2494e1a{color:#66d9ef}.CodeMirror_e2494e1a .cmKeyword_e2494e1a{color:#f92672}.CodeMirror_e2494e1a .cmVariable_e2494e1a{color:#a6e22e}.CodeMirror_e2494e1a .cmDef_e2494e1a{font-style:italic;color:#fd971f}.CodeMirror_e2494e1a .cmVariable2_e2494e1a{color:#f92672}.CodeMirror_e2494e1a .cmProperty_e2494e1a{color:#66d9ef}.CodeMirror_e2494e1a .cmOperator_e2494e1a{color:#a6a5a5}";
-    const modules_e6e9bf22 = {"codemirrorElement":"codemirrorElement_e2494e1a","CodeMirror":"CodeMirror_e2494e1a","CodeMirror-cursor":"CodeMirrorCursor_e2494e1a","CodeMirror-activeline-background":"CodeMirrorActivelineBackground_e2494e1a","CodeMirror-selected":"CodeMirrorSelected_e2494e1a","CodeMirror-gutters":"CodeMirrorGutters_e2494e1a","CodeMirror-linenumber":"CodeMirrorLinenumber_e2494e1a","cm-comment":"cmComment_e2494e1a","cm-string":"cmString_e2494e1a","cm-number":"cmNumber_e2494e1a","cm-atom":"cmAtom_e2494e1a","cm-keyword":"cmKeyword_e2494e1a","cm-variable":"cmVariable_e2494e1a","cm-def":"cmDef_e2494e1a","cm-variable-2":"cmVariable2_e2494e1a","cm-property":"cmProperty_e2494e1a","cm-operator":"cmOperator_e2494e1a"};
 
     // Compressed representation of the Grapheme_Cluster_Break=Extend
     // information from
@@ -7637,6 +7599,15 @@
         if (!surrogateLow(code1))
             return code0;
         return ((code0 - 0xd800) << 10) + (code1 - 0xdc00) + 0x10000;
+    }
+    /// Given a Unicode codepoint, return the JavaScript string that
+    /// respresents it (as in
+    /// [`String.fromCodePoint`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint).
+    function fromCodePoint(code) {
+        if (code <= 0xffff)
+            return String.fromCharCode(code);
+        code -= 0x10000;
+        return String.fromCharCode((code >> 10) + 0xd800, (code & 1023) + 0xdc00);
     }
     /// The first character that takes up two positions in a JavaScript
     /// string. It is often useful to compare with this after calling
@@ -19129,6 +19100,41 @@
             : /Win/.test(navigator.platform) ? "win"
                 : /Linux|X11/.test(navigator.platform) ? "linux"
                     : "key";
+    function normalizeKeyName(name, platform) {
+        const parts = name.split(/-(?!$)/);
+        let result = parts[parts.length - 1];
+        if (result == "Space")
+            result = " ";
+        let alt, ctrl, shift, meta;
+        for (let i = 0; i < parts.length - 1; ++i) {
+            const mod = parts[i];
+            if (/^(cmd|meta|m)$/i.test(mod))
+                meta = true;
+            else if (/^a(lt)?$/i.test(mod))
+                alt = true;
+            else if (/^(c|ctrl|control)$/i.test(mod))
+                ctrl = true;
+            else if (/^s(hift)?$/i.test(mod))
+                shift = true;
+            else if (/^mod$/i.test(mod)) {
+                if (platform == "mac")
+                    meta = true;
+                else
+                    ctrl = true;
+            }
+            else
+                throw new Error("Unrecognized modifier name: " + mod);
+        }
+        if (alt)
+            result = "Alt-" + result;
+        if (ctrl)
+            result = "Ctrl-" + result;
+        if (meta)
+            result = "Meta-" + result;
+        if (shift)
+            result = "Shift-" + result;
+        return result;
+    }
     function modifiers(name, event, shift) {
         if (event.altKey)
             name = "Alt-" + name;
@@ -19146,14 +19152,80 @@
             return runHandlers(view.state.facet(keymaps), event, view, "editor");
         }
     });
+    /// Create a view extension that registers a keymap.
+    ///
+    /// You can add multiple keymap extensions to an editor. Their
+    /// priorities determine their precedence (the ones specified early or
+    /// with high priority get checked first). When a handler has returned
+    /// `true` for a given key, no further handlers are called.
+    ///
+    /// When a key is bound multiple times (either in a single keymap or
+    /// in separate maps), the bound commands all get a chance to handle
+    /// the key stroke, in order of precedence, until one of them returns
+    /// true.
+    function keymap(bindings, platform) {
+        return [handleKeyEvents, keymaps.of(buildKeymap(bindings, platform))];
+    }
     /// Run the key handlers registered for a given scope. Returns true if
     /// any of them handled the event.
     function runScopeHandlers(view, event, scope) {
         return runHandlers(view.state.facet(keymaps), event, view, scope);
     }
+    let storedPrefix = null;
+    const PrefixTimeout = 4000;
+    function buildKeymap(bindings, platform = currentPlatform) {
+        let bound = Object.create(null);
+        let isPrefix = Object.create(null);
+        let checkPrefix = (name, is) => {
+            let current = isPrefix[name];
+            if (current == null)
+                isPrefix[name] = is;
+            else if (current != is)
+                throw new Error("Key binding " + name + " is used both as a regular binding and as a multi-stroke prefix");
+        };
+        let add = (scope, key, command, preventDefault) => {
+            let scopeObj = bound[scope] || (bound[scope] = Object.create(null));
+            let parts = key.split(/ (?!$)/).map(k => normalizeKeyName(k, platform));
+            for (let i = 1; i < parts.length; i++) {
+                let prefix = parts.slice(0, i).join(" ");
+                checkPrefix(prefix, true);
+                if (!scopeObj[prefix])
+                    scopeObj[prefix] = {
+                        preventDefault: true,
+                        commands: [(view) => {
+                                let ourObj = storedPrefix = { view, prefix, scope };
+                                setTimeout(() => { if (storedPrefix == ourObj)
+                                    storedPrefix = null; }, PrefixTimeout);
+                                return true;
+                            }]
+                    };
+            }
+            let full = parts.join(" ");
+            checkPrefix(full, false);
+            let binding = scopeObj[full] || (scopeObj[full] = { preventDefault: false, commands: [] });
+            binding.commands.push(command);
+            if (preventDefault)
+                binding.preventDefault = true;
+        };
+        for (let b of bindings) {
+            let name = b[platform] || b.key;
+            if (!name)
+                continue;
+            for (let scope of b.scope ? b.scope.split(" ") : ["editor"]) {
+                add(scope, name, b.run, b.preventDefault);
+                if (b.shift)
+                    add(scope, "Shift-" + name, b.shift, b.preventDefault);
+            }
+        }
+        return bound;
+    }
     function runHandlers(maps, event, view, scope) {
         let name = keyName(event), isChar = name.length == 1 && name != " ";
         let prefix = "";
+        if (storedPrefix && storedPrefix.view == view && storedPrefix.scope == scope) {
+            prefix = storedPrefix.prefix + " ";
+            storedPrefix = null;
+        }
         let fallthrough = !!prefix;
         let runFor = (binding) => {
             if (binding) {
@@ -20274,18 +20346,778 @@
     /// Extension to enable the One Dark theme.
     const oneDark = [oneDarkTheme, oneDarkHighlighter];
 
+    const fromHistory = Annotation.define();
+    /// Transaction annotation that will prevent that annotation from
+    /// being combined with other annotations in the undo history. Given
+    /// `"before"`, it'll prevent merging with previous transactions. With
+    /// `"after"`, subsequent transactions won't be combined with this
+    /// one. With `"full"`, the transaction is isolated on both sides.
+    const isolateHistory = Annotation.define();
+    /// This facet provides a way to register functions that, given a
+    /// transaction, provide a set of effects that the history should
+    /// store when inverting the transaction. This can be used to
+    /// integrate some kinds of effects in the history, so that they can
+    /// be undone (and redone again).
+    const invertedEffects = Facet.define();
+    const historyConfig = Facet.define({
+        combine(configs) {
+            return combineConfig(configs, {
+                minDepth: 100,
+                newGroupDelay: 500
+            }, { minDepth: Math.max, newGroupDelay: Math.min });
+        }
+    });
+    const historyField = StateField.define({
+        create() {
+            return HistoryState.empty;
+        },
+        update(state, tr, newState) {
+            let config = newState.facet(historyConfig);
+            let fromHist = tr.annotation(fromHistory);
+            if (fromHist) {
+                let item = HistEvent.fromTransaction(tr), from = fromHist.side;
+                let other = from == 0 /* Done */ ? state.undone : state.done;
+                if (item)
+                    other = updateBranch(other, other.length, config.minDepth, item);
+                else
+                    other = addSelection(other, tr.startState.selection);
+                return new HistoryState(from == 0 /* Done */ ? fromHist.rest : other, from == 0 /* Done */ ? other : fromHist.rest);
+            }
+            let isolate = tr.annotation(isolateHistory);
+            if (isolate == "full" || isolate == "before")
+                state = state.isolate();
+            if (tr.annotation(Transaction.addToHistory) === false)
+                return tr.changes.length ? state.addMapping(tr.changes.desc) : state;
+            let event = HistEvent.fromTransaction(tr);
+            let time = tr.annotation(Transaction.time), userEvent = tr.annotation(Transaction.userEvent);
+            if (event)
+                state = state.addChanges(event, time, userEvent, config.newGroupDelay, config.minDepth);
+            else if (tr.selection)
+                state = state.addSelection(tr.startState.selection, time, userEvent, config.newGroupDelay);
+            if (isolate == "full" || isolate == "after")
+                state = state.isolate();
+            return state;
+        }
+    });
+    /// Create a history extension with the given configuration.
+    function history(config = {}) {
+        // FIXME register beforeinput handler
+        return [
+            historyField,
+            historyConfig.of(config)
+        ];
+    }
+    // History events store groups of changes or effects that need to be
+    // undone/redone together.
+    class HistEvent {
+        constructor(
+        // The changes in this event. Normal events hold at least one
+        // change or effect. But it may be necessary to store selection
+        // events before the first change, in which case a special type of
+        // instance is created which doesn't hold any changes, with
+        // changes == startSelection == undefined
+        changes, 
+        // The effects associated with this event
+        effects, mapped, 
+        // The selection before this event
+        startSelection, 
+        // Stores selection changes after this event, to be used for
+        // selection undo/redo.
+        selectionsAfter) {
+            this.changes = changes;
+            this.effects = effects;
+            this.mapped = mapped;
+            this.startSelection = startSelection;
+            this.selectionsAfter = selectionsAfter;
+        }
+        setSelAfter(after) {
+            return new HistEvent(this.changes, this.effects, this.mapped, this.startSelection, after);
+        }
+        // This does not check `addToHistory` and such, it assumes the
+        // transaction needs to be converted to an item. Returns null when
+        // there are no changes or effects in the transaction.
+        static fromTransaction(tr) {
+            let effects = none$5;
+            for (let invert of tr.startState.facet(invertedEffects)) {
+                let result = invert(tr);
+                if (result.length)
+                    effects = effects.concat(result);
+            }
+            if (!effects.length && tr.changes.empty)
+                return null;
+            return new HistEvent(tr.changes.invert(tr.startState.doc), effects, undefined, tr.startState.selection, none$5);
+        }
+        static selection(selections) {
+            return new HistEvent(undefined, none$5, undefined, undefined, selections);
+        }
+    }
+    function updateBranch(branch, to, maxLen, newEvent) {
+        let start = to + 1 > maxLen + 20 ? to - maxLen - 1 : 0;
+        let newBranch = branch.slice(start, to);
+        newBranch.push(newEvent);
+        return newBranch;
+    }
+    function isAdjacent(a, b) {
+        let ranges = [], isAdjacent = false;
+        a.iterChangedRanges((f, t) => ranges.push(f, t));
+        b.iterChangedRanges((_f, _t, f, t) => {
+            for (let i = 0; i < ranges.length;) {
+                let from = ranges[i++], to = ranges[i++];
+                if (t >= from && f <= to)
+                    isAdjacent = true;
+            }
+        });
+        return isAdjacent;
+    }
+    function eqSelectionShape(a, b) {
+        return a.ranges.length == b.ranges.length &&
+            a.ranges.filter((r, i) => r.empty != b.ranges[i].empty).length === 0;
+    }
+    function conc(a, b) {
+        return !a.length ? b : !b.length ? a : a.concat(b);
+    }
+    const none$5 = [];
+    const MaxSelectionsPerEvent = 200;
+    function addSelection(branch, selection) {
+        if (!branch.length) {
+            return [HistEvent.selection([selection])];
+        }
+        else {
+            let lastEvent = branch[branch.length - 1];
+            let sels = lastEvent.selectionsAfter.slice(Math.max(0, lastEvent.selectionsAfter.length - MaxSelectionsPerEvent));
+            if (sels.length && sels[sels.length - 1].eq(selection))
+                return branch;
+            sels.push(selection);
+            return updateBranch(branch, branch.length - 1, 1e9, lastEvent.setSelAfter(sels));
+        }
+    }
+    // Assumes the top item has one or more selectionAfter values
+    function popSelection(branch) {
+        let last = branch[branch.length - 1];
+        let newBranch = branch.slice();
+        newBranch[branch.length - 1] = last.setSelAfter(last.selectionsAfter.slice(0, last.selectionsAfter.length - 1));
+        return newBranch;
+    }
+    // Add a mapping to the top event in the given branch. If this maps
+    // away all the changes and effects in that item, drop it and
+    // propagate the mapping to the next item.
+    function addMappingToBranch(branch, mapping) {
+        if (!branch.length)
+            return branch;
+        let length = branch.length, selections = none$5;
+        while (length) {
+            let event = mapEvent(branch[length - 1], mapping, selections);
+            if (event.changes && !event.changes.empty || event.effects.length) { // Event survived mapping
+                let result = branch.slice(0, length);
+                result[length - 1] = event;
+                return result;
+            }
+            else { // Drop this event, since there's no changes or effects left
+                mapping = event.mapped;
+                length--;
+                selections = event.selectionsAfter;
+            }
+        }
+        return selections.length ? [HistEvent.selection(selections)] : none$5;
+    }
+    function mapEvent(event, mapping, extraSelections) {
+        let selections = conc(event.selectionsAfter.length ? event.selectionsAfter.map(s => s.map(mapping)) : none$5, extraSelections);
+        // Change-less events don't store mappings (they are always the last event in a branch)
+        if (!event.changes)
+            return HistEvent.selection(selections);
+        let mappedChanges = event.changes.map(mapping), before = mapping.mapDesc(event.changes, true);
+        let fullMapping = event.mapped ? event.mapped.composeDesc(before) : before;
+        return new HistEvent(mappedChanges, StateEffect.mapEffects(event.effects, mapping), fullMapping, event.startSelection.map(mapping), selections);
+    }
+    class HistoryState {
+        constructor(done, undone, prevTime = 0, prevUserEvent = undefined) {
+            this.done = done;
+            this.undone = undone;
+            this.prevTime = prevTime;
+            this.prevUserEvent = prevUserEvent;
+        }
+        isolate() {
+            return this.prevTime ? new HistoryState(this.done, this.undone) : this;
+        }
+        addChanges(event, time, userEvent, newGroupDelay, maxLen) {
+            let done = this.done, lastEvent = done[done.length - 1];
+            if (lastEvent && lastEvent.changes &&
+                time - this.prevTime < newGroupDelay &&
+                !lastEvent.selectionsAfter.length &&
+                lastEvent.changes.length && event.changes &&
+                isAdjacent(lastEvent.changes, event.changes)) {
+                done = updateBranch(done, done.length - 1, maxLen, new HistEvent(event.changes.compose(lastEvent.changes), conc(event.effects, lastEvent.effects), lastEvent.mapped, lastEvent.startSelection, none$5));
+            }
+            else {
+                done = updateBranch(done, done.length, maxLen, event);
+            }
+            return new HistoryState(done, none$5, time, userEvent);
+        }
+        addSelection(selection, time, userEvent, newGroupDelay) {
+            let last = this.done.length ? this.done[this.done.length - 1].selectionsAfter : none$5;
+            if (last.length > 0 &&
+                time - this.prevTime < newGroupDelay &&
+                userEvent == "keyboardselection" && this.prevUserEvent == userEvent &&
+                eqSelectionShape(last[last.length - 1], selection))
+                return this;
+            return new HistoryState(addSelection(this.done, selection), this.undone, time, userEvent);
+        }
+        addMapping(mapping) {
+            return new HistoryState(addMappingToBranch(this.done, mapping), addMappingToBranch(this.undone, mapping), this.prevTime, this.prevUserEvent);
+        }
+        pop(side, state, selection) {
+            let branch = side == 0 /* Done */ ? this.done : this.undone;
+            if (branch.length == 0)
+                return null;
+            let event = branch[branch.length - 1];
+            if (selection && event.selectionsAfter.length) {
+                return state.update({
+                    selection: event.selectionsAfter[event.selectionsAfter.length - 1],
+                    annotations: fromHistory.of({ side, rest: popSelection(branch) })
+                });
+            }
+            else if (!event.changes) {
+                return null;
+            }
+            else {
+                let rest = branch.length == 1 ? none$5 : branch.slice(0, branch.length - 1);
+                if (event.mapped)
+                    rest = addMappingToBranch(rest, event.mapped);
+                return state.update({
+                    changes: event.changes,
+                    selection: event.startSelection,
+                    effects: event.effects,
+                    annotations: fromHistory.of({ side, rest }),
+                    filter: false
+                });
+            }
+        }
+    }
+    HistoryState.empty = new HistoryState(none$5, none$5);
+
+    const defaults$1 = {
+        brackets: ["(", "[", "{", "'", '"'],
+        before: ")]}'\":;>"
+    };
+    /// Extension to enable bracket-closing behavior. When a closeable
+    /// bracket is typed, its closing bracket is immediately inserted
+    /// after the cursor. When closing a bracket directly in front of that
+    /// closing bracket, the cursor moves over the existing bracket. When
+    /// backspacing in between brackets, both are removed.
+    const closeBrackets = EditorView.domEventHandlers({ keydown });
+    const definedClosing = "()[]{}<>";
+    function closing(ch) {
+        for (let i = 0; i < definedClosing.length; i += 2)
+            if (definedClosing.charCodeAt(i) == ch)
+                return definedClosing.charAt(i + 1);
+        return fromCodePoint(ch < 128 ? ch : ch + 1);
+    }
+    function config(state, pos) {
+        return state.languageDataAt("closeBrackets", pos)[0] || defaults$1;
+    }
+    function keydown(event, view) {
+        if (event.ctrlKey || event.metaKey)
+            return false;
+        if (event.keyCode == 8) { // Backspace
+            let tr = handleBackspace(view.state);
+            if (!tr)
+                return false;
+            view.dispatch(tr);
+            return true;
+        }
+        let key = keyName(event);
+        if (key.length > 2 || key.length == 2 && codePointSize(codePointAt(key, 0)) == 1)
+            return false;
+        let tr = handleInsertion(view.state, key);
+        if (!tr)
+            return false;
+        view.dispatch(tr);
+        return true;
+    }
+    /// Function that implements the extension's backspace behavior.
+    /// Exported mostly for testing purposes.
+    function handleBackspace(state) {
+        let conf = config(state, state.selection.primary.head);
+        let tokens = conf.brackets || defaults$1.brackets;
+        let dont = null, changes = state.changeByRange(range => {
+            if (range.empty) {
+                let before = prevChar(state.doc, range.head);
+                for (let token of tokens) {
+                    if (token == before && nextChar(state.doc, range.head) == closing(codePointAt(token, 0)))
+                        return { changes: { from: range.head - token.length, to: range.head + token.length },
+                            range: EditorSelection.cursor(range.head - token.length) };
+                }
+            }
+            return { range: dont = range };
+        });
+        return dont ? null : state.update(changes, { scrollIntoView: true });
+    }
+    /// Implements the extension's behavior on text insertion. Again,
+    /// exported mostly for testing.
+    function handleInsertion(state, ch) {
+        let conf = config(state, state.selection.primary.head);
+        let tokens = conf.brackets || defaults$1.brackets;
+        for (let tok of tokens) {
+            let closed = closing(codePointAt(tok, 0));
+            if (ch == tok)
+                return closed == tok ? handleSame(state, tok, tokens.indexOf(tok + tok + tok) > -1)
+                    : handleOpen(state, tok, closed, conf.before || defaults$1.before);
+            if (ch == closed)
+                return handleClose(state, tok, closed);
+        }
+        return null;
+    }
+    function nextChar(doc, pos) {
+        let next = doc.sliceString(pos, pos + 2);
+        return next.slice(0, codePointSize(codePointAt(next, 0)));
+    }
+    function prevChar(doc, pos) {
+        let prev = doc.sliceString(pos - 2, pos);
+        return codePointSize(codePointAt(prev, 0)) == prev.length ? prev : prev.slice(1);
+    }
+    function handleOpen(state, open, close, closeBefore) {
+        let dont = null, changes = state.changeByRange(range => {
+            if (!range.empty)
+                return { changes: [{ insert: open, from: range.from }, { insert: close, from: range.to }],
+                    range: EditorSelection.range(range.anchor + open.length, range.head + open.length) };
+            let next = nextChar(state.doc, range.head);
+            if (!next || /\s/.test(next) || closeBefore.indexOf(next) > -1)
+                return { changes: { insert: open + close, from: range.head },
+                    range: EditorSelection.cursor(range.head + open.length) };
+            return { range: dont = range };
+        });
+        return dont ? null : state.update(changes, { scrollIntoView: true });
+    }
+    function handleClose(state, _open, close) {
+        let dont = null, moved = state.selection.ranges.map(range => {
+            if (range.empty && nextChar(state.doc, range.head) == close)
+                return EditorSelection.cursor(range.head + close.length);
+            return dont = range;
+        });
+        return dont ? null : state.update({ selection: EditorSelection.create(moved, state.selection.primaryIndex),
+            scrollIntoView: true });
+    }
+    // Handles cases where the open and close token are the same, and
+    // possibly triple quotes (as in `"""abc"""`-style quoting).
+    function handleSame(state, token, allowTriple) {
+        let dont = null, changes = state.changeByRange(range => {
+            if (!range.empty)
+                return { changes: [{ insert: token, from: range.from }, { insert: token, from: range.to }],
+                    range: EditorSelection.range(range.anchor + token.length, range.head + token.length) };
+            let pos = range.head, next = nextChar(state.doc, pos);
+            if (next == token) {
+                if (nodeStart(state, pos)) {
+                    return { changes: { insert: token + token, from: pos },
+                        range: EditorSelection.cursor(pos + token.length) };
+                }
+                else {
+                    let isTriple = allowTriple && state.sliceDoc(pos, pos + token.length * 3) == token + token + token;
+                    return { range: EditorSelection.cursor(pos + token.length * (isTriple ? 3 : 1)) };
+                }
+            }
+            else if (allowTriple && state.sliceDoc(pos - 2 * token.length, pos) == token + token &&
+                nodeStart(state, pos - 2 * token.length)) {
+                return { changes: { insert: token + token + token + token, from: pos },
+                    range: EditorSelection.cursor(pos + token.length) };
+            }
+            else if (state.charCategorizer(pos)(next) != CharCategory.Word) {
+                let prev = state.sliceDoc(pos - 1, pos);
+                if (prev != token && state.charCategorizer(pos)(prev) != CharCategory.Word)
+                    return { changes: { insert: token + token, from: pos },
+                        range: EditorSelection.cursor(pos + token.length) };
+            }
+            return { range: dont = range };
+        });
+        return dont ? null : state.update(changes, { scrollIntoView: true });
+    }
+    function nodeStart(state, pos) {
+        let tree = state.tree.resolve(pos + 1);
+        return tree.parent && tree.start == pos;
+    }
+
+    const tooltipPlugin = ViewPlugin.fromClass(class {
+        constructor(view) {
+            this.view = view;
+            view.scrollDOM.addEventListener("scroll", this.onscroll = this.onscroll.bind(this));
+            this.measureReq = { read: this.readMeasure.bind(this), write: this.writeMeasure.bind(this), key: this };
+            this.sources = view.state.facet(showTooltip);
+            this.tooltips = this.sources.map(s => this.createTooltip(s));
+        }
+        update(update) {
+            let sources = update.state.facet(showTooltip);
+            if (sources == this.sources) {
+                for (let t of this.tooltips)
+                    if (t.update)
+                        t.update(update);
+            }
+            else {
+                let tooltips = [];
+                for (let i = 0; i < sources.length; i++) {
+                    let source = sources[i], known = this.sources.indexOf(source);
+                    if (known < 0) {
+                        tooltips[i] = this.createTooltip(source);
+                    }
+                    else {
+                        let tooltip = tooltips[i] = this.tooltips[known];
+                        if (tooltip.update)
+                            tooltip.update(update);
+                    }
+                }
+                for (let t of this.tooltips)
+                    if (tooltips.indexOf(t) < 0)
+                        t.dom.remove();
+                this.sources = sources;
+                this.tooltips = tooltips;
+                if (this.tooltips.length)
+                    this.view.requestMeasure(this.measureReq);
+            }
+            if (update.docChanged && this.tooltips.length)
+                this.view.requestMeasure(this.measureReq);
+        }
+        createTooltip(source) {
+            let tooltip = source(this.view);
+            tooltip.dom.className = themeClass("tooltip" + (tooltip.style ? "." + tooltip.style : ""));
+            this.view.dom.appendChild(tooltip.dom);
+            if (tooltip.mount)
+                tooltip.mount(this.view);
+            return tooltip;
+        }
+        destroy() {
+            this.view.scrollDOM.removeEventListener("scroll", this.onscroll);
+            for (let { dom } of this.tooltips)
+                dom.remove();
+        }
+        readMeasure() {
+            return {
+                editor: this.view.dom.getBoundingClientRect(),
+                pos: this.tooltips.map(tooltip => this.view.coordsAtPos(tooltip.pos)),
+                size: this.tooltips.map(({ dom }) => dom.getBoundingClientRect()),
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight
+            };
+        }
+        writeMeasure(measured) {
+            let { editor } = measured;
+            for (let i = 0; i < this.tooltips.length; i++) {
+                let tooltip = this.tooltips[i], pos = measured.pos[i], size = measured.size[i];
+                // Hide tooltips that are outside of the editor.
+                if (!pos || pos.bottom <= editor.top || pos.top >= editor.bottom || pos.right <= editor.left || pos.left >= editor.right) {
+                    tooltip.dom.style.top = "-10000px";
+                    continue;
+                }
+                let width = size.right - size.left, height = size.bottom - size.top;
+                let left = this.view.textDirection == Direction.LTR ? Math.min(pos.left, measured.innerWidth - width)
+                    : Math.max(0, pos.left - width);
+                let above = !!tooltip.above;
+                if (!tooltip.strictSide &&
+                    (above ? pos.top - (size.bottom - size.top) < 0 : pos.bottom + (size.bottom - size.top) > measured.innerHeight))
+                    above = !above;
+                tooltip.dom.style.top = ((above ? pos.top - height : pos.bottom) - editor.top) + "px";
+                tooltip.dom.style.left = (left - editor.left) + "px";
+            }
+        }
+        onscroll() {
+            if (this.tooltips.length)
+                this.view.requestMeasure(this.measureReq);
+        }
+    });
+    const baseTheme$5 = EditorView.baseTheme({
+        tooltip: {
+            position: "absolute",
+            border: "1px solid silver",
+            backgroundColor: "#f5f5f5",
+            zIndex: 100
+        }
+    });
+    /// Supporting extension for displaying tooltips. Allows
+    /// [`showTooltip`](#tooltip.showTooltip) to be used to define
+    /// tooltips.
+    function tooltips() {
+        return [tooltipPlugin, baseTheme$5];
+    }
+    /// Behavior by which an extension can provide a tooltip to be shown.
+    const showTooltip = Facet.define();
+
+    /// Denotes how to
+    /// [filter](#autocomplete.autocomplete^config.filterType)
+    /// completions.
+    var FilterType;
+    (function (FilterType) {
+        /// Only show completions that start with the currently typed text.
+        FilterType[FilterType["Start"] = 0] = "Start";
+        /// Show completions that have the typed text anywhere in their
+        /// content.
+        FilterType[FilterType["Fuzzy"] = 1] = "Fuzzy";
+    })(FilterType || (FilterType = {}));
+    class AutocompleteContext {
+        /// @internal
+        constructor(explicit, filterType) {
+            this.explicit = explicit;
+            this.filterType = filterType;
+        }
+        filter(completion, text) {
+            if (this.filterType == FilterType.Start)
+                return completion.length > text.length && completion.slice(0, text.length) == text;
+            else
+                return completion.length > text.length && completion.indexOf(text) > -1;
+        }
+    }
+    function retrieveCompletions(state, pos, context) {
+        let found = state.languageDataAt("autocomplete", pos);
+        function next(i) {
+            if (i == found.length)
+                return Promise.resolve([]);
+            return Promise.resolve(found[i](state, pos, context)).then(result => result.length ? result : next(i + 1));
+        }
+        return next(0);
+    }
+    const autocompleteConfig = Facet.define({
+        combine(configs) {
+            return combineConfig(configs, {
+                override: null,
+                filterType: FilterType.Start
+            });
+        }
+    });
+    /// Returns an extension that enables autocompletion.
+    function autocomplete(config = {}) {
+        return [
+            activeCompletion,
+            autocompleteConfig.of(config),
+            autocompletePlugin,
+            style,
+            tooltips(),
+            Precedence.Override.set(keymap([
+                { key: "ArrowDown", run: moveCompletion("down") },
+                { key: "ArrowUp", run: moveCompletion("up") },
+                { key: "Enter", run: acceptCompletion },
+                { key: "Escape", run: closeCompletion }
+            ]))
+        ];
+    }
+    function moveCompletion(dir) {
+        return (view) => {
+            let active = view.state.field(activeCompletion);
+            if (!(active instanceof ActiveCompletion))
+                return false;
+            let selected = (active.selected + (dir == "up" ? active.options.length - 1 : 1)) % active.options.length;
+            view.dispatch(view.state.update({ effects: selectCompletion.of(selected) }));
+            return true;
+        };
+    }
+    function acceptCompletion(view) {
+        let active = view.state.field(activeCompletion);
+        if (!(active instanceof ActiveCompletion))
+            return false;
+        applyCompletion(view, active.options[active.selected]);
+        return true;
+    }
+    function applyCompletion(view, option) {
+        let apply = option.apply || option.label;
+        // FIXME make sure option.start/end still point at the current
+        // doc, or keep a mapping in an active completion
+        if (typeof apply == "string") {
+            view.dispatch(view.state.update({
+                changes: { from: option.start, to: option.end, insert: apply },
+                selection: { anchor: option.start + apply.length }
+            }));
+        }
+        else {
+            apply(view);
+        }
+    }
+    function closeCompletion(view) {
+        let active = view.state.field(activeCompletion);
+        if (active == null)
+            return false;
+        view.dispatch(view.state.update({ effects: toggleCompletion.of(false) }));
+        return true;
+    }
+    const openCompletion = StateEffect.define();
+    const toggleCompletion = StateEffect.define();
+    const selectCompletion = StateEffect.define();
+    const activeCompletion = StateField.define({
+        create() { return null; },
+        update(value, tr) {
+            let event = tr.annotation(Transaction.userEvent);
+            if (event == "input" || event == "delete" && value)
+                value = "pending";
+            else if (tr.docChanged || tr.selection)
+                value = null;
+            for (let effect of tr.effects) {
+                if (effect.is(openCompletion))
+                    value = new ActiveCompletion(effect.value, 0);
+                else if (effect.is(toggleCompletion))
+                    value = effect.value ? "pendingExplicit" : null;
+                else if (effect.is(selectCompletion) && value instanceof ActiveCompletion)
+                    value = new ActiveCompletion(value.options, effect.value, value.id, value.tooltip);
+            }
+            return value;
+        },
+        provide: [
+            showTooltip.nFrom(active => active instanceof ActiveCompletion ? active.tooltip : none$6),
+            EditorView.contentAttributes.from(active => active instanceof ActiveCompletion ? active.attrs : baseAttrs)
+        ]
+    });
+    const baseAttrs = { "aria-autocomplete": "list" }, none$6 = [];
+    class ActiveCompletion {
+        constructor(options, selected, id = "cm-ac-" + Math.floor(Math.random() * 1679616).toString(36), tooltip = [completionTooltip()]) {
+            this.options = options;
+            this.selected = selected;
+            this.id = id;
+            this.tooltip = tooltip;
+            this.attrs = {
+                "aria-autocomplete": "list",
+                "aria-activedescendant": this.id + "-" + this.selected,
+                "aria-owns": this.id
+            };
+        }
+    }
+    function createListBox(completion) {
+        const ul = document.createElement("ul");
+        ul.id = completion.id;
+        ul.setAttribute("role", "listbox");
+        ul.setAttribute("aria-expanded", "true");
+        for (let i = 0; i < completion.options.length; i++) {
+            const li = ul.appendChild(document.createElement("li"));
+            li.id = completion.id + "-" + i;
+            li.innerText = completion.options[i].label;
+            li.setAttribute("role", "option");
+        }
+        return ul;
+    }
+    // We allocate a new function instance every time the completion
+    // changes to force redrawing/repositioning of the tooltip
+    function completionTooltip() {
+        return (view) => {
+            let active = view.state.field(activeCompletion);
+            let list = createListBox(active);
+            list.addEventListener("click", (e) => {
+                let index = 0, dom = e.target;
+                for (;;) {
+                    dom = dom.previousSibling;
+                    if (!dom)
+                        break;
+                    index++;
+                }
+                let active = view.state.field(activeCompletion);
+                if (active instanceof ActiveCompletion && index < active.options.length)
+                    applyCompletion(view, active.options[index]);
+            });
+            function updateSel(view) {
+                let cur = view.state.field(activeCompletion);
+                if (cur instanceof ActiveCompletion)
+                    updateSelectedOption(list, cur.selected);
+            }
+            return {
+                dom: list,
+                mount: updateSel,
+                update(update) {
+                    if (update.state.field(activeCompletion) != update.prevState.field(activeCompletion))
+                        updateSel(update.view);
+                },
+                pos: active.options.reduce((m, o) => Math.min(m, o.start), 1e9),
+                style: "autocomplete"
+            };
+        };
+    }
+    function updateSelectedOption(list, selected) {
+        let set = null;
+        for (let opt = list.firstChild, i = 0; opt; opt = opt.nextSibling, i++) {
+            if (i == selected) {
+                if (!opt.hasAttribute("aria-selected")) {
+                    opt.setAttribute("aria-selected", "true");
+                    set = opt;
+                }
+            }
+            else {
+                if (opt.hasAttribute("aria-selected"))
+                    opt.removeAttribute("aria-selected");
+            }
+        }
+        if (set)
+            scrollIntoView(list, set);
+    }
+    function scrollIntoView(container, element) {
+        let parent = container.getBoundingClientRect();
+        let self = element.getBoundingClientRect();
+        if (self.top < parent.top)
+            container.scrollTop -= parent.top - self.top;
+        else if (self.bottom > parent.bottom)
+            container.scrollTop += self.bottom - parent.bottom;
+    }
+    const DebounceTime = 100;
+    const autocompletePlugin = ViewPlugin.fromClass(class {
+        constructor(view) {
+            this.view = view;
+            this.stateVersion = 0;
+            this.debounce = -1;
+        }
+        update(update) {
+            if (!update.docChanged && !update.selectionSet &&
+                update.prevState.field(activeCompletion) == update.state.field(activeCompletion))
+                return;
+            this.stateVersion++;
+            if (this.debounce > -1)
+                clearTimeout(this.debounce);
+            let active = update.state.field(activeCompletion);
+            this.debounce = active == "pending" || active == "pendingExplicit"
+                ? setTimeout(() => this.startUpdate(active == "pendingExplicit"), DebounceTime) : -1;
+        }
+        startUpdate(explicit) {
+            this.debounce = -1;
+            let version = this.stateVersion, state = this.view.state, pos = state.selection.primary.head;
+            let config = state.facet(autocompleteConfig);
+            let context = new AutocompleteContext(explicit, config.filterType);
+            (config.override ? Promise.resolve(config.override(state, pos, context)) : retrieveCompletions(state, pos, context))
+                .then(result => {
+                if (this.stateVersion != version || result.length == 0)
+                    return;
+                this.view.dispatch(this.view.state.update({ effects: openCompletion.of(result) }));
+            })
+                .catch(e => logException(this.view.state, e));
+        }
+    });
+    const style = EditorView.baseTheme({
+        "tooltip.autocomplete": {
+            fontFamily: "monospace",
+            overflowY: "auto",
+            maxHeight: "10em",
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            "& > li": {
+                cursor: "pointer",
+                padding: "1px 1em 1px 3px",
+                lineHeight: 1.2
+            },
+            "& > li[aria-selected]": {
+                background_fallback: "#bdf",
+                backgroundColor: "Highlight",
+                color_fallback: "white",
+                color: "HighlightText"
+            }
+        }
+    });
+
     let EditorCode = class EditorCode extends MobxLitElement {
         constructor() {
             super(...arguments);
-            this.sourceCode = null;
+            this.editorState = null;
+            this.editorView = null;
+        }
+        connectedCallback() {
+            super.connectedCallback();
             this.editorState = EditorState.create({
-                doc: 'Hello World',
+                doc: this.sourceCode,
                 extensions: [
                     lineNumbers(),
                     javascript(),
                     highlightActiveLine(),
                     bracketMatching(),
-                    // EditorState.indentUnit.of(4),
+                    history(),
+                    autocomplete(),
+                    closeBrackets,
                     oneDark,
                 ],
             });
@@ -20294,26 +21126,10 @@
             });
         }
         render() {
-            return html `
-            <textarea class=${modules_e6e9bf22.codemirrorElement}></textarea>
-        `;
-        }
-        firstUpdated(_changedProperties) {
-            const textArea = this.shadowRoot.querySelector(modules_e6e9bf22.codemirrorElement);
-            if (!textArea) {
-                throw new Error('Could not find textArea element!');
-            }
-            // this.codeMirrorEditor = CodeMirror.fromTextArea(textArea, {
-            //     value: this.sourceCode || '',
-            //     viewportMargin: Infinity,
-            //     lineWrapping: true,
-            //     indentUnit: 4,
-            // });
+            return html `${this.editorView.dom}`;
         }
         updated(changedProperties) {
-            // if (changedProperties.has('sourceCode')) {
-            //     this.codeMirrorEditor?.setValue(this.sourceCode || '');
-            // }
+            if (changedProperties.has('sourceCode')) ;
         }
     };
     EditorCode.styles = unsafeCSS(css$9);
@@ -20324,52 +21140,18 @@
         customElement('my-editor-code')
     ], EditorCode);
 
-    const css$a = ".editor_c8c1fdf6{position:relative;overflow:auto;overflow-x:hidden;height:100%}.editorCode_c8c1fdf6{box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);border-radius:2px;background:#232323;position:relative;height:auto;width:100%}";
-    const modules_eb861c89 = {"editor":"editor_c8c1fdf6","editorCode":"editorCode_c8c1fdf6"};
+    const css$a = ".editor_0e062a04{padding:64px 0;width:800px;margin:0 auto}.editorCode_0e062a04{box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);border-radius:2px;background:#232323;position:relative;height:auto;width:100%}";
+    const modules_eb861c89 = {"editor":"editor_0e062a04","editorCode":"editorCode_0e062a04"};
 
     let Editor = class Editor extends MobxLitElement {
         constructor() {
             super(...arguments);
             this.exampleService = globalDependencies.get('exampleService');
             this.sourceCode = null;
-            // private async loadExample(): Promise<TemplateResult> {
-            //
-            //     if (this.examplePath === null) {
-            //         throw new Error('No examplePath provided!')
-            //     }
-            //
-            //     try {
-            //         const response = await fetch(`public/js/${this.examplePath}?no-cache=${Date.now()}`, {
-            //             cache: 'no-cache',
-            //             method: 'GET',
-            //             mode: 'cors',
-            //         });
-            //
-            //         if (!response || !response.ok) {
-            //             return null;
-            //         }
-            //
-            //         return response.text();
-            //     } catch (e) {
-            //         return null;
-            //     }
-            // }
-            //
-            // private async refreshPreview(event: CustomEvent<IRefreshPreviewEvent>): Promise<void> {
-            //
-            //     const code = event.detail?.code ?? null;
-            //
-            //     if (this.code === code || code === null) {
-            //         return;
-            //     }
-            //
-            //     this.code = code;
-            // }
         }
         connectedCallback() {
             super.connectedCallback();
             autorun(() => {
-                console.log('reaction', this.exampleService.currentExample);
                 this.loadSourceCode(this.exampleService.currentExample);
             });
         }
@@ -20384,13 +21166,13 @@
             const exampleName = ((_a = this.exampleService.currentExample) === null || _a === void 0 ? void 0 : _a.name) || '';
             return html `
             <div class=${modules_eb861c89.editor}>
-                <my-editor-preview sourceCode=${this.sourceCode} />
+                <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
 
                 <section class=${modules_eb861c89.editorCode}>
                     <my-toolbar title="${`Example Code: ${exampleName}`}">
                         <my-button @click="${this.triggerRefreshPreview}">REFRESH</my-button>
                     </my-toolbar>
-                    <my-editor-code sourceCode=${this.sourceCode} />
+                    <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
                 </section>
             </div>
         `;

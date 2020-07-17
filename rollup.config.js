@@ -10,7 +10,8 @@ import del from 'rollup-plugin-delete';
 import autoprefixer from 'autoprefixer';
 import { eslint } from 'rollup-plugin-eslint';
 import { terser } from 'rollup-plugin-terser';
-import html from '@rollup/plugin-html';
+import copy from 'rollup-plugin-copy';
+import dev from 'rollup-plugin-dev';
 
 export default [
   {
@@ -37,7 +38,7 @@ export default [
     plugins: [
       eslint({ fix: true }),
       progress({ clearLine: true }),
-      del({ targets: ['dist/*'] }),
+      del({ targets: ['dist/*', 'src/**/*.module.scss.d.ts'] }),
       resolve({
         mainFields: ['module', 'main', 'browser'],
         extensions: ['.mjs', '.js', '.json', '.ts'],
@@ -73,23 +74,12 @@ export default [
         },
       }),
       typescript({ typescript: require('typescript') }),
-      html({
-        fileName: 'index.html',
-        title: 'ExoJS Examples',
-        meta: [
-          {
-            charset: 'utf-8',
-          },
-          {
-            name: 'viewport',
-            content: 'initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, minimal-ui',
-          },
-          {
-            name: 'apple-mobile-web-app-capable',
-            content: 'yes',
-          },
-        ],
-      })
+      copy({
+        targets: [
+          { src: 'public/*', dest: 'dist' },
+        ]
+      }),
+      dev('dist'),
     ],
   },
 ];

@@ -4,11 +4,10 @@ import {
     CSSResult,
     customElement,
     html, internalProperty,
-    LitElement,
     TemplateResult,
     unsafeCSS,
 } from 'lit-element';
-import { autorun, reaction } from 'mobx';
+import { autorun } from 'mobx';
 import { Example, ExampleService } from '../../classes/ExampleService';
 import { globalDependencies } from '../../classes/globalDependencies';
 import { MobxLitElement } from '@adobe/lit-mobx';
@@ -26,7 +25,6 @@ export default class Editor extends MobxLitElement {
         super.connectedCallback();
 
         autorun(() => {
-            console.log('reaction', this.exampleService.currentExample);
             this.loadSourceCode(this.exampleService.currentExample);
         });
     }
@@ -45,13 +43,13 @@ export default class Editor extends MobxLitElement {
 
         return html`
             <div class=${styles.editor}>
-                <my-editor-preview sourceCode=${this.sourceCode} />
+                <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
 
                 <section class=${styles.editorCode}>
                     <my-toolbar title="${`Example Code: ${exampleName}`}">
                         <my-button @click="${this.triggerRefreshPreview}">REFRESH</my-button>
                     </my-toolbar>
-                    <my-editor-code sourceCode=${this.sourceCode} />
+                    <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
                 </section>
             </div>
         `;
@@ -65,38 +63,4 @@ export default class Editor extends MobxLitElement {
         //     throw new Error('No Editor was found!');
         // }
     }
-
-    // private async loadExample(): Promise<TemplateResult> {
-    //
-    //     if (this.examplePath === null) {
-    //         throw new Error('No examplePath provided!')
-    //     }
-    //
-    //     try {
-    //         const response = await fetch(`public/js/${this.examplePath}?no-cache=${Date.now()}`, {
-    //             cache: 'no-cache',
-    //             method: 'GET',
-    //             mode: 'cors',
-    //         });
-    //
-    //         if (!response || !response.ok) {
-    //             return null;
-    //         }
-    //
-    //         return response.text();
-    //     } catch (e) {
-    //         return null;
-    //     }
-    // }
-    //
-    // private async refreshPreview(event: CustomEvent<IRefreshPreviewEvent>): Promise<void> {
-    //
-    //     const code = event.detail?.code ?? null;
-    //
-    //     if (this.code === code || code === null) {
-    //         return;
-    //     }
-    //
-    //     this.code = code;
-    // }
 }

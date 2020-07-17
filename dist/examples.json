@@ -1,0 +1,27 @@
+{
+  "rendering": [
+    "sprite",
+    "container",
+    "blendmodes",
+    "tinted-sprites",
+    "view-handling",
+    "render-to-texture",
+    "display-text",
+    "display-video",
+    "display-svg"
+  ],
+  "input": [
+    "gamepad"
+  ],
+  "collision-detection": [
+    "rectangles"
+  ],
+  "particle-system": [
+    "bonfire",
+    "fireworks"
+  ],
+  "extras": [
+    "audio-visualisation",
+    "benchmark"
+  ]
+}

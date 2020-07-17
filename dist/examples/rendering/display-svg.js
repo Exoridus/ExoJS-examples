@@ -10,24 +10,22 @@ document.body.append(app.canvas);
 app.start(new Exo.Scene({
 
     load(loader) {
-        loader.add('texture', { bunny: 'image/bunny.png' });
+        loader.add('svg', { tiger: 'svg/tiger.svg' });
     },
 
     init(resources) {
         const { width, height } = this.app.canvas;
 
-        this._bunny = new Exo.Sprite(resources.get('texture', 'bunny'));
-        this._bunny.setPosition(width / 2 | 0, height / 2 | 0);
-        this._bunny.setAnchor(0.5);
-    },
+        this._texture = new Exo.Texture(resources.get('svg', 'tiger'));
 
-    update(delta) {
-        this._bunny.rotate(delta.seconds * 360);
+        this._tiger = new Exo.Sprite(this._texture);
+        this._tiger.setAnchor(0.5);
+        this._tiger.setPosition(width / 2 | 0, height / 2 | 0);
     },
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._bunny);
+        renderManager.draw(this._tiger);
         renderManager.display();
     },
 }));

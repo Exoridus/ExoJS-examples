@@ -1,10 +1,9 @@
 @import "../../scss/variables";
 
 .editor {
-    position: relative;
-    overflow: auto;
-    overflow-x: hidden;
-    height: 100%;
+    padding: 64px 0;
+    width: 800px;
+    margin: 0 auto;
 }
 
 .editorCode {

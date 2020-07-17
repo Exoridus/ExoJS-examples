@@ -1,4 +1,0 @@
-export const css: string;
-interface ModulesExports {"codemirrorElement":"codemirrorElement_e2494e1a","CodeMirror":"CodeMirror_e2494e1a","CodeMirror-cursor":"CodeMirrorCursor_e2494e1a","CodeMirror-activeline-background":"CodeMirrorActivelineBackground_e2494e1a","CodeMirror-selected":"CodeMirrorSelected_e2494e1a","CodeMirror-gutters":"CodeMirrorGutters_e2494e1a","CodeMirror-linenumber":"CodeMirrorLinenumber_e2494e1a","cm-comment":"cmComment_e2494e1a","cm-string":"cmString_e2494e1a","cm-number":"cmNumber_e2494e1a","cm-atom":"cmAtom_e2494e1a","cm-keyword":"cmKeyword_e2494e1a","cm-variable":"cmVariable_e2494e1a","cm-def":"cmDef_e2494e1a","cm-variable-2":"cmVariable2_e2494e1a","cm-property":"cmProperty_e2494e1a","cm-operator":"cmOperator_e2494e1a"}
-declare const modules_e6e9bf22: ModulesExports;
-export default modules_e6e9bf22;

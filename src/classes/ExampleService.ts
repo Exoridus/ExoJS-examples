@@ -1,4 +1,4 @@
-import { action, computed, observable, runInAction, toJS } from 'mobx';
+import { action, computed, observable, runInAction } from 'mobx';
 import { RequestService } from './RequestService';
 
 export interface ExampleData {
@@ -15,8 +15,8 @@ export type ExamplesMap = Map<string, Array<Example>>;
 export class ExampleService {
 
     private readonly requestService: RequestService;
-    private readonly sourcePath = 'public/js';
-    private readonly manifestPath = 'public/examples.json';
+    private readonly sourcePath = 'examples';
+    private readonly manifestPath = 'examples.json';
 
     @observable
     public exampleData: ExampleData | null = null;

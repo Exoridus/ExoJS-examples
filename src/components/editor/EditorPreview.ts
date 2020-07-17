@@ -5,7 +5,7 @@ import {
     customElement,
     html, internalProperty,
     LitElement,
-    property,
+    property, PropertyValues,
     TemplateResult, unsafeCSS,
 } from 'lit-element';
 
@@ -14,113 +14,70 @@ export default class EditorPreview extends LitElement {
 
     public static styles: CSSResult = unsafeCSS(css);
 
-    @property({ type: String }) public sourceCode: string | null = null;
-    // @internalProperty() iframeElement: HTMLIFrameElement | null = null;
-
-    // private pendingIframe: Promise<HTMLIFrameElement> | null = null;
-    //
-    // public connectedCallback(): void {
-    //     super.connectedCallback();
-    //
-    //     this.pendingIframe = this.createIframeElement();
-    // }
+    @property({ type: String }) public sourceCode?: string;
+    @internalProperty() private updateId = 0;
 
     public render(): TemplateResult {
 
-        if (this.sourceCode === null) {
-            return html`<span>No Sourcecode to preview...</span>`;
-        }
-
-        const iframeSrc = 'preview.html';
-
         return html`
-            <iframe 
-                class=${styles.preview} 
-                onload=${this.onLoadIframe}
-                onerror=${this.onErrorIframe}
-                src=${iframeSrc}
-             />
+            <div class=${styles.editorPreview}>
+                ${this.renderContent()}
+            </div>
         `;
     }
 
-    // public updated() {
-    //     const iframe = this.shadowRoot!.querySelector(styles.preview) as HTMLIFrameElement;
-    //
-    //     if (!iframe) {
-    //         throw new Error('Could not find iframe element!');
-    //     }
-    //
-    //     iframe.onload = (): void => {
-    //         try {
-    //             this.addIframeScript(iframe, this.sourceCode!);
-    //         } catch (error) {
-    //             console.error('Could not add source code to iframe!', error);
-    //         }
-    //     };
-    //
-    //     iframe.onerror = (error): void => {
-    //         console.error('Could not load iframe source!', error);
-    //     };
-    //
-    //     iframe.src = 'preview.html';
-    // }
+    public renderContent(): TemplateResult {
 
-    private onLoadIframe(event: any): void {
-        console.log('onLoadIframe', event);
-        // try {
-        //     this.addIframeScript(iframe, this.sourceCode);
-        // } catch (e) {
-        //     return reject();
-        // }
+        if (!this.sourceCode) {
+            return html`<my-loading-spinner centered></my-loading-spinner>`;
+        }
+
+        return html`
+            <iframe
+                class=${styles.preview}
+                @load=${this.onLoadIframe}
+                @error=${this.onErrorIframe}
+                src="preview.html?update=${this.updateId}"
+            ></iframe>
+        `;
     }
 
-    private onErrorIframe(event: any): void {
-        console.log('onErrorIframe', event);
-        // try {
-        //     this.addIframeScript(iframe, this.sourceCode);
-        // } catch (e) {
-        //     return reject();
-        // }
+    protected update(changedProperties: PropertyValues): void {
+        if (changedProperties.has('sourceCode')) {
+            this.updateId += 1;
+        }
+
+        super.update(changedProperties);
     }
 
-    private async createIframeElement(): Promise<HTMLIFrameElement> {
-
-        return new Promise<HTMLIFrameElement>(((resolve, reject) => {
-
-            const iframe = document.createElement('iframe');
-
-            iframe.classList.add(styles.preview);
-            iframe.onload = (): void => {
-                try {
-                    this.addIframeScript(iframe, this.sourceCode!);
-                } catch (e) {
-                    return reject();
-                }
-
-                resolve(iframe);
-            };
-            iframe.onerror = (): void => reject();
-            iframe.src = 'preview.html';
-        }));
-    }
-
-    private addIframeScript(iframe: HTMLIFrameElement, source: string): void {
-
+    private onLoadIframe(event: Event): void {
+        const iframe = event.composedPath()[0] as HTMLIFrameElement;
         const iframeBody = iframe.contentWindow?.document.body;
 
         if (!iframeBody) {
             throw new Error('Could not access iframe body element!');
         }
 
+        if (!this.sourceCode) {
+            throw new Error('No source code provided!');
+        }
+
         const script = document.createElement('script');
 
         script.type = 'text/javascript';
         script.innerHTML = `
-            window.onload = function () {
-                ${source}
-            }
+            ${this.sourceCode}
         `;
 
         iframeBody.appendChild(script);
+    }
+
+    private onErrorIframe(event: Event | string): void {
+        console.log('onErrorIframe', event);
+        // try {
+        //     this.addIframeScript(iframe, this.sourceCode);
+        // } catch (e) {
+        //     return reject();
+        // }
     }
 }
