@@ -38,7 +38,8 @@ export class RequestService {
 
     private buildUrl(path: string, params?: UrlParams): string {
 
-        const url = new URL(path, window.location.origin);
+        const { origin, pathname } = window.location;
+        const url = new URL(path, `${origin}${pathname}`);
 
         if (params) {
             for (const [key, value] of Object.entries(params)) {
