@@ -3,22 +3,27 @@ import styles, { css } from './EditorPreview.module.scss';
 import {
     CSSResult,
     customElement,
-    html, internalProperty,
+    html,
+    internalProperty,
     LitElement,
-    property, PropertyValues,
-    TemplateResult, unsafeCSS,
+    property,
+    PropertyValues,
+    TemplateResult,
+    unsafeCSS,
 } from 'lit-element';
+import { globalDependencies } from '../../classes/globalDependencies';
+import { UrlService } from '../../classes/UrlService';
 
 @customElement('my-editor-preview')
 export default class EditorPreview extends LitElement {
-
     public static styles: CSSResult = unsafeCSS(css);
+
+    private urlService: UrlService = globalDependencies.get('urlService');
 
     @property({ type: String }) public sourceCode?: string;
     @internalProperty() private updateId = 0;
 
     public render(): TemplateResult {
-
         return html`
             <div class=${styles.editorPreview}>
                 ${this.renderContent()}
@@ -26,18 +31,21 @@ export default class EditorPreview extends LitElement {
         `;
     }
 
-    public renderContent(): TemplateResult {
-
+    private renderContent(): TemplateResult {
         if (!this.sourceCode) {
-            return html`<my-loading-spinner centered></my-loading-spinner>`;
+            return html`<my-loading-spinner centered />`;
         }
+
+        const iframeUrl = this.urlService.buildIframeUrl({
+            'no-cache': this.updateId,
+        });
 
         return html`
             <iframe
                 class=${styles.preview}
                 @load=${this.onLoadIframe}
                 @error=${this.onErrorIframe}
-                src="preview.html?update=${this.updateId}"
+                src=${iframeUrl}
             ></iframe>
         `;
     }
@@ -52,7 +60,7 @@ export default class EditorPreview extends LitElement {
 
     private onLoadIframe(event: Event): void {
         const iframe = event.composedPath()[0] as HTMLIFrameElement;
-        const iframeBody = iframe.contentWindow?.document.body;
+        const iframeBody = (iframe.contentDocument || iframe.contentWindow?.document)?.body;
 
         if (!iframeBody) {
             throw new Error('Could not access iframe body element!');
@@ -65,9 +73,7 @@ export default class EditorPreview extends LitElement {
         const script = document.createElement('script');
 
         script.type = 'text/javascript';
-        script.innerHTML = `
-            ${this.sourceCode}
-        `;
+        script.innerHTML = this.sourceCode;
 
         iframeBody.appendChild(script);
     }

@@ -1,7 +1,6 @@
 import { action, observable } from 'mobx';
 
 export class LocationService {
-
     @observable
     public currentHash: string = window.location.hash.slice(1);
 

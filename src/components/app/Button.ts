@@ -1,20 +1,26 @@
 import styles, { css } from './Button.module.scss';
 
-import { CSSResult, customElement, html, LitElement, TemplateResult, unsafeCSS } from 'lit-element';
+import { CSSResult, customElement, html, LitElement, property, TemplateResult, unsafeCSS } from 'lit-element';
+import { classMap } from 'lit-html/directives/class-map';
 
 @customElement('my-button')
 export default class Button extends LitElement {
-
     public static styles: CSSResult = unsafeCSS(css);
 
+    @property({ type: Boolean }) public disabled = false;
+
     public render(): TemplateResult {
+        const componentClass = classMap({
+            [styles.button]: true,
+            [styles.disabled]: this.disabled,
+        });
 
         return html`
-            <div class=${styles.button}>
-                <div class=${styles.buttonContent}>
+            <button ?disabled=${this.disabled} class=${componentClass}>
+                <span class=${styles.buttonContent}>
                     <slot></slot>
-                </div>
-            </div>
+                </span>
+            </button>
         `;
     }
 }

@@ -7,28 +7,27 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 
 @customElement('my-navigation')
 export default class Navigation extends MobxLitElement {
-
     public static styles: CSSResult = unsafeCSS(css);
 
     private exampleService: ExampleService = globalDependencies.get('exampleService');
 
     public render(): TemplateResult {
-
         const { hasExamples, nestedExamples } = this.exampleService;
 
         if (!hasExamples) {
             return html`<my-loading-indicator />`;
         }
 
+        const categories = Array.from(nestedExamples.entries());
+
         return html`
             <nav class=${styles.navigation}>
-                ${Array.from(nestedExamples.entries()).map(([category, entries]) => this.renderCategory(category, entries))}
+                ${categories.map(([category, entries]) => this.renderCategory(category, entries))}
             </nav>
         `;
     }
 
     private renderCategory(headline: string, entries: Array<Example>): TemplateResult {
-
         return html`
             <my-navigation-section headline=${headline}>
                 ${entries.map(({ name, path }) => this.renderLink(name, path))}
@@ -37,9 +36,6 @@ export default class Navigation extends MobxLitElement {
     }
 
     private renderLink(name: string, path: string): TemplateResult {
-
-        return html`
-            <my-navigation-link href="#${path}">${name}</my-navigation-link>
-        `;
+        return html` <my-navigation-link href="#${path}">${name}</my-navigation-link> `;
     }
 }

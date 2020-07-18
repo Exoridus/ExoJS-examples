@@ -1,4 +1,3 @@
-
 import './app/Button';
 import './app/Toolbar';
 import './app/LoadingSpinner';

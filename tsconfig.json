@@ -19,7 +19,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "public",
-    "**/*.scss.d.ts"
+    "public"
   ]
 }

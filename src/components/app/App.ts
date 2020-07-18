@@ -9,7 +9,6 @@ import { reaction } from 'mobx';
 
 @customElement('my-app')
 export default class App extends MobxLitElement {
-
     private exampleService: ExampleService = globalDependencies.get('exampleService');
     private locationService: LocationService = globalDependencies.get('locationService');
 
@@ -18,28 +17,27 @@ export default class App extends MobxLitElement {
     public connectedCallback(): void {
         super.connectedCallback();
 
-        reaction(() => [
-            this.locationService.currentHash,
-            this.exampleService.hasExamples,
-        ] as [string, boolean], ([currentHash, hasExamples]) => {
-            if (!hasExamples) {
-                return;
+        reaction(
+            () => [this.locationService.currentHash, this.exampleService.hasExamples] as [string, boolean],
+            ([currentHash, hasExamples]) => {
+                if (!hasExamples) {
+                    return;
+                }
+
+                if (!currentHash) {
+                    this.locationService.setHash(this.exampleService.examplesList[0]?.path);
+
+                    return;
+                }
+
+                const example = this.exampleService.getExampleByPath(currentHash);
+
+                this.exampleService.setCurrentExample(example);
             }
-
-            if (!currentHash) {
-                this.locationService.setHash(this.exampleService.examplesList[0]?.path);
-
-                return;
-            }
-
-            const example = this.exampleService.getExampleByPath(currentHash);
-
-            this.exampleService.setCurrentExample(example);
-        });
+        );
     }
 
     public render(): TemplateResult {
-
         return html`
             <div class="${styles.app}">
                 <aside class=${styles.navigation}>
@@ -51,7 +49,7 @@ export default class App extends MobxLitElement {
                     </div>
                 </aside>
                 <main class="${styles.content}">
-                    <my-editor></my-editor>
+                    <my-editor />
                 </main>
             </div>
         `;

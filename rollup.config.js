@@ -1,6 +1,5 @@
 import pkg from './package.json';
 import resolve from '@rollup/plugin-node-resolve';
-import typescript from 'rollup-plugin-typescript2';
 import progress from 'rollup-plugin-progress';
 import styles from 'rollup-plugin-styles';
 import externals from 'rollup-plugin-node-externals';
@@ -12,8 +11,6 @@ import { eslint } from 'rollup-plugin-eslint';
 import { terser } from 'rollup-plugin-terser';
 import copy from 'rollup-plugin-copy';
 import dev from 'rollup-plugin-dev';
-import prettier from 'rollup-plugin-prettier';
-import sizes from 'rollup-plugin-sizes';
 import ts from "@wessberg/rollup-plugin-ts";
 
 const isProduction = (process.env.NODE_ENV || '').trim() === 'production';
@@ -28,8 +25,10 @@ const devConfig = {
         assetFileNames: '[name][extname]',
     },
     plugins: [
-        del({ targets: ['dist/*', 'src/**/*.module.scss.d.ts'] }),
-        resolve({ mainFields: ['main'] }),
+        progress(),
+        eslint(),
+        del({ targets: ['dist/*'] }),
+        resolve(),
         externals(),
         json(),
         commonjs(),
@@ -44,21 +43,8 @@ const devConfig = {
             plugins: [autoprefixer],
             onExtract: () => false,
         }),
-        // prettier({
-        //     tabWidth: 4,
-        //     useTabs: false,
-        //     semi: true,
-        //     singleQuote: true,
-        //     quoteProps: 'as-needed',
-        //     trailingComma: 'es5',
-        //     bracketSpacing: true,
-        //     arrowParens: 'avoid',
-        // }),
-        typescript({ typescript: require('typescript') }),
+        ts(),
         copy({ targets: [{ src: 'public/*', dest: 'dist' }] }),
-        eslint({ fix: true }),
-        progress(),
-        sizes(),
         dev('dist'),
     ],
 };
@@ -73,8 +59,10 @@ const prodConfig = {
         assetFileNames: '[name][extname]',
     },
     plugins: [
-        del({ targets: ['dist/*', 'src/**/*.module.scss.d.ts'] }),
-        resolve({ mainFields: ['browser'] }),
+        progress(),
+        eslint(),
+        del({ targets: ['dist/*'] }),
+        resolve(),
         externals(),
         json(),
         commonjs(),
@@ -90,12 +78,9 @@ const prodConfig = {
             plugins: [autoprefixer],
             onExtract: () => false,
         }),
-        typescript({ typescript: require('typescript') }),
+        ts(),
         copy({ targets: [{ src: 'public/*', dest: 'dist' }] }),
-        eslint({ fix: true }),
         terser(),
-        progress(),
-        sizes(),
     ],
 };
 

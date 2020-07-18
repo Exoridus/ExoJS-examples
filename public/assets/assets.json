@@ -1,0 +1,26 @@
+{
+  "audio": [
+    "example.ogg"
+  ],
+  "font": [
+    "AndyBold.woff2"
+  ],
+  "image": [
+    "bunny.png",
+    "buttons.png",
+    "explosion.png",
+    "particle.png",
+    "rainbow.png",
+    "uv.png"
+  ],
+  "json": [
+    "buttons.json",
+    "explosion.json"
+  ],
+  "svg": [
+    "tiger.svg"
+  ],
+  "video": [
+    "example.webm"
+  ]
+}

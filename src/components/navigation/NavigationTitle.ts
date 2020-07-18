@@ -5,11 +5,9 @@ import { TemplateResult } from 'lit-html';
 
 @customElement('my-navigation-title')
 export default class NavigationTitle extends LitElement {
-
     public static styles: CSSResult = unsafeCSS(css);
 
     public render(): TemplateResult {
-
         return html`
             <div class=${styles.navigationTitle}>
                 <slot></slot>

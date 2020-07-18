@@ -1,13 +1,15 @@
 import { Obj } from '../typings';
 
 export type DependencyFactories<Dependencies extends Obj, Config extends Obj> = {
-    [Name in keyof Dependencies]: (container: DependencyContainer<Dependencies, Config>, data: Config) => Dependencies[Name] | Promise<Dependencies[Name]>;
+    [Name in keyof Dependencies]: (
+        container: DependencyContainer<Dependencies, Config>,
+        data: Config
+    ) => Dependencies[Name] | Promise<Dependencies[Name]>;
 };
 
 type DependencyMap<Dependencies extends Obj> = Map<keyof Dependencies, Dependencies[keyof Dependencies]>;
 
 export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
-
     private readonly dependencyFactories: DependencyFactories<Dependencies, Config>;
     private readonly dependencies: DependencyMap<Dependencies> = new Map();
     private readonly dependencyStack: Set<keyof Dependencies> = new Set();
@@ -17,7 +19,6 @@ export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
     }
 
     public async loadDependencies(config: Config): Promise<DependencyMap<Dependencies>> {
-
         const keys = Object.keys(this.dependencyFactories) as Array<keyof Dependencies>;
 
         for (const name of keys) {
@@ -28,7 +29,6 @@ export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
     }
 
     public get<Name extends keyof Dependencies>(name: Name): Dependencies[Name] {
-
         if (!this.dependencies.has(name)) {
             throw new Error(`Could not found loaded dependency ${name}!`);
         }
@@ -36,8 +36,10 @@ export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
         return this.dependencies.get(name) as Dependencies[Name];
     }
 
-    private async loadDependency<Name extends keyof Dependencies>(name: Name, config: Config): Promise<Dependencies[Name]> {
-
+    private async loadDependency<Name extends keyof Dependencies>(
+        name: Name,
+        config: Config
+    ): Promise<Dependencies[Name]> {
         if (this.dependencies.has(name)) {
             return this.dependencies.get(name) as Dependencies[Name];
         }

@@ -1,4 +1,3 @@
-
 export enum RequestStatus {
     initialized,
     loading,
@@ -8,7 +7,6 @@ export enum RequestStatus {
 }
 
 export class FetchRequest {
-
     private readonly url: string;
     private readonly requestOptions: RequestInit;
     private readonly abortController: AbortController;
@@ -19,12 +17,14 @@ export class FetchRequest {
     public constructor(url: string, requestOptions: RequestInit) {
         this.url = url;
         this.abortController = new AbortController();
-        this.requestOptions = { ...requestOptions, signal: this.abortController.signal };
+        this.requestOptions = {
+            ...requestOptions,
+            signal: this.abortController.signal,
+        };
         this.status = RequestStatus.initialized;
     }
 
     public async getJson<T>(): Promise<T | null> {
-
         const response = await this.getResponse();
 
         if (response === null) {
@@ -32,7 +32,7 @@ export class FetchRequest {
         }
 
         try {
-            return (await response.json() as T);
+            return (await response.json()) as T;
         } catch (error) {
             console.error(`Error while parsing json response! (${this.url})`, error, response);
             return null;
@@ -40,14 +40,12 @@ export class FetchRequest {
     }
 
     public async getText(): Promise<string | null> {
-
         const response = await this.getResponse();
 
         return response && (await response.text());
     }
 
     public async getResponse(): Promise<Response | null> {
-
         if (this.status !== RequestStatus.initialized) {
             return this.response;
         }
@@ -70,7 +68,6 @@ export class FetchRequest {
     }
 
     public cancel(): void {
-
         if (this.status !== RequestStatus.loading) {
             return;
         }

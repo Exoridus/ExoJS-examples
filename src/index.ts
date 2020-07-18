@@ -9,13 +9,22 @@ injectStyles(css, document.head);
 
 configure({ enforceActions: 'observed' });
 
+const { origin, pathname } = window.location;
+
 globalDependencies
-  .loadDependencies({
-    requestOptions: {
-      cache: 'no-cache',
-      method: 'GET',
-      mode: 'cors',
-    }
-  })
-  .then(() => render(html`<my-app />`, document.body))
-  .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));
+    .loadDependencies({
+        urlConfig: {
+            baseUrl: `${origin}${pathname}`,
+            iframeUrl: '/preview.html',
+            assetsDir: '/assets',
+            examplesDir: '/examples',
+            publicDir: '/public',
+        },
+        requestOptions: {
+            cache: 'no-cache',
+            method: 'GET',
+            mode: 'cors',
+        },
+    })
+    .then(() => render(html`<my-app />`, document.body))
+    .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));
