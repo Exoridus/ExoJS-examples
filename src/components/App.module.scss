@@ -1,0 +1,31 @@
+@import "../scss/colors";
+@import "../scss/typography";
+@import "../scss/mixins";
+@import "../scss/variables";
+
+* {
+    box-sizing: border-box;
+}
+
+:host {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    flex-direction: row;
+    min-width: $appMinWidth;
+}
+
+.sideContent {
+    flex: 0 1 320px;
+}
+
+.mainContent {
+    flex: 1 0 auto;
+}
+
+.sideContent,
+.mainContent {
+    @extend %customScrollbar;
+    overflow-x: hidden;
+    overflow-y: auto;
+}

@@ -1,0 +1,42 @@
+
+%customScrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+
+    &-button {
+        width: 0;
+        height: 0;
+    }
+
+    &-corner {
+        background: transparent;
+    }
+
+    &-thumb {
+        border: 0 none;
+        border-radius: 0;
+
+        &,
+        &:hover,
+        &:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    &-track {
+        border: 0 none;
+        border-radius: 0;
+
+        &,
+        &:hover,
+        &:active {
+            background: rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+
+@mixin breakpoint($width) {
+    @media (min-width: $width) {
+        @content;
+    }
+}

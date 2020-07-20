@@ -1,6 +1,6 @@
-import { Obj } from '../typings';
+import { Obj } from './types';
 
-export type DependencyFactories<Dependencies extends Obj, Config extends Obj> = {
+type DependencyFactories<Dependencies extends Obj, Config extends Obj> = {
     [Name in keyof Dependencies]: (
         container: DependencyContainer<Dependencies, Config>,
         data: Config

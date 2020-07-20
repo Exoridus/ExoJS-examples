@@ -8,18 +8,17 @@ export default class Button extends LitElement {
     public static styles: CSSResult = unsafeCSS(css);
 
     @property({ type: Boolean }) public disabled = false;
+    @property({ type: Boolean }) public flat = false;
 
     public render(): TemplateResult {
-        const componentClass = classMap({
+        const buttonClass = classMap({
             [styles.button]: true,
-            [styles.disabled]: this.disabled,
+            [styles.flat]: this.flat,
         });
 
         return html`
-            <button ?disabled=${this.disabled} class=${componentClass}>
-                <span class=${styles.buttonContent}>
-                    <slot></slot>
-                </span>
+            <button ?disabled=${this.disabled} class=${buttonClass}>
+                <slot></slot>
             </button>
         `;
     }

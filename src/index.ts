@@ -1,4 +1,5 @@
-import './components/index';
+import './components/App';
+
 import { css } from './index.scss';
 import { html, render } from 'lit-html';
 import { configure } from 'mobx';

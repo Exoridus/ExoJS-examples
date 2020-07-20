@@ -14,14 +14,14 @@
     "build": "set NODE_ENV=production && rollup -c",
     "deploy": "git subtree push --prefix dist origin gh-pages",
     "prettier": "prettier src/**/*.ts --config .prettierrc --write",
-    "eslint": "eslint ./src/**/*.ts --fix",
-    "ts-check": "tsc --noEmit --pretty",
-    "ts-declarations": "tsc --declaration --emitDeclarationOnly --outFile dist/examples.d.ts"
+    "check-ts": "tsc --noEmit --pretty",
+    "check-code": "eslint ./src/**/*.ts --fix",
+    "check-lit": "lit-analyzer src --strict"
   },
   "pre-commit": [
-    "eslint",
-    "ts-check",
-    "ts-declarations",
+    "check-ts",
+    "check-code",
+    "check-lit",
     "build",
     "deploy"
   ],
@@ -66,12 +66,14 @@
     "rollup-plugin-node-externals": "^2.2.0",
     "rollup-plugin-prettier": "^2.1.0",
     "rollup-plugin-progress": "^1.1.2",
+    "rollup-plugin-sass-lint": "^1.0.0",
     "rollup-plugin-serve": "^1.0.2",
     "rollup-plugin-sizes": "^1.0.2",
     "rollup-plugin-styles": "^3.10.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-typescript2": "^0.27.1",
     "serve-static": "^1.14.1",
+    "ts-lit-plugin": "^1.2.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.5"
   },

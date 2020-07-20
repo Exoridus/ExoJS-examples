@@ -1,47 +1,42 @@
-@import "../../scss/variables";
+@import "../scss/colors";
 
-.editorCode {
+:host {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     border-radius: 2px;
-    background: $color-card;
+    background: $mineShaft;
     position: relative;
     height: auto;
     width: 100%;
-}
-
-.codemirrorElement {
-    background: transparent;
-    resize: none;
-    border: 0;
+    display: block;
 }
 
 .CodeMirror {
-    background: $color-navigation;
-    color: $color-text;
+    background: $mineShaft;
+    color: $textColor;
     height: auto;
 
     .CodeMirror-cursor {
-        border-left: 2px solid $color-white;
+        border-left: 2px solid $textColor;
     }
 
     .CodeMirror-activeline-background {
-        background: lighten($color-navigation, 5%);
+        background: lighten($mineShaft, 5%);
     }
 
     .CodeMirror-selected {
-        background: lighten($color-navigation, 10%);
+        background: lighten($mineShaft, 10%);
     }
 
     .CodeMirror-gutters {
-        background: $color-navigation;
+        background: $mineShaft;
     }
 
     .CodeMirror-linenumber {
-        color: $color-text-secondary;
+        color: $textSecondaryColor;
     }
 
     .cm-comment {
-        color: $color-text-disabled;
+        color: $textDisabledColor;
     }
 
     .cm-string {

@@ -1,0 +1,13 @@
+:host {
+    height: 64px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+}
+
+.title {
+    font-weight: 500;
+    line-height: 48px;
+    flex: 1 0 auto;
+}

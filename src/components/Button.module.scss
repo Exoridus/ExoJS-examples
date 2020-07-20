@@ -1,0 +1,31 @@
+@import "../scss/typography";
+@import "../scss/colors";
+
+.button {
+    transition: background-color 0.3s linear;
+    height: 36px;
+    min-width: 64px;
+    line-height: 36px;
+    padding: 0 8px;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    display: inline-block;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: $fontWeightMedium;
+    position: relative;
+    border: 0 none;
+    outline: none;
+    background-color: $transparent;
+    color: $yellow;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        background-color: rgba($textColor, 0.12);
+    }
+
+    &:active {
+        background-color: rgba($silver, 0.25);
+    }
+}

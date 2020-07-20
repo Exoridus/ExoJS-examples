@@ -1,22 +1,5 @@
-$color-primary: #303030;
-$color-accent: #FFFF00;
-$color-white: #FFFFFF;
-$color-transparent: rgba(0, 0, 0, 0);
+$navigationWidth: 320px;
+$previewWidth: 800px;
+$previewHeight: 600px;
 
-$color-body: #131313;
-$color-navigation: #232323;
-$color-card: #232323;
-$color-divider: rgba($color-white, 0.12);
-$color-text: rgba($color-white, 1.00);
-$color-text-secondary: rgba($color-white, 0.70);
-$color-text-disabled: rgba($color-white, 0.30);
-
-$border-radius: 2;
-
-$font-size: 14px;
-$font-weight-thin: 100;
-$font-weight-light: 300;
-$font-weight-regular: 400;
-$font-weight-medium: 500;
-$font-weight-bold: 700;
-$font-weight-black: 900;
+$appMinWidth: $navigationWidth + $previewWidth;

@@ -1,10 +1,13 @@
-import styles, { css } from './Editor.module.scss';
+import './EditorPreview';
+import './EditorCode';
 
-import { CSSResult, customElement, html, internalProperty, TemplateResult, unsafeCSS } from 'lit-element';
+import { css } from './Editor.module.scss';
+
 import { autorun } from 'mobx';
-import { Example, ExampleService } from '../../classes/ExampleService';
-import { globalDependencies } from '../../classes/globalDependencies';
 import { MobxLitElement } from '@adobe/lit-mobx';
+import { CSSResult, customElement, html, internalProperty, TemplateResult, unsafeCSS } from 'lit-element';
+import { Example, ExampleService } from '../services/ExampleService';
+import { globalDependencies } from '../classes/globalDependencies';
 
 @customElement('my-editor')
 export default class Editor extends MobxLitElement {
@@ -32,10 +35,8 @@ export default class Editor extends MobxLitElement {
 
     public render(): TemplateResult {
         return html`
-            <div class=${styles.editor}>
-                <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
-                <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
-            </div>
+            <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
+            <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
         `;
     }
 }

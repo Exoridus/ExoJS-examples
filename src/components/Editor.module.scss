@@ -1,6 +1,5 @@
-@import "../../scss/variables";
-
-.editor {
+:host {
+    display: block;
     padding: 64px 0;
     width: 800px;
     margin: 0 auto;

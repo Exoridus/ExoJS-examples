@@ -1,4 +1,8 @@
-import styles, { css } from './EditorCode.module.scss';
+import './Toolbar';
+import './Button';
+import './LoadingSpinner';
+
+import { css } from './EditorCode.module.scss';
 
 import { CSSResult, customElement, html, property, PropertyValues, TemplateResult, unsafeCSS } from 'lit-element';
 import { MobxLitElement } from '@adobe/lit-mobx';
@@ -12,8 +16,8 @@ import { oneDark } from '@codemirror/next/theme-one-dark';
 import { history } from '@codemirror/next/history/src/history';
 import { closeBrackets } from '@codemirror/next/closebrackets';
 import { autocomplete } from '@codemirror/next/autocomplete';
-import { ExampleService } from '../../classes/ExampleService';
-import { globalDependencies } from '../../classes/globalDependencies';
+import { ExampleService } from '../services/ExampleService';
+import { globalDependencies } from '../classes/globalDependencies';
 
 export interface UpdateCodeEvent {
     code: string;
@@ -49,26 +53,22 @@ export default class EditorCode extends MobxLitElement {
     public render(): TemplateResult {
         const exampleName = this.exampleService.activeExample?.name || 'Loading...';
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-ignore: test
         window.editorState = this.editorState;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-ignore: test
         window.editorView = this.editorView;
 
         return html`
-            <section class=${styles.editorCode}>
-                <my-toolbar title=${`Example Code: ${exampleName}`}>
-                    <my-button ?disabled=${!this.sourceCode} @click=${this.triggerRefreshPreview}>REFRESH</my-button>
-                </my-toolbar>
-                ${this.renderContent()}
-            </section>
+            <my-toolbar title=${`Example Code: ${exampleName}`}>
+                <my-button ?disabled=${!this.sourceCode} @click=${this.triggerRefreshPreview}>REFRESH</my-button>
+            </my-toolbar>
+            ${this.renderContent()}
         `;
     }
 
     private renderContent(): TemplateResult {
         if (!this.sourceCode) {
-            return html`<my-loading-spinner centered />`;
+            return html`<my-loading-spinner centered></my-loading-spinner>`;
         }
 
         return html`${this.editorView.dom}`;

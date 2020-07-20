@@ -1,23 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap");
-@import "scss/variables";
+@import "scss/colors";
+@import "scss/typography";
 
 :global {
     html {
-        font-size: $font-size;
-        font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        font-size: $fontSize;
+        font-family: $fontFamily;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        min-height: 100%;
     }
 
     body {
-        font-size: $font-size;
-        color: $color-text;
-        font-weight: $font-weight-regular;
-        background: $color-body;
+        font-size: $fontSize;
+        color: $textColor;
+        font-weight: $fontWeightRegular;
+        background-color: $bodyColor;
         background-size: cover;
         line-height: 20px;
-        min-height: 100%;
         margin: 0;
     }
 }

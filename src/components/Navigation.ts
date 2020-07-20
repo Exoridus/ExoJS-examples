@@ -1,8 +1,12 @@
+import './NavigationLink';
+import './NavigationSection';
+import './LoadingSpinner';
+
 import styles, { css } from './Navigation.module.scss';
 
 import { CSSResult, customElement, html, TemplateResult, unsafeCSS } from 'lit-element';
-import { Example, ExampleService } from '../../classes/ExampleService';
-import { globalDependencies } from '../../classes/globalDependencies';
+import { Example, ExampleService } from '../services/ExampleService';
+import { globalDependencies } from '../classes/globalDependencies';
 import { MobxLitElement } from '@adobe/lit-mobx';
 
 @customElement('my-navigation')
@@ -12,19 +16,26 @@ export default class Navigation extends MobxLitElement {
     private exampleService: ExampleService = globalDependencies.get('exampleService');
 
     public render(): TemplateResult {
+        return html`
+            <header>
+                <h1 class=${styles.title}>ExoJs Examples</h1>
+            </header>
+            <nav>
+                ${this.renderContent()}
+            </nav>
+        `;
+    }
+
+    private renderContent(): TemplateResult {
         const { hasExamples, nestedExamples } = this.exampleService;
 
         if (!hasExamples) {
-            return html`<my-loading-indicator />`;
+            return html`<my-loading-indicator centered />`;
         }
 
         const categories = Array.from(nestedExamples.entries());
 
-        return html`
-            <nav class=${styles.navigation}>
-                ${categories.map(([category, entries]) => this.renderCategory(category, entries))}
-            </nav>
-        `;
+        return html`${categories.map(([category, entries]) => this.renderCategory(category, entries))}`;
     }
 
     private renderCategory(headline: string, entries: Array<Example>): TemplateResult {

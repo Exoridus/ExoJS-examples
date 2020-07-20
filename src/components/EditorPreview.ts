@@ -1,3 +1,5 @@
+import './LoadingSpinner';
+
 import styles, { css } from './EditorPreview.module.scss';
 
 import {
@@ -11,8 +13,8 @@ import {
     TemplateResult,
     unsafeCSS,
 } from 'lit-element';
-import { globalDependencies } from '../../classes/globalDependencies';
-import { UrlService } from '../../classes/UrlService';
+import { globalDependencies } from '../classes/globalDependencies';
+import { UrlService } from '../services/UrlService';
 
 @customElement('my-editor-preview')
 export default class EditorPreview extends LitElement {
@@ -20,20 +22,12 @@ export default class EditorPreview extends LitElement {
 
     private urlService: UrlService = globalDependencies.get('urlService');
 
-    @property({ type: String }) public sourceCode?: string;
+    @property({ type: String }) public sourceCode: string | null = null;
     @internalProperty() private updateId = 0;
 
     public render(): TemplateResult {
-        return html`
-            <div class=${styles.editorPreview}>
-                ${this.renderContent()}
-            </div>
-        `;
-    }
-
-    private renderContent(): TemplateResult {
         if (!this.sourceCode) {
-            return html`<my-loading-spinner centered />`;
+            return html`<my-loading-spinner centered></my-loading-spinner>`;
         }
 
         const iframeUrl = this.urlService.buildIframeUrl({

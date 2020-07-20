@@ -1,0 +1,32 @@
+@import "../scss/colors";
+@import "../scss/typography";
+@import "../scss/mixins";
+
+* {
+    box-sizing: border-box;
+}
+
+:host {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 100%;
+    background-color: $mineShaft;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.title {
+    height: 64px;
+    padding: 8px 16px;
+    line-height: 48px;
+    font-size: 20px;
+    font-weight: $fontWeightMedium;
+    color: $textColor;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    margin: 0;
+}

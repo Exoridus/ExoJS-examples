@@ -1,4 +1,4 @@
-import { FetchRequest } from './Request';
+import { FetchRequest } from '../classes/FetchRequest';
 
 export class RequestService {
     private readonly requestOptions: RequestInit;

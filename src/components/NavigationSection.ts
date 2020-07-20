@@ -1,4 +1,6 @@
-import styles, { css } from './NavigationSection.module.scss';
+import './NavigationTitle';
+
+import { css } from './NavigationSection.module.scss';
 
 import { CSSResult, customElement, LitElement, property, unsafeCSS } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
@@ -11,10 +13,8 @@ export default class NavigationSection extends LitElement {
 
     public render(): TemplateResult {
         return html`
-            <section class=${styles.navigationSection}>
-                <my-navigation-title>${this.headline}</my-navigation-title>
-                <slot></slot>
-            </section>
+            <my-navigation-title>${this.headline}</my-navigation-title>
+            <slot></slot>
         `;
     }
 }

@@ -1,8 +1,9 @@
-import { RequestService } from './RequestService';
-import { ExampleService } from './ExampleService';
+import { RequestService } from '../services/RequestService';
+import { ExampleService } from '../services/ExampleService';
 import { DependencyContainer } from './DependencyContainer';
-import { LocationService } from './LocationService';
-import { UrlConfig, UrlService } from './UrlService';
+import { LocationService } from '../services/LocationService';
+import { UrlService } from '../services/UrlService';
+import { UrlConfig } from './types';
 
 export interface DependencyTypes {
     urlService: UrlService;

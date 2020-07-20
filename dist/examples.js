@@ -25,8 +25,8 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
 
-    const css = ".button_e3169063 {\n  height: 48px;\n  padding: 6px 4px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  background: rgba(0, 0, 0, 0);\n  border: 0 none;\n  display: inline-block;\n  outline: none;\n  cursor: pointer;\n  text-decoration: none;\n  position: absolute;\n  right: 0;\n  top: 0; }\n  .button_e3169063:hover .buttonContent_e3169063, .button_e3169063:focus .buttonContent_e3169063 {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .button_e3169063:active .buttonContent_e3169063 {\n    background-color: rgba(204, 204, 204, 0.25); }\n\n.buttonContent_e3169063 {\n  transition: background-color 0.3s linear;\n  height: 36px;\n  min-width: 64px;\n  line-height: 36px;\n  padding: 0 8px;\n  letter-spacing: 0.5px;\n  border-radius: 2px;\n  display: block;\n  text-transform: uppercase;\n  text-align: center;\n  font-weight: 500;\n  position: relative;\n  border: 0 none;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0);\n  color: #FFFF00; }\n";
-    const modules_79b43374 = {"button":"button_e3169063","buttonContent":"buttonContent_e3169063"};
+    const css = "@-webkit-keyframes dashLoading_0b39348a {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n@keyframes dashLoading_0b39348a {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n@-webkit-keyframes spin_0b39348a {\n  from {\n    transform: rotate(0deg); }\n  to {\n    transform: rotate(360deg); } }\n\n@keyframes spin_0b39348a {\n  from {\n    transform: rotate(0deg); }\n  to {\n    transform: rotate(360deg); } }\n\n.loadingIndicator_0b39348a {\n  width: 100px;\n  height: 100px;\n  position: relative;\n  display: inline-block; }\n\n.centered_0b39348a {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  margin: auto; }\n\n.spinner_0b39348a {\n  width: 100px;\n  height: 100px;\n  -webkit-animation: spin_0b39348a 3s linear infinite;\n          animation: spin_0b39348a 3s linear infinite;\n  position: relative; }\n\n.path_0b39348a {\n  -webkit-animation: dashLoading_0b39348a 1.5s ease-in-out infinite;\n          animation: dashLoading_0b39348a 1.5s ease-in-out infinite;\n  fill: rgba(0, 0, 0, 0);\n  stroke: #FFFF00;\n  stroke-dasharray: 1,200;\n  stroke-dashoffset: 0;\n  stroke-width: 6;\n  stroke-miterlimit: 20;\n  stroke-linecap: round; }\n";
+    const modules_b42352cd = {"loadingIndicator":"loadingIndicator_0b39348a","centered":"centered_0b39348a","spinner":"spinner_0b39348a","spin":"spin_0b39348a","path":"path_0b39348a","dashLoading":"dashLoading_0b39348a"};
 
     /**
      * @license
@@ -2727,63 +2727,6 @@
         }
     });
 
-    let Button = class Button extends LitElement {
-        constructor() {
-            super(...arguments);
-            this.disabled = false;
-        }
-        render() {
-            const componentClass = classMap({
-                [modules_79b43374.button]: true,
-                [modules_79b43374.disabled]: this.disabled,
-            });
-            return html `
-            <button ?disabled=${this.disabled} class=${componentClass}>
-                <span class=${modules_79b43374.buttonContent}>
-                    <slot></slot>
-                </span>
-            </button>
-        `;
-        }
-    };
-    Button.styles = unsafeCSS(css);
-    __decorate([
-        property({ type: Boolean })
-    ], Button.prototype, "disabled", void 0);
-    Button = __decorate([
-        customElement('my-button')
-    ], Button);
-
-    const css$1 = ".toolbar_4a429c0a {\n  padding: 16px;\n  line-height: 16px;\n  display: flex; }\n\n.toolbarTitle_4a429c0a {\n  font-weight: 500;\n  display: flex;\n  flex: 1 0 auto; }\n\n.toolbarOptions_4a429c0a {\n  font-weight: 500; }\n";
-    const modules_b2e3cb74 = {"toolbar":"toolbar_4a429c0a","toolbarTitle":"toolbarTitle_4a429c0a","toolbarOptions":"toolbarOptions_4a429c0a"};
-
-    let Toolbar = class Toolbar extends LitElement {
-        constructor() {
-            super(...arguments);
-            this.title = '';
-        }
-        render() {
-            return html `
-            <div class=${modules_b2e3cb74.toolbar}>
-                <div class=${modules_b2e3cb74.toolbarTitle}>${this.title}</div>
-                <div class=${modules_b2e3cb74.toolbarOptions}>
-                    <slot></slot>
-                </div>
-            </div>
-        `;
-        }
-    };
-    Toolbar.styles = unsafeCSS(css$1);
-    __decorate([
-        property({ type: String })
-    ], Toolbar.prototype, "title", void 0);
-    Toolbar = __decorate([
-        customElement('my-toolbar')
-    ], Toolbar);
-
-    const css$2 = "@-webkit-keyframes dashLoading_0b39348a {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n@keyframes dashLoading_0b39348a {\n  0% {\n    stroke-dasharray: 1,200;\n    stroke-dashoffset: 0; }\n  50% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -35; }\n  100% {\n    stroke-dasharray: 89,200;\n    stroke-dashoffset: -124; } }\n\n@-webkit-keyframes spin_0b39348a {\n  from {\n    transform: rotate(0deg); }\n  to {\n    transform: rotate(360deg); } }\n\n@keyframes spin_0b39348a {\n  from {\n    transform: rotate(0deg); }\n  to {\n    transform: rotate(360deg); } }\n\n.loadingIndicator_0b39348a {\n  width: 100px;\n  height: 100px;\n  position: relative;\n  display: inline-block; }\n\n.centered_0b39348a {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  margin: auto; }\n\n.spinner_0b39348a {\n  width: 100px;\n  height: 100px;\n  -webkit-animation: spin_0b39348a 3s linear infinite;\n          animation: spin_0b39348a 3s linear infinite;\n  position: relative; }\n\n.path_0b39348a {\n  -webkit-animation: dashLoading_0b39348a 1.5s ease-in-out infinite;\n          animation: dashLoading_0b39348a 1.5s ease-in-out infinite;\n  fill: rgba(0, 0, 0, 0);\n  stroke: #FFFF00;\n  stroke-dasharray: 1,200;\n  stroke-dashoffset: 0;\n  stroke-width: 6;\n  stroke-miterlimit: 20;\n  stroke-linecap: round; }\n";
-    const modules_b42352cd = {"loadingIndicator":"loadingIndicator_0b39348a","centered":"centered_0b39348a","spinner":"spinner_0b39348a","spin":"spin_0b39348a","path":"path_0b39348a","dashLoading":"dashLoading_0b39348a"};
-
     let LoadingSpinner = class LoadingSpinner extends LitElement {
         constructor() {
             super(...arguments);
@@ -2804,7 +2747,7 @@
         `;
         }
     };
-    LoadingSpinner.styles = unsafeCSS(css$2);
+    LoadingSpinner.styles = unsafeCSS(css);
     __decorate([
         property({ type: Boolean })
     ], LoadingSpinner.prototype, "centered", void 0);
@@ -2812,8 +2755,91 @@
         customElement('my-loading-spinner')
     ], LoadingSpinner);
 
-    const css$3 = "::-webkit-scrollbar {\n  width: 6px;\n  height: 6px; }\n\n::-webkit-scrollbar-button {\n  width: 0;\n  height: 0; }\n\n::-webkit-scrollbar-thumb {\n  background: rgba(255, 255, 255, 0.1);\n  border: 0 none;\n  border-radius: 0; }\n\n::-webkit-scrollbar-thumb:hover {\n  background: rgba(255, 255, 255, 0.1); }\n\n::-webkit-scrollbar-thumb:active {\n  background: rgba(255, 255, 255, 0.1); }\n\n::-webkit-scrollbar-track {\n  background: rgba(0, 0, 0, 0.2);\n  border: 0 none;\n  border-radius: 0; }\n\n::-webkit-scrollbar-track:hover {\n  background: rgba(0, 0, 0, 0.2); }\n\n::-webkit-scrollbar-track:active {\n  background: rgba(0, 0, 0, 0.2); }\n\n::-webkit-scrollbar-corner {\n  background: transparent; }\n\n* {\n  box-sizing: border-box; }\n\n.app_e274581c {\n  min-width: 1120px;\n  transition: transform 350ms ease;\n  padding-left: 320px;\n  position: absolute;\n  display: block;\n  width: 100%;\n  left: 0;\n  top: 0;\n  bottom: 0; }\n\n.navigation_e274581c {\n  transition: all 350ms ease;\n  width: 320px;\n  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);\n  background: #232323;\n  position: absolute;\n  overflow: hidden;\n  outline: none;\n  height: 100%;\n  bottom: 0;\n  left: 0;\n  top: 0; }\n\n.viewport_e274581c {\n  position: absolute;\n  overflow-y: auto;\n  width: 100%;\n  bottom: 0;\n  left: 0;\n  top: 0; }\n\n.content_e274581c {\n  position: relative;\n  overflow-x: hidden;\n  overflow-y: auto;\n  height: 100%; }\n\n.title_e274581c {\n  height: 64px;\n  padding: 8px 16px;\n  line-height: 48px;\n  font-size: 20px;\n  font-weight: 500;\n  color: #FFFFFF;\n  position: relative;\n  overflow: hidden;\n  cursor: default;\n  margin: 0; }\n";
-    const modules_5209ed1c = {"app":"app_e274581c","navigation":"navigation_e274581c","viewport":"viewport_e274581c","content":"content_e274581c","title":"title_e274581c"};
+    const css$1 = ":host {\n  width: 800px;\n  height: 600px;\n  margin-bottom: 64px;\n  background: #232323;\n  position: relative;\n  display: block; }\n\n.preview_828c49d9 {\n  width: 100%;\n  height: 100%;\n  border: 0; }\n";
+    const modules_bbec92b6 = {"preview":"preview_828c49d9"};
+
+    var RequestStatus;
+    (function (RequestStatus) {
+        RequestStatus[RequestStatus["initialized"] = 0] = "initialized";
+        RequestStatus[RequestStatus["loading"] = 1] = "loading";
+        RequestStatus[RequestStatus["finished"] = 2] = "finished";
+        RequestStatus[RequestStatus["cancelled"] = 3] = "cancelled";
+        RequestStatus[RequestStatus["failed"] = 4] = "failed";
+    })(RequestStatus || (RequestStatus = {}));
+
+    class FetchRequest {
+        constructor(url, requestOptions) {
+            this.response = null;
+            this.url = url;
+            this.abortController = new AbortController();
+            this.requestOptions = {
+                ...requestOptions,
+                signal: this.abortController.signal,
+            };
+            this.status = RequestStatus.initialized;
+        }
+        async getJson() {
+            const response = await this.getResponse();
+            if (response === null) {
+                return null;
+            }
+            try {
+                return (await response.json());
+            }
+            catch (error) {
+                console.error(`Error while parsing json response! (${this.url})`, error, response);
+                return null;
+            }
+        }
+        async getText() {
+            const response = await this.getResponse();
+            return response && (await response.text());
+        }
+        async getResponse() {
+            if (this.status !== RequestStatus.initialized) {
+                return this.response;
+            }
+            this.status = RequestStatus.loading;
+            try {
+                this.response = await fetch(this.url, this.requestOptions);
+                this.status = RequestStatus.finished;
+                if (!this.response.ok) {
+                    console.error(`Response was not successful! (${this.url})`, this.response);
+                }
+            }
+            catch (error) {
+                console.error(`Error while fetching data! (${this.url})`, error);
+                this.status = RequestStatus.failed;
+            }
+            return this.response;
+        }
+        cancel() {
+            if (this.status !== RequestStatus.loading) {
+                return;
+            }
+            this.abortController.abort();
+            this.status = RequestStatus.cancelled;
+        }
+    }
+
+    class RequestService {
+        constructor(requestOptions) {
+            this.uniqueRequests = new Map();
+            this.requestOptions = requestOptions;
+        }
+        createRequest(url) {
+            return new FetchRequest(url, this.requestOptions);
+        }
+        createUniqueRequest(url) {
+            const uniqueRequest = this.uniqueRequests.get(url);
+            if (uniqueRequest) {
+                uniqueRequest.cancel();
+            }
+            const request = new FetchRequest(url, this.requestOptions);
+            this.uniqueRequests.set(url, request);
+            return request;
+        }
+    }
 
     /** MobX - (c) Michel Weststrate 2015 - 2020 - MIT Licensed */
     /*! *****************************************************************************
@@ -6867,170 +6893,6 @@
         });
     }
 
-    /*
-    Copyright 2018 Adobe. All rights reserved.
-    This file is licensed to you under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License. You may obtain a copy
-    of the License at http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software distributed under
-    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
-    OF ANY KIND, either express or implied. See the License for the specific language
-    governing permissions and limitations under the License.
-    */
-    const reaction$1 = Symbol('LitMobxRenderReaction');
-    const cachedRequestUpdate = Symbol('LitMobxRequestUpdate');
-    /**
-     * A class mixin which can be applied to lit-element's
-     * [UpdatingElement](https://lit-element.polymer-project.org/api/classes/_lib_updating_element_.updatingelement.html)
-     * derived classes. This mixin adds a mobx reaction which tracks the update method of UpdatingElement.
-     *
-     * Any observables used in the render template of the element will be tracked by a reaction
-     * and cause an update of the element upon change.
-     *
-     * @param constructor the constructor to extend from to add the mobx reaction, must be derived from UpdatingElement.
-     */
-    function MobxReactionUpdate(constructor) {
-        var _a, _b;
-        return _b = class MobxReactingElement extends constructor {
-                constructor() {
-                    super(...arguments);
-                    this[_a] = () => {
-                        this.requestUpdate();
-                    };
-                }
-                connectedCallback() {
-                    super.connectedCallback();
-                    /* istanbul ignore next */
-                    const name = this.constructor.name || this.nodeName;
-                    this[reaction$1] = new Reaction(`${name}.update()`, this[cachedRequestUpdate]);
-                    if (this.hasUpdated)
-                        this.requestUpdate();
-                }
-                disconnectedCallback() {
-                    super.disconnectedCallback();
-                    /* istanbul ignore else */
-                    if (this[reaction$1]) {
-                        this[reaction$1].dispose();
-                        this[reaction$1] = undefined;
-                    }
-                }
-                update(changedProperties) {
-                    if (this[reaction$1]) {
-                        this[reaction$1].track(super.update.bind(this, changedProperties));
-                    }
-                    else {
-                        super.update(changedProperties);
-                    }
-                }
-            },
-            _a = cachedRequestUpdate,
-            _b;
-    }
-
-    /*
-    Copyright 2018 Adobe. All rights reserved.
-    This file is licensed to you under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License. You may obtain a copy
-    of the License at http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software distributed under
-    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
-    OF ANY KIND, either express or implied. See the License for the specific language
-    governing permissions and limitations under the License.
-    */
-    /**
-     * A LitElement derived class which uses the MobxReactionUpdate mixin to create a mobx
-     * reactive implementation of LitElement.
-     *
-     * Any observables used in the render template of the element will be tracked by a reaction
-     * and cause an update of the element upon change.
-     */
-    class MobxLitElement extends MobxReactionUpdate(LitElement) {
-    }
-
-    var RequestStatus;
-    (function (RequestStatus) {
-        RequestStatus[RequestStatus["initialized"] = 0] = "initialized";
-        RequestStatus[RequestStatus["loading"] = 1] = "loading";
-        RequestStatus[RequestStatus["finished"] = 2] = "finished";
-        RequestStatus[RequestStatus["cancelled"] = 3] = "cancelled";
-        RequestStatus[RequestStatus["failed"] = 4] = "failed";
-    })(RequestStatus || (RequestStatus = {}));
-    class FetchRequest {
-        constructor(url, requestOptions) {
-            this.response = null;
-            this.url = url;
-            this.abortController = new AbortController();
-            this.requestOptions = {
-                ...requestOptions,
-                signal: this.abortController.signal,
-            };
-            this.status = RequestStatus.initialized;
-        }
-        async getJson() {
-            const response = await this.getResponse();
-            if (response === null) {
-                return null;
-            }
-            try {
-                return (await response.json());
-            }
-            catch (error) {
-                console.error(`Error while parsing json response! (${this.url})`, error, response);
-                return null;
-            }
-        }
-        async getText() {
-            const response = await this.getResponse();
-            return response && (await response.text());
-        }
-        async getResponse() {
-            if (this.status !== RequestStatus.initialized) {
-                return this.response;
-            }
-            this.status = RequestStatus.loading;
-            try {
-                this.response = await fetch(this.url, this.requestOptions);
-                this.status = RequestStatus.finished;
-                if (!this.response.ok) {
-                    console.error(`Response was not successful! (${this.url})`, this.response);
-                }
-            }
-            catch (error) {
-                console.error(`Error while fetching data! (${this.url})`, error);
-                this.status = RequestStatus.failed;
-            }
-            return this.response;
-        }
-        cancel() {
-            if (this.status !== RequestStatus.loading) {
-                return;
-            }
-            this.abortController.abort();
-            this.status = RequestStatus.cancelled;
-        }
-    }
-
-    class RequestService {
-        constructor(requestOptions) {
-            this.uniqueRequests = new Map();
-            this.requestOptions = requestOptions;
-        }
-        createRequest(url) {
-            return new FetchRequest(url, this.requestOptions);
-        }
-        createUniqueRequest(url) {
-            const uniqueRequest = this.uniqueRequests.get(url);
-            if (uniqueRequest) {
-                uniqueRequest.cancel();
-            }
-            const request = new FetchRequest(url, this.requestOptions);
-            this.uniqueRequests.set(url, request);
-            return request;
-        }
-    }
-
     class ExampleService {
         constructor(urlService, requestService) {
             this.examplesResponse = null;
@@ -7208,297 +7070,16 @@
         locationService: () => new LocationService(),
     });
 
-    let App = class App extends MobxLitElement {
-        constructor() {
-            super(...arguments);
-            this.exampleService = globalDependencies.get('exampleService');
-            this.locationService = globalDependencies.get('locationService');
-            //
-            // private setTitle(title: string): void {
-            //     document.title = `${title} - ExoJS Examples`;
-            // }
-            //
-            // private setCurrentHash(path: string): void {
-            //     window.location.hash = path;
-            // }
-            //
-            // private updateActiveEditor(source: string): void {
-            //
-            //     if (this.activeEditor) {
-            //         const wrapper = this.activeEditor.getWrapperElement();
-            //
-            //         wrapper.parentNode?.removeChild(wrapper);
-            //
-            //         this.activeEditor = null;
-            //     }
-            //
-            //     if (this.codeElement === null) {
-            //         console.log('Could not find editor code element!');
-            //
-            //         return;
-            //     }
-            //
-            //     this.codeElement.innerText = source;
-            //
-            //     this.activeEditor = CodeMirror.fromTextArea(this.codeElement, {
-            //         mode: 'javascript',
-            //         theme: 'monokai',
-            //         lineNumbers: true,
-            //         styleActiveLine: true,
-            //         matchBrackets: true,
-            //         viewportMargin: Infinity,
-            //         lineWrapping: true,
-            //         indentUnit: 4,
-            //     });
-            // }
-            //
-            // private async createIframeElement(source: string): Promise<HTMLIFrameElement> {
-            //
-            //     return new Promise<HTMLIFrameElement>(((resolve, reject) => {
-            //
-            //         const iframe = document.createElement('iframe');
-            //
-            //         iframe.classList.add('preview-frame');
-            //
-            //         iframe.onload = (): void => {
-            //             try {
-            //                 this.addIframeScript(iframe, source);
-            //             } catch (e) {
-            //                 return reject();
-            //             }
-            //
-            //             resolve(iframe);
-            //         };
-            //
-            //         iframe.onerror = (): void => reject();
-            //
-            //         iframe.src = 'preview.html';
-            //     }));
-            // }
-            //
-            // private addIframeScript(iframe: HTMLIFrameElement, source: string): void {
-            //
-            //     const iframeBody = iframe.contentWindow?.document.body;
-            //
-            //     if (!iframeBody) {
-            //         throw new Error('Could not access iframe body element!');
-            //     }
-            //
-            //     const script = document.createElement('script');
-            //
-            //     script.type = 'text/javascript';
-            //     script.innerHTML = dedent`
-            //         window.onload = function () {
-            //             ${source}
-            //         }
-            //     `;
-            //
-            //     iframeBody.appendChild(script);
-            // }
-            //
-            // private getActiveExample(): IExample | null {
-            //
-            //     const activePath = window.location.hash.slice(1);
-            //
-            //     for (const category of this.config.examples) {
-            //         for (const example of category.examples) {
-            //             if (!activePath || activePath === example.path) {
-            //                 return example;
-            //             }
-            //         }
-            //     }
-            //
-            //     return null;
-            // }
-            //
-            // private async initExample({ path, title }: IExample): Promise<void> {
-            //
-            //     this.setTitle(title);
-            //     this.setCurrentHash(path);
-            //
-            //     const source = await this.loadExampleText(path);
-            //
-            //     if (source === null) {
-            //         console.log(`Error loading example text with path ${path}`);
-            //
-            //         return;
-            //     }
-            //
-            //     const iframe = await this.createIframeElement(source);
-            //
-            //     this.updateActiveEditor(source);
-            // }
-            //
-            // private async loadExampleText(path: string): Promise<string | null> {
-            //
-            //     try {
-            //         const response = await fetch(`public/js/${path}?no-cache=${Date.now()}`, {
-            //             cache: 'no-cache',
-            //             method: 'GET',
-            //             mode: 'cors',
-            //         });
-            //
-            //         if (!response || !response.ok) {
-            //             return null;
-            //         }
-            //
-            //         return response.text();
-            //     } catch (e) {
-            //         return null;
-            //     }
-            // }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            reaction(() => [this.locationService.currentHash, this.exampleService.hasExamples], ([currentHash, hasExamples]) => {
-                var _a;
-                if (!hasExamples) {
-                    return;
-                }
-                if (!currentHash) {
-                    this.locationService.setHash((_a = this.exampleService.examplesList[0]) === null || _a === void 0 ? void 0 : _a.path);
-                    return;
-                }
-                const example = this.exampleService.getExampleByPath(currentHash);
-                this.exampleService.setCurrentExample(example);
-            });
-        }
-        render() {
-            return html `
-            <div class="${modules_5209ed1c.app}">
-                <aside class=${modules_5209ed1c.navigation}>
-                    <div class=${modules_5209ed1c.viewport}>
-                        <header>
-                            <h1 class=${modules_5209ed1c.title}>ExoJs Examples</h1>
-                        </header>
-                        <my-navigation />
-                    </div>
-                </aside>
-                <main class="${modules_5209ed1c.content}">
-                    <my-editor />
-                </main>
-            </div>
-        `;
-        }
-    };
-    App.styles = unsafeCSS(css$3);
-    App = __decorate([
-        customElement('my-app')
-    ], App);
-
-    const css$4 = ".navigationLink_0ccc2d3d {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 16px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  font-weight: 400;\n  color: white;\n  text-decoration: none;\n  position: relative;\n  cursor: pointer;\n  display: block;\n  box-sizing: border-box; }\n  .navigationLink_0ccc2d3d:hover {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .navigationLink_0ccc2d3d:active {\n    background-color: rgba(255, 255, 255, 0.18); }\n";
-    const modules_a55a6909 = {"navigationLink":"navigationLink_0ccc2d3d"};
-
-    let NavigationLink = class NavigationLink extends LitElement {
-        render() {
-            return html `
-            <a href=${this.href} class=${modules_a55a6909.navigationLink}>
-                <slot></slot>
-            </a>
-        `;
-        }
-    };
-    NavigationLink.styles = unsafeCSS(css$4);
-    __decorate([
-        property({ type: String })
-    ], NavigationLink.prototype, "href", void 0);
-    NavigationLink = __decorate([
-        customElement('my-navigation-link')
-    ], NavigationLink);
-
-    const css$5 = ".navigationTitle_84ac336b {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 14px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  font-weight: 500;\n  color: #FFFF00;\n  text-decoration: none;\n  position: relative;\n  cursor: default;\n  display: block; }\n";
-    const modules_f2f75330 = {"navigationTitle":"navigationTitle_84ac336b"};
-
-    let NavigationTitle = class NavigationTitle extends LitElement {
-        render() {
-            return html `
-            <div class=${modules_f2f75330.navigationTitle}>
-                <slot></slot>
-            </div>
-        `;
-        }
-    };
-    NavigationTitle.styles = unsafeCSS(css$5);
-    NavigationTitle = __decorate([
-        customElement('my-navigation-title')
-    ], NavigationTitle);
-
-    const css$6 = ".navigationSection_4cdca904 {\n  display: flex;\n  flex-direction: column; }\n";
-    const modules_60c5df30 = {"navigationSection":"navigationSection_4cdca904"};
-
-    let NavigationSection = class NavigationSection extends LitElement {
-        render() {
-            return html `
-            <section class=${modules_60c5df30.navigationSection}>
-                <my-navigation-title>${this.headline}</my-navigation-title>
-                <slot></slot>
-            </section>
-        `;
-        }
-    };
-    NavigationSection.styles = unsafeCSS(css$6);
-    __decorate([
-        property({ type: String })
-    ], NavigationSection.prototype, "headline", void 0);
-    NavigationSection = __decorate([
-        customElement('my-navigation-section')
-    ], NavigationSection);
-
-    const css$7 = ".navigation_d61dfd22 {\n  padding: 8px 0; }\n";
-    const modules_2fe7e3bc = {"navigation":"navigation_d61dfd22"};
-
-    let Navigation = class Navigation extends MobxLitElement {
-        constructor() {
-            super(...arguments);
-            this.exampleService = globalDependencies.get('exampleService');
-        }
-        render() {
-            const { hasExamples, nestedExamples } = this.exampleService;
-            if (!hasExamples) {
-                return html `<my-loading-indicator />`;
-            }
-            const categories = Array.from(nestedExamples.entries());
-            return html `
-            <nav class=${modules_2fe7e3bc.navigation}>
-                ${categories.map(([category, entries]) => this.renderCategory(category, entries))}
-            </nav>
-        `;
-        }
-        renderCategory(headline, entries) {
-            return html `
-            <my-navigation-section headline=${headline}>
-                ${entries.map(({ name, path }) => this.renderLink(name, path))}
-            </my-navigation-section>
-        `;
-        }
-        renderLink(name, path) {
-            return html ` <my-navigation-link href="#${path}">${name}</my-navigation-link> `;
-        }
-    };
-    Navigation.styles = unsafeCSS(css$7);
-    Navigation = __decorate([
-        customElement('my-navigation')
-    ], Navigation);
-
-    const css$8 = ".editorPreview_f3d8cd65 {\n  width: 800px;\n  height: 600px;\n  margin-bottom: 64px;\n  background: #232323;\n  position: relative; }\n\n.preview_f3d8cd65 {\n  width: 100%;\n  height: 100%;\n  border: 0; }\n";
-    const modules_bbec92b6 = {"editorPreview":"editorPreview_f3d8cd65","preview":"preview_f3d8cd65"};
-
     let EditorPreview = class EditorPreview extends LitElement {
         constructor() {
             super(...arguments);
             this.urlService = globalDependencies.get('urlService');
+            this.sourceCode = null;
             this.updateId = 0;
         }
         render() {
-            return html `
-            <div class=${modules_bbec92b6.editorPreview}>
-                ${this.renderContent()}
-            </div>
-        `;
-        }
-        renderContent() {
             if (!this.sourceCode) {
-                return html `<my-loading-spinner centered />`;
+                return html `<my-loading-spinner centered></my-loading-spinner>`;
             }
             const iframeUrl = this.urlService.buildIframeUrl({
                 'no-cache': this.updateId,
@@ -7542,7 +7123,7 @@
             // }
         }
     };
-    EditorPreview.styles = unsafeCSS(css$8);
+    EditorPreview.styles = unsafeCSS(css$1);
     __decorate([
         property({ type: String })
     ], EditorPreview.prototype, "sourceCode", void 0);
@@ -7553,8 +7134,144 @@
         customElement('my-editor-preview')
     ], EditorPreview);
 
-    const css$9 = ".editorCode_20d19397 {\n  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);\n  border-radius: 2px;\n  background: #232323;\n  position: relative;\n  height: auto;\n  width: 100%; }\n\n.codemirrorElement_20d19397 {\n  background: transparent;\n  resize: none;\n  border: 0; }\n\n.CodeMirror_20d19397 {\n  background: #232323;\n  color: white;\n  height: auto; }\n  .CodeMirror_20d19397 .CodeMirrorCursor_20d19397 {\n    border-left: 2px solid #FFFFFF; }\n  .CodeMirror_20d19397 .CodeMirrorActivelineBackground_20d19397 {\n    background: #303030; }\n  .CodeMirror_20d19397 .CodeMirrorSelected_20d19397 {\n    background: #3d3d3d; }\n  .CodeMirror_20d19397 .CodeMirrorGutters_20d19397 {\n    background: #232323; }\n  .CodeMirror_20d19397 .CodeMirrorLinenumber_20d19397 {\n    color: rgba(255, 255, 255, 0.7); }\n  .CodeMirror_20d19397 .cmComment_20d19397 {\n    color: rgba(255, 255, 255, 0.3); }\n  .CodeMirror_20d19397 .cmString_20d19397 {\n    color: #e6db74; }\n  .CodeMirror_20d19397 .cmNumber_20d19397 {\n    color: #66d9ef; }\n  .CodeMirror_20d19397 .cmAtom_20d19397 {\n    color: #66d9ef; }\n  .CodeMirror_20d19397 .cmKeyword_20d19397 {\n    color: #f92672; }\n  .CodeMirror_20d19397 .cmVariable_20d19397 {\n    color: #a6e22e; }\n  .CodeMirror_20d19397 .cmDef_20d19397 {\n    font-style: italic;\n    color: #FD971F; }\n  .CodeMirror_20d19397 .cmVariable2_20d19397 {\n    color: #f92672; }\n  .CodeMirror_20d19397 .cmProperty_20d19397 {\n    color: #66d9ef; }\n  .CodeMirror_20d19397 .cmOperator_20d19397 {\n    color: #A6A5A5; }\n";
-    const modules_e6e9bf22 = {"editorCode":"editorCode_20d19397","codemirrorElement":"codemirrorElement_20d19397","CodeMirror":"CodeMirror_20d19397","CodeMirror-cursor":"CodeMirrorCursor_20d19397","CodeMirror-activeline-background":"CodeMirrorActivelineBackground_20d19397","CodeMirror-selected":"CodeMirrorSelected_20d19397","CodeMirror-gutters":"CodeMirrorGutters_20d19397","CodeMirror-linenumber":"CodeMirrorLinenumber_20d19397","cm-comment":"cmComment_20d19397","cm-string":"cmString_20d19397","cm-number":"cmNumber_20d19397","cm-atom":"cmAtom_20d19397","cm-keyword":"cmKeyword_20d19397","cm-variable":"cmVariable_20d19397","cm-def":"cmDef_20d19397","cm-variable-2":"cmVariable2_20d19397","cm-property":"cmProperty_20d19397","cm-operator":"cmOperator_20d19397"};
+    const css$2 = ":host {\n  height: 64px;\n  padding: 8px 12px;\n  display: flex;\n  flex-direction: row;\n  align-content: center; }\n\n.title_f5f44e81 {\n  font-weight: 500;\n  line-height: 48px;\n  flex: 1 0 auto; }\n";
+    const modules_b2e3cb74 = {"title":"title_f5f44e81"};
+
+    let Toolbar = class Toolbar extends LitElement {
+        constructor() {
+            super(...arguments);
+            this.title = '';
+        }
+        render() {
+            return html `
+            <div class=${modules_b2e3cb74.title}>${this.title}</div>
+            <slot></slot>
+        `;
+        }
+    };
+    Toolbar.styles = unsafeCSS(css$2);
+    __decorate([
+        property({ type: String })
+    ], Toolbar.prototype, "title", void 0);
+    Toolbar = __decorate([
+        customElement('my-toolbar')
+    ], Toolbar);
+
+    const css$3 = ".button_c9f82c0e {\n  transition: background-color 0.3s linear;\n  height: 36px;\n  min-width: 64px;\n  line-height: 36px;\n  padding: 0 8px;\n  letter-spacing: 0.5px;\n  border-radius: 2px;\n  display: inline-block;\n  text-transform: uppercase;\n  text-align: center;\n  font-weight: 500;\n  position: relative;\n  border: 0 none;\n  outline: none;\n  background-color: rgba(0, 0, 0, 0);\n  color: #FFFF00;\n  cursor: pointer; }\n  .button_c9f82c0e:hover, .button_c9f82c0e:focus {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .button_c9f82c0e:active {\n    background-color: rgba(204, 204, 204, 0.25); }\n";
+    const modules_79b43374 = {"button":"button_c9f82c0e"};
+
+    let Button = class Button extends LitElement {
+        constructor() {
+            super(...arguments);
+            this.disabled = false;
+            this.flat = false;
+        }
+        render() {
+            const buttonClass = classMap({
+                [modules_79b43374.button]: true,
+                [modules_79b43374.flat]: this.flat,
+            });
+            return html `
+            <button ?disabled=${this.disabled} class=${buttonClass}>
+                <slot></slot>
+            </button>
+        `;
+        }
+    };
+    Button.styles = unsafeCSS(css$3);
+    __decorate([
+        property({ type: Boolean })
+    ], Button.prototype, "disabled", void 0);
+    __decorate([
+        property({ type: Boolean })
+    ], Button.prototype, "flat", void 0);
+    Button = __decorate([
+        customElement('my-button')
+    ], Button);
+
+    const css$4 = ":host {\n  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);\n  border-radius: 2px;\n  background: #232323;\n  position: relative;\n  height: auto;\n  width: 100%;\n  display: block; }\n\n.CodeMirror_992b92a8 {\n  background: #232323;\n  color: #FFFFFF;\n  height: auto; }\n  .CodeMirror_992b92a8 .CodeMirrorCursor_992b92a8 {\n    border-left: 2px solid #FFFFFF; }\n  .CodeMirror_992b92a8 .CodeMirrorActivelineBackground_992b92a8 {\n    background: #303030; }\n  .CodeMirror_992b92a8 .CodeMirrorSelected_992b92a8 {\n    background: #3d3d3d; }\n  .CodeMirror_992b92a8 .CodeMirrorGutters_992b92a8 {\n    background: #232323; }\n  .CodeMirror_992b92a8 .CodeMirrorLinenumber_992b92a8 {\n    color: rgba(255, 255, 255, 0.7); }\n  .CodeMirror_992b92a8 .cmComment_992b92a8 {\n    color: rgba(255, 255, 255, 0.3); }\n  .CodeMirror_992b92a8 .cmString_992b92a8 {\n    color: #e6db74; }\n  .CodeMirror_992b92a8 .cmNumber_992b92a8 {\n    color: #66d9ef; }\n  .CodeMirror_992b92a8 .cmAtom_992b92a8 {\n    color: #66d9ef; }\n  .CodeMirror_992b92a8 .cmKeyword_992b92a8 {\n    color: #f92672; }\n  .CodeMirror_992b92a8 .cmVariable_992b92a8 {\n    color: #a6e22e; }\n  .CodeMirror_992b92a8 .cmDef_992b92a8 {\n    font-style: italic;\n    color: #FD971F; }\n  .CodeMirror_992b92a8 .cmVariable2_992b92a8 {\n    color: #f92672; }\n  .CodeMirror_992b92a8 .cmProperty_992b92a8 {\n    color: #66d9ef; }\n  .CodeMirror_992b92a8 .cmOperator_992b92a8 {\n    color: #A6A5A5; }\n";
+
+    /*
+    Copyright 2018 Adobe. All rights reserved.
+    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License. You may obtain a copy
+    of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software distributed under
+    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+    OF ANY KIND, either express or implied. See the License for the specific language
+    governing permissions and limitations under the License.
+    */
+    const reaction$1 = Symbol('LitMobxRenderReaction');
+    const cachedRequestUpdate = Symbol('LitMobxRequestUpdate');
+    /**
+     * A class mixin which can be applied to lit-element's
+     * [UpdatingElement](https://lit-element.polymer-project.org/api/classes/_lib_updating_element_.updatingelement.html)
+     * derived classes. This mixin adds a mobx reaction which tracks the update method of UpdatingElement.
+     *
+     * Any observables used in the render template of the element will be tracked by a reaction
+     * and cause an update of the element upon change.
+     *
+     * @param constructor the constructor to extend from to add the mobx reaction, must be derived from UpdatingElement.
+     */
+    function MobxReactionUpdate(constructor) {
+        var _a, _b;
+        return _b = class MobxReactingElement extends constructor {
+                constructor() {
+                    super(...arguments);
+                    this[_a] = () => {
+                        this.requestUpdate();
+                    };
+                }
+                connectedCallback() {
+                    super.connectedCallback();
+                    /* istanbul ignore next */
+                    const name = this.constructor.name || this.nodeName;
+                    this[reaction$1] = new Reaction(`${name}.update()`, this[cachedRequestUpdate]);
+                    if (this.hasUpdated)
+                        this.requestUpdate();
+                }
+                disconnectedCallback() {
+                    super.disconnectedCallback();
+                    /* istanbul ignore else */
+                    if (this[reaction$1]) {
+                        this[reaction$1].dispose();
+                        this[reaction$1] = undefined;
+                    }
+                }
+                update(changedProperties) {
+                    if (this[reaction$1]) {
+                        this[reaction$1].track(super.update.bind(this, changedProperties));
+                    }
+                    else {
+                        super.update(changedProperties);
+                    }
+                }
+            },
+            _a = cachedRequestUpdate,
+            _b;
+    }
+
+    /*
+    Copyright 2018 Adobe. All rights reserved.
+    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License. You may obtain a copy
+    of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software distributed under
+    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+    OF ANY KIND, either express or implied. See the License for the specific language
+    governing permissions and limitations under the License.
+    */
+    /**
+     * A LitElement derived class which uses the MobxReactionUpdate mixin to create a mobx
+     * reactive implementation of LitElement.
+     *
+     * Any observables used in the render template of the element will be tracked by a reaction
+     * and cause an update of the element upon change.
+     */
+    class MobxLitElement extends MobxReactionUpdate(LitElement) {
+    }
 
     // Compressed representation of the Grapheme_Cluster_Break=Extend
     // information from
@@ -21159,24 +20876,20 @@
         render() {
             var _a;
             const exampleName = ((_a = this.exampleService.activeExample) === null || _a === void 0 ? void 0 : _a.name) || 'Loading...';
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-ignore: test
             window.editorState = this.editorState;
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-ignore: test
             window.editorView = this.editorView;
             return html `
-            <section class=${modules_e6e9bf22.editorCode}>
-                <my-toolbar title=${`Example Code: ${exampleName}`}>
-                    <my-button ?disabled=${!this.sourceCode} @click=${this.triggerRefreshPreview}>REFRESH</my-button>
-                </my-toolbar>
-                ${this.renderContent()}
-            </section>
+            <my-toolbar title=${`Example Code: ${exampleName}`}>
+                <my-button ?disabled=${!this.sourceCode} @click=${this.triggerRefreshPreview}>REFRESH</my-button>
+            </my-toolbar>
+            ${this.renderContent()}
         `;
         }
         renderContent() {
             if (!this.sourceCode) {
-                return html `<my-loading-spinner centered />`;
+                return html `<my-loading-spinner centered></my-loading-spinner>`;
             }
             return html `${this.editorView.dom}`;
         }
@@ -21203,7 +20916,7 @@
             this.dispatchEvent(updateCodeEvent);
         }
     };
-    EditorCode.styles = unsafeCSS(css$9);
+    EditorCode.styles = unsafeCSS(css$4);
     __decorate([
         property()
     ], EditorCode.prototype, "sourceCode", void 0);
@@ -21211,8 +20924,7 @@
         customElement('my-editor-code')
     ], EditorCode);
 
-    const css$a = ".editor_c1f66161 {\n  padding: 64px 0;\n  width: 800px;\n  margin: 0 auto; }\n";
-    const modules_eb861c89 = {"editor":"editor_c1f66161"};
+    const css$5 = ":host {\n  display: block;\n  padding: 64px 0;\n  width: 800px;\n  margin: 0 auto; }\n";
 
     let Editor = class Editor extends MobxLitElement {
         constructor() {
@@ -21234,14 +20946,12 @@
         }
         render() {
             return html `
-            <div class=${modules_eb861c89.editor}>
-                <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
-                <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
-            </div>
+            <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
+            <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
         `;
         }
     };
-    Editor.styles = unsafeCSS(css$a);
+    Editor.styles = unsafeCSS(css$5);
     __decorate([
         internalProperty()
     ], Editor.prototype, "sourceCode", void 0);
@@ -21249,7 +20959,143 @@
         customElement('my-editor')
     ], Editor);
 
-    const css$b = "@import url(\"https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap\");\nhtml {\n  font-size: 14px;\n  font-family: 'Roboto', Helvetica, Arial, sans-serif;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  min-height: 100%; }\n\nbody {\n  font-size: 14px;\n  color: white;\n  font-weight: 400;\n  background: #131313;\n  background-size: cover;\n  line-height: 20px;\n  min-height: 100%;\n  margin: 0; }\n";
+    const css$6 = ".navigationLink_4601bd70 {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 16px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  color: #FFFFFF;\n  text-decoration: none;\n  position: relative;\n  cursor: pointer;\n  display: block;\n  box-sizing: border-box; }\n  .navigationLink_4601bd70:hover {\n    background-color: rgba(255, 255, 255, 0.12); }\n  .navigationLink_4601bd70:active {\n    background-color: rgba(255, 255, 255, 0.18); }\n";
+    const modules_a55a6909 = {"navigationLink":"navigationLink_4601bd70"};
+
+    let NavigationLink = class NavigationLink extends LitElement {
+        constructor() {
+            super(...arguments);
+            this.href = '';
+        }
+        render() {
+            return html `
+            <a href=${this.href} class=${modules_a55a6909.navigationLink}>
+                <slot></slot>
+            </a>
+        `;
+        }
+    };
+    NavigationLink.styles = unsafeCSS(css$6);
+    __decorate([
+        property({ type: String })
+    ], NavigationLink.prototype, "href", void 0);
+    NavigationLink = __decorate([
+        customElement('my-navigation-link')
+    ], NavigationLink);
+
+    const css$7 = ":host {\n  transition: background-color 120ms cubic-bezier(0, 0, 0.2, 1);\n  padding: 0 16px;\n  height: 48px;\n  font-size: 14px;\n  line-height: 48px;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  font-weight: 500;\n  color: #FFFF00;\n  text-decoration: none;\n  position: relative;\n  cursor: default;\n  display: block; }\n";
+
+    let NavigationTitle = class NavigationTitle extends LitElement {
+        render() {
+            return html `<slot></slot>`;
+        }
+    };
+    NavigationTitle.styles = unsafeCSS(css$7);
+    NavigationTitle = __decorate([
+        customElement('my-navigation-title')
+    ], NavigationTitle);
+
+    const css$8 = ":host {\n  display: flex;\n  flex-direction: column; }\n";
+
+    let NavigationSection = class NavigationSection extends LitElement {
+        render() {
+            return html `
+            <my-navigation-title>${this.headline}</my-navigation-title>
+            <slot></slot>
+        `;
+        }
+    };
+    NavigationSection.styles = unsafeCSS(css$8);
+    __decorate([
+        property({ type: String })
+    ], NavigationSection.prototype, "headline", void 0);
+    NavigationSection = __decorate([
+        customElement('my-navigation-section')
+    ], NavigationSection);
+
+    const css$9 = "* {\n  box-sizing: border-box; }\n\n:host {\n  display: flex;\n  flex-direction: column;\n  position: relative;\n  min-height: 100%;\n  background-color: #232323; }\n\n.content_865d1b0f {\n  flex: 1 0 auto; }\n\n.title_865d1b0f {\n  height: 64px;\n  padding: 8px 16px;\n  line-height: 48px;\n  font-size: 20px;\n  font-weight: 500;\n  color: #FFFFFF;\n  position: relative;\n  overflow: hidden;\n  cursor: default;\n  margin: 0; }\n";
+    const modules_2fe7e3bc = {"content":"content_865d1b0f","title":"title_865d1b0f"};
+
+    let Navigation = class Navigation extends MobxLitElement {
+        constructor() {
+            super(...arguments);
+            this.exampleService = globalDependencies.get('exampleService');
+        }
+        render() {
+            return html `
+            <header>
+                <h1 class=${modules_2fe7e3bc.title}>ExoJs Examples</h1>
+            </header>
+            <nav>
+                ${this.renderContent()}
+            </nav>
+        `;
+        }
+        renderContent() {
+            const { hasExamples, nestedExamples } = this.exampleService;
+            if (!hasExamples) {
+                return html `<my-loading-indicator centered />`;
+            }
+            const categories = Array.from(nestedExamples.entries());
+            return html `${categories.map(([category, entries]) => this.renderCategory(category, entries))}`;
+        }
+        renderCategory(headline, entries) {
+            return html `
+            <my-navigation-section headline=${headline}>
+                ${entries.map(({ name, path }) => this.renderLink(name, path))}
+            </my-navigation-section>
+        `;
+        }
+        renderLink(name, path) {
+            return html ` <my-navigation-link href="#${path}">${name}</my-navigation-link> `;
+        }
+    };
+    Navigation.styles = unsafeCSS(css$9);
+    Navigation = __decorate([
+        customElement('my-navigation')
+    ], Navigation);
+
+    const css$a = ".sideContent_81cf6248::-webkit-scrollbar,\n.mainContent_81cf6248::-webkit-scrollbar {\n  width: 6px;\n  height: 6px; }\n  .sideContent_81cf6248::-webkit-scrollbar-button,\n  .mainContent_81cf6248::-webkit-scrollbar-button {\n    width: 0;\n    height: 0; }\n  .sideContent_81cf6248::-webkit-scrollbar-corner,\n  .mainContent_81cf6248::-webkit-scrollbar-corner {\n    background: transparent; }\n  .sideContent_81cf6248::-webkit-scrollbar-thumb,\n  .mainContent_81cf6248::-webkit-scrollbar-thumb {\n    border: 0 none;\n    border-radius: 0; }\n    .sideContent_81cf6248::-webkit-scrollbar-thumb,\n    .mainContent_81cf6248::-webkit-scrollbar-thumb, .sideContent_81cf6248::-webkit-scrollbar-thumb:hover,\n    .mainContent_81cf6248::-webkit-scrollbar-thumb:hover, .sideContent_81cf6248::-webkit-scrollbar-thumb:active,\n    .mainContent_81cf6248::-webkit-scrollbar-thumb:active {\n      background: rgba(255, 255, 255, 0.1); }\n  .sideContent_81cf6248::-webkit-scrollbar-track,\n  .mainContent_81cf6248::-webkit-scrollbar-track {\n    border: 0 none;\n    border-radius: 0; }\n    .sideContent_81cf6248::-webkit-scrollbar-track,\n    .mainContent_81cf6248::-webkit-scrollbar-track, .sideContent_81cf6248::-webkit-scrollbar-track:hover,\n    .mainContent_81cf6248::-webkit-scrollbar-track:hover, .sideContent_81cf6248::-webkit-scrollbar-track:active,\n    .mainContent_81cf6248::-webkit-scrollbar-track:active {\n      background: rgba(0, 0, 0, 0.2); }\n\n* {\n  box-sizing: border-box; }\n\n:host {\n  display: flex;\n  height: 100vh;\n  overflow: hidden;\n  flex-direction: row;\n  min-width: 1120px; }\n\n.sideContent_81cf6248 {\n  flex: 0 1 320px; }\n\n.mainContent_81cf6248 {\n  flex: 1 0 auto; }\n\n.sideContent_81cf6248,\n.mainContent_81cf6248 {\n  overflow-x: hidden;\n  overflow-y: auto; }\n";
+    const modules_5209ed1c = {"sideContent":"sideContent_81cf6248","mainContent":"mainContent_81cf6248"};
+
+    let App = class App extends MobxLitElement {
+        constructor() {
+            super(...arguments);
+            this.exampleService = globalDependencies.get('exampleService');
+            this.locationService = globalDependencies.get('locationService');
+        }
+        connectedCallback() {
+            super.connectedCallback();
+            reaction(() => [this.locationService.currentHash, this.exampleService.hasExamples], ([currentHash, hasExamples]) => {
+                var _a;
+                if (!hasExamples) {
+                    return;
+                }
+                if (!currentHash) {
+                    this.locationService.setHash((_a = this.exampleService.examplesList[0]) === null || _a === void 0 ? void 0 : _a.path);
+                    return;
+                }
+                const example = this.exampleService.getExampleByPath(currentHash);
+                this.exampleService.setCurrentExample(example);
+            });
+        }
+        render() {
+            return html `
+            <aside class=${modules_5209ed1c.sideContent}>
+                <my-navigation></my-navigation>
+            </aside>
+            <main class=${modules_5209ed1c.mainContent}>
+                <my-editor></my-editor>
+            </main>
+        `;
+        }
+    };
+    App.styles = unsafeCSS(css$a);
+    App = __decorate([
+        customElement('my-app')
+    ], App);
+
+    const css$b = "html {\n  font-size: 14px;\n  font-family: \"Roboto\", Helvetica, Arial, sans-serif;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\nbody {\n  font-size: 14px;\n  color: #FFFFFF;\n  font-weight: 400;\n  background-color: #131313;\n  background-size: cover;\n  line-height: 20px;\n  margin: 0; }\n";
 
     const injectStyles = (css, container) => {
         const style = document.createElement('style');

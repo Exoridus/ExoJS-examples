@@ -1,4 +1,4 @@
-import styles, { css } from './NavigationTitle.module.scss';
+import { css } from './NavigationTitle.module.scss';
 
 import { CSSResult, customElement, html, LitElement, unsafeCSS } from 'lit-element';
 import { TemplateResult } from 'lit-html';
@@ -8,10 +8,6 @@ export default class NavigationTitle extends LitElement {
     public static styles: CSSResult = unsafeCSS(css);
 
     public render(): TemplateResult {
-        return html`
-            <div class=${styles.navigationTitle}>
-                <slot></slot>
-            </div>
-        `;
+        return html`<slot></slot>`;
     }
 }

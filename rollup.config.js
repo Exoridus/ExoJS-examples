@@ -13,11 +13,17 @@ import copy from 'rollup-plugin-copy';
 import dev from 'rollup-plugin-dev';
 import ts from "@wessberg/rollup-plugin-ts";
 
-const isProduction = (process.env.NODE_ENV || '').trim() === 'production';
+const production = (process.env.NODE_ENV || '').trim() === 'production';
 
-const devConfig = {
+export default {
     input: 'src/index.ts',
-    output: {
+    output: production ? {
+        name: 'Examples',
+        file: pkg.browser,
+        format: 'iife',
+        sourcemap: true,
+        assetFileNames: '[name][extname]',
+    } : {
         name: 'Examples',
         file: pkg.main,
         format: 'umd',
@@ -36,52 +42,25 @@ const devConfig = {
             extensions: ['.scss'],
             use: ['sass'],
             mode: 'extract',
-            modules: { generateScopedName: '[local]_[hash:8]' },
+            modules: {
+                generateScopedName: '[local]_[hash:8]',
+                failOnWrongOrder: true,
+                mode: 'local',
+            },
             autoModules: true,
-            import: { extensions: ['.css', '.scss'] },
-            url: { hash: false, inline: true },
+            minimize: production,
+            import: {
+                extensions: ['.scss'],
+            },
+            url: {
+                hash: false,
+                inline: true,
+            },
             plugins: [autoprefixer],
             onExtract: () => false,
         }),
         ts(),
         copy({ targets: [{ src: 'public/*', dest: 'dist' }] }),
-        dev('dist'),
+        production ? terser() : dev('dist'),
     ],
 };
-
-const prodConfig = {
-    input: 'src/index.ts',
-    output: {
-        name: 'Examples',
-        file: pkg.browser,
-        format: 'iife',
-        sourcemap: true,
-        assetFileNames: '[name][extname]',
-    },
-    plugins: [
-        progress(),
-        eslint(),
-        del({ targets: ['dist/*'] }),
-        resolve(),
-        externals(),
-        json(),
-        commonjs(),
-        styles({
-            extensions: ['.scss'],
-            use: ['sass'],
-            mode: 'extract',
-            modules: { generateScopedName: '[local]_[hash:8]' },
-            autoModules: true,
-            minimize: true,
-            import: { extensions: ['.css', '.scss'] },
-            url: { hash: false, inline: true },
-            plugins: [autoprefixer],
-            onExtract: () => false,
-        }),
-        ts(),
-        copy({ targets: [{ src: 'public/*', dest: 'dist' }] }),
-        terser(),
-    ],
-};
-
-export default isProduction ? prodConfig : devConfig;

@@ -1,10 +1,4 @@
-export enum RequestStatus {
-    initialized,
-    loading,
-    finished,
-    cancelled,
-    failed,
-}
+import { RequestStatus } from './types';
 
 export class FetchRequest {
     private readonly url: string;

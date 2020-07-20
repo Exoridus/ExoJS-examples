@@ -63,7 +63,7 @@
             },
             {
                 "selector": "interface",
-                "format": ["StrictPascalCase"],
+                "format": ["PascalCase"],
                 "leadingUnderscore": "forbid",
                 "trailingUnderscore": "forbid"
             },

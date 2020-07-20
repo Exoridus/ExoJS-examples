@@ -10,12 +10,8 @@ export default class Toolbar extends LitElement {
 
     public render(): TemplateResult {
         return html`
-            <div class=${styles.toolbar}>
-                <div class=${styles.toolbarTitle}>${this.title}</div>
-                <div class=${styles.toolbarOptions}>
-                    <slot></slot>
-                </div>
-            </div>
+            <div class=${styles.title}>${this.title}</div>
+            <slot></slot>
         `;
     }
 }
