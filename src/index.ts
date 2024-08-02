@@ -16,10 +16,10 @@ globalDependencies
     .loadDependencies({
         urlConfig: {
             baseUrl: `${origin}${pathname}`,
-            iframeUrl: '/preview.html',
-            assetsDir: '/assets',
-            examplesDir: '/examples',
-            publicDir: '/public',
+            iframeUrl: 'preview.html',
+            assetsDir: 'assets',
+            examplesDir: 'examples',
+            publicDir: 'public',
         },
         requestOptions: {
             cache: 'no-cache',
