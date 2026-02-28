@@ -30,7 +30,7 @@ export class DependencyContainer<Dependencies extends Obj, Config extends Obj> {
 
     public get<Name extends keyof Dependencies>(name: Name): Dependencies[Name] {
         if (!this.dependencies.has(name)) {
-            throw new Error(`Could not found loaded dependency ${name}!`);
+            throw new Error(`Could not find loaded dependency ${String(name)}!`);
         }
 
         return this.dependencies.get(name) as Dependencies[Name];

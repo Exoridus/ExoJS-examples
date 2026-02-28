@@ -1,6 +1,7 @@
 {
   "rendering": [
     "sprite",
+    "spritesheet",
     "container",
     "blendmodes",
     "tinted-sprites",

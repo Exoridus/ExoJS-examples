@@ -8,6 +8,7 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 import { CSSResult, customElement, html, internalProperty, TemplateResult, unsafeCSS } from 'lit-element';
 import { Example, ExampleService } from '../services/ExampleService';
 import { globalDependencies } from '../classes/globalDependencies';
+import type { UpdateCodeEvent } from './EditorCode';
 
 @customElement('my-editor')
 export default class Editor extends MobxLitElement {
@@ -36,7 +37,14 @@ export default class Editor extends MobxLitElement {
     public render(): TemplateResult {
         return html`
             <my-editor-preview .sourceCode=${this.sourceCode}></my-editor-preview>
-            <my-editor-code .sourceCode=${this.sourceCode}></my-editor-code>
+            <my-editor-code
+                .sourceCode=${this.sourceCode}
+                @update-code=${this.onUpdateCode}
+            ></my-editor-code>
         `;
+    }
+
+    private onUpdateCode(event: CustomEvent<UpdateCodeEvent>): void {
+        this.sourceCode = event.detail.code;
     }
 }

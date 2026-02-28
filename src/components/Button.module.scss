@@ -1,5 +1,5 @@
-@import "../scss/typography";
-@import "../scss/colors";
+@use "../scss/typography" as *;
+@use "../scss/colors" as *;
 
 .button {
     transition: background-color 0.3s linear;

@@ -10,12 +10,27 @@ injectStyles(css, document.head);
 
 configure({ enforceActions: 'observed' });
 
+const resolveBasePath = (pathname: string): string => {
+    if (pathname.endsWith('/')) {
+        return pathname;
+    }
+
+    const lastSegment = pathname.split('/').pop() || '';
+
+    if (lastSegment.includes('.')) {
+        return pathname.slice(0, pathname.lastIndexOf('/') + 1) || '/';
+    }
+
+    return `${pathname}/`;
+};
+
 const { origin, pathname } = window.location;
+const basePath = resolveBasePath(pathname);
 
 globalDependencies
     .loadDependencies({
         urlConfig: {
-            baseUrl: `${origin}${pathname}`,
+            baseUrl: new URL(basePath, origin).toString(),
             iframeUrl: 'preview.html',
             assetsDir: 'assets',
             examplesDir: 'examples',

@@ -1,7 +1,7 @@
 const app = new Exo.Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.Black,
+    clearColor: Exo.Color.black,
     resourcePath: 'assets/',
 });
 
@@ -10,7 +10,7 @@ document.body.append(app.canvas);
 app.start(new Exo.Scene({
 
     load(loader) {
-        loader.add('font', { example: 'font/AndyBold/AndyBold.woff2' }, { family: 'AndyBold' });
+        loader.add('font', { example: 'font/AndyBold.woff2' }, { family: 'AndyBold' });
     },
 
     init() {

@@ -1,7 +1,7 @@
 const app = new Exo.Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.Black,
+    clearColor: Exo.Color.black,
     resourcePath: 'assets/',
 });
 
@@ -40,14 +40,14 @@ app.start(new Exo.Scene({
         this._boxA.setRotation(this._time.seconds * 25);
         this._boxB.setRotation(this._time.seconds * -100);
 
-        this._boxA.setTint(Exo.Color.White);
-        this._boxB.setTint(Exo.Color.White);
+        this._boxA.setTint(Exo.Color.white);
+        this._boxB.setTint(Exo.Color.white);
 
         if (this._boxA.intersects(this._boxB)) {
             const { shapeAInB, shapeBInA } = this._boxA.getCollision(this._boxB);
 
-            this._boxA.setTint(shapeAInB ? Exo.Color.Cyan : Exo.Color.Red);
-            this._boxB.setTint(shapeBInA ? Exo.Color.Cyan : Exo.Color.Red);
+            this._boxA.setTint(shapeAInB ? Exo.Color.cyan : Exo.Color.red);
+            this._boxB.setTint(shapeBInA ? Exo.Color.cyan : Exo.Color.red);
             this._boxB.tint.a = 0.5;
         }
     },

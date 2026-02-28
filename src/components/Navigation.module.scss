@@ -1,6 +1,6 @@
-@import "../scss/colors";
-@import "../scss/typography";
-@import "../scss/mixins";
+@use "../scss/colors" as *;
+@use "../scss/typography" as *;
+@use "../scss/mixins" as *;
 
 * {
     box-sizing: border-box;

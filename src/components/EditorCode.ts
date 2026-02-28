@@ -2,20 +2,24 @@ import './Toolbar';
 import './Button';
 import './LoadingSpinner';
 
-import { css } from './EditorCode.module.scss';
+import styles, { css } from './EditorCode.module.scss';
 
-import { CSSResult, customElement, html, property, PropertyValues, TemplateResult, unsafeCSS } from 'lit-element';
+import {
+    CSSResult,
+    customElement,
+    html,
+    property,
+    PropertyValues,
+    query,
+    TemplateResult,
+    unsafeCSS,
+} from 'lit-element';
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { EditorState } from '@codemirror/next/state';
-import { EditorView } from '@codemirror/next/view';
-import { javascript } from '@codemirror/next/lang-javascript';
-import { highlightActiveLine } from '@codemirror/next/highlight-selection';
-import { bracketMatching } from '@codemirror/next/matchbrackets';
-import { lineNumbers } from '@codemirror/next/gutter';
-import { oneDark } from '@codemirror/next/theme-one-dark';
-import { history } from '@codemirror/next/history/src/history';
-import { closeBrackets } from '@codemirror/next/closebrackets';
-import { autocomplete } from '@codemirror/next/autocomplete';
+import { basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
+import { javascript } from '@codemirror/lang-javascript';
+import { oneDark } from '@codemirror/theme-one-dark';
 import { ExampleService } from '../services/ExampleService';
 import { globalDependencies } from '../classes/globalDependencies';
 
@@ -28,35 +32,19 @@ export default class EditorCode extends MobxLitElement {
     public static styles: CSSResult = unsafeCSS(css);
 
     @property() public sourceCode: string | null = null;
+    @query(`.${styles.editorHost}`) private editorHostElement?: HTMLDivElement;
 
     private exampleService: ExampleService = globalDependencies.get('exampleService');
+    private editorView: EditorView | null = null;
 
-    private editorState: EditorState = EditorState.create({
-        doc: this.sourceCode || '',
-        extensions: [
-            lineNumbers(),
-            javascript(),
-            highlightActiveLine(),
-            bracketMatching(),
-            history(),
-            autocomplete(),
-            closeBrackets,
-            oneDark,
-            // EditorState.indentUnit.of(4),
-        ],
-    });
-
-    private editorView: EditorView = new EditorView({
-        state: this.editorState,
-    });
+    private readonly editorExtensions = [
+        basicSetup,
+        javascript(),
+        oneDark,
+    ];
 
     public render(): TemplateResult {
         const exampleName = this.exampleService.activeExample?.name || 'Loading...';
-
-        // @ts-ignore: test
-        window.editorState = this.editorState;
-        // @ts-ignore: test
-        window.editorView = this.editorView;
 
         return html`
             <my-toolbar title=${`Example Code: ${exampleName}`}>
@@ -71,31 +59,73 @@ export default class EditorCode extends MobxLitElement {
             return html`<my-loading-spinner centered></my-loading-spinner>`;
         }
 
-        return html`${this.editorView.dom}`;
+        return html`<div class=${styles.editorHost}></div>`;
     }
 
     public updated(changedProperties: PropertyValues): void {
-        if (changedProperties.has('sourceCode') && this.sourceCode !== null) {
-            this.updateEditorCode(0, this.editorState.doc.length, this.sourceCode);
+        if (!changedProperties.has('sourceCode') || this.sourceCode === null) {
+            return;
+        }
+
+        if (this.editorView === null) {
+            this.initializeEditor(this.sourceCode);
+            return;
+        }
+
+        this.updateEditorCode(this.sourceCode);
+    }
+
+    public disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        if (this.editorView !== null) {
+            this.editorView.destroy();
+            this.editorView = null;
         }
     }
 
-    private updateEditorCode(from: number, to: number, insert: string): void {
-        const transaction = this.editorState.update({
-            changes: { from, to, insert },
+    private initializeEditor(initialCode: string): void {
+        if (!this.editorHostElement || this.editorView !== null) {
+            return;
+        }
+
+        const state = EditorState.create({
+            doc: initialCode,
+            extensions: this.editorExtensions,
+        });
+
+        this.editorView = new EditorView({
+            state,
+            parent: this.editorHostElement,
+            root: this.shadowRoot || document,
+        });
+    }
+
+    private updateEditorCode(code: string): void {
+        if (this.editorView === null) {
+            return;
+        }
+
+        const currentState = this.editorView.state;
+        const transaction = currentState.update({
+            changes: {
+                from: 0,
+                to: currentState.doc.length,
+                insert: code,
+            },
         });
 
         this.editorView.dispatch(transaction);
     }
 
     private triggerRefreshPreview(): void {
-        if (!this.editorState) {
+        if (this.editorView === null) {
             return;
         }
 
         const updateCodeEvent = new CustomEvent<UpdateCodeEvent>('update-code', {
             detail: {
-                code: this.editorState.doc.toString(),
+                code: this.editorView.state.doc.toString(),
             },
         });
 

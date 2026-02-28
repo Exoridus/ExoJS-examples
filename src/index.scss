@@ -1,5 +1,5 @@
-@import "scss/colors";
-@import "scss/typography";
+@use "scss/colors" as *;
+@use "scss/typography" as *;
 
 :global {
     html {
@@ -19,3 +19,4 @@
         margin: 0;
     }
 }
+
