@@ -34,11 +34,11 @@ app.start(new Exo.Scene({
         this._rightBunny.setScale(5);
 
         this._blendModes = [
-            Exo.BlendModes.NORMAL,
-            Exo.BlendModes.ADDITIVE,
-            Exo.BlendModes.SUBTRACT,
-            Exo.BlendModes.MULTIPLY,
-            Exo.BlendModes.SCREEN,
+            Exo.BlendModes.normal,
+            Exo.BlendModes.additive,
+            Exo.BlendModes.subtract,
+            Exo.BlendModes.multiply,
+            Exo.BlendModes.screen,
         ];
 
         this._blendModeNames = [
