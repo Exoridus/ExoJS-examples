@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, Sprite, Container } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', {
@@ -19,13 +21,13 @@ app.start(new Exo.Scene({
     init(resources) {
         const { width, height } = this.app.canvas;
 
-        this._rainbow = new Exo.Sprite(resources.get('texture', 'rainbow'));
+        this._rainbow = new Sprite(resources.get('texture', 'rainbow'));
 
-        this._bunnies = new Exo.Container();
+        this._bunnies = new Container();
         this._bunnies.setPosition(width / 2 | 0, height / 2 | 0);
 
         for (let i = 0; i < 25; i++) {
-            const bunny = new Exo.Sprite(resources.get('texture', 'bunny'));
+            const bunny = new Sprite(resources.get('texture', 'bunny'));
 
             bunny.setPosition((i % 5) * (bunny.width + 15), (i / 5 | 0) * (bunny.height + 10));
 
@@ -48,8 +50,7 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._rainbow);
-        renderManager.draw(this._bunnies);
-        renderManager.display();
+        this._rainbow.render(renderManager);
+        this._bunnies.render(renderManager);
     },
 }));

@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, View, Sprite, Text, Input, Keyboard } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', { example: 'image/uv.png' });
@@ -20,12 +22,12 @@ app.start(new Exo.Scene({
         this._zoomSpeed = 0.01;
         this._rotationSpeed = 1;
 
-        this._camera = new Exo.View(0, 0, width, height);
+        this._camera = new View(0, 0, width, height);
 
-        this._sprite = new Exo.Sprite(resources.get('texture', 'example'));
+        this._sprite = new Sprite(resources.get('texture', 'example'));
         this._sprite.setAnchor(0.5, 0.5);
 
-        this._info = new Exo.Text([
+        this._info = new Text([
             'Camera:',
             'W/A/S/D = Move',
             'Up/Down = Zoom',
@@ -40,63 +42,63 @@ app.start(new Exo.Scene({
         this.app.inputManager.add([
 
             // Move Up
-            new Exo.Input(Exo.Keyboard.W, {
+            new Input(Keyboard.W, {
                 onActive: (value) => {
                     this._camera.move(0, value * -this._moveSpeed);
                 },
             }),
 
             // Move Down
-            new Exo.Input(Exo.Keyboard.S, {
+            new Input(Keyboard.S, {
                 onActive: (value) => {
                     this._camera.move(0, value * this._moveSpeed);
                 },
             }),
 
             // Move Left
-            new Exo.Input(Exo.Keyboard.A, {
+            new Input(Keyboard.A, {
                 onActive: (value) => {
                     this._camera.move(value * -this._moveSpeed, 0);
                 },
             }),
 
             // Move Right
-            new Exo.Input(Exo.Keyboard.D, {
+            new Input(Keyboard.D, {
                 onActive: (value) => {
                     this._camera.move(value * this._moveSpeed, 0);
                 },
             }),
 
             // Zoom In
-            new Exo.Input(Exo.Keyboard.Up, {
+            new Input(Keyboard.Up, {
                 onActive: (value) => {
                     this._camera.zoom(1 + (value * -this._zoomSpeed));
                 },
             }),
 
             // Zoom Out
-            new Exo.Input(Exo.Keyboard.Down, {
+            new Input(Keyboard.Down, {
                 onActive: (value) => {
                     this._camera.zoom(1 + (value * this._zoomSpeed));
                 },
             }),
 
             // Rotate Left
-            new Exo.Input(Exo.Keyboard.Left, {
+            new Input(Keyboard.Left, {
                 onActive: (value) => {
                     this._camera.rotate(value * -this._rotationSpeed);
                 },
             }),
 
             // Rotate Right
-            new Exo.Input(Exo.Keyboard.Right, {
+            new Input(Keyboard.Right, {
                 onActive: (value) => {
                     this._camera.rotate(value * this._rotationSpeed);
                 },
             }),
 
             // Reset
-            new Exo.Input(Exo.Keyboard.R, {
+            new Input(Keyboard.R, {
                 onTrigger: () => {
                     this._camera.reset(0, 0, width, height);
                 },
@@ -108,9 +110,9 @@ app.start(new Exo.Scene({
         renderManager.clear();
 
         renderManager.renderTarget.setView(this._camera);
-        renderManager.draw(this._sprite).display();
+        this._sprite.render(renderManager);
 
         renderManager.renderTarget.setView(null);
-        renderManager.draw(this._info).display();
+        this._info.render(renderManager);
     },
 }));

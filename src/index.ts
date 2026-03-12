@@ -10,31 +10,36 @@ injectStyles(css, document.head);
 
 configure({ enforceActions: 'observed' });
 
-const resolveBasePath = (pathname: string): string => {
-    if (pathname.endsWith('/')) {
-        return pathname;
-    }
+const renderBootError = (error: Error): void => {
+    const element = document.createElement('main');
 
-    const lastSegment = pathname.split('/').pop() || '';
+    Object.assign(element.style, {
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        padding: '24px',
+        boxSizing: 'border-box',
+        color: '#f4f6fb',
+    });
 
-    if (lastSegment.includes('.')) {
-        return pathname.slice(0, pathname.lastIndexOf('/') + 1) || '/';
-    }
+    element.innerHTML = `
+        <section style="max-width: 520px; padding: 18px 20px; border-radius: 12px; background: rgba(17, 24, 39, 0.92); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 18px 40px rgba(0,0,0,0.28);">
+            <h1 style="margin: 0 0 8px; font-size: 20px;">ExoJS Examples failed to load</h1>
+            <p style="margin: 0; line-height: 1.6; color: rgba(244,246,251,0.82);">${error.message}</p>
+        </section>
+    `;
 
-    return `${pathname}/`;
+    document.body.replaceChildren(element);
 };
-
-const { origin, pathname } = window.location;
-const basePath = resolveBasePath(pathname);
 
 globalDependencies
     .loadDependencies({
         urlConfig: {
-            baseUrl: new URL(basePath, origin).toString(),
+            baseUrl: new URL('.', document.baseURI).toString(),
             iframeUrl: 'preview.html',
             assetsDir: 'assets',
             examplesDir: 'examples',
-            publicDir: 'public',
+            publicDir: '.',
         },
         requestOptions: {
             cache: 'no-cache',
@@ -43,4 +48,7 @@ globalDependencies
         },
     })
     .then(() => render(html`<my-app />`, document.body))
-    .catch((error: Error) => console.error('An error occurred while loading dependencies!', error));
+    .catch((error: Error) => {
+        console.error('An error occurred while loading dependencies!', error);
+        renderBootError(error);
+    });

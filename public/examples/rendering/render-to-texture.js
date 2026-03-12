@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, Sprite, Container, RenderTexture } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', { bunny: 'image/bunny.png' });
@@ -20,16 +22,16 @@ app.start(new Exo.Scene({
 
         this._renderTexture = this.createRenderTexture(this._container);
 
-        this._renderSprite = new Exo.Sprite(this._renderTexture);
+        this._renderSprite = new Sprite(this._renderTexture);
         this._renderSprite.setPosition(width, height);
         this._renderSprite.setAnchor(1, 1);
     },
 
     createBunnyContainer(texture) {
-        const container = new Exo.Container();
+        const container = new Container();
 
         for (let i = 0; i < 25; i++) {
-            const bunny = new Exo.Sprite(texture);
+            const bunny = new Sprite(texture);
 
             bunny.setAnchor(0.5, 0.5);
             bunny.setPosition(25 + (i % 5) * 30, 25 + Math.floor(i / 5) * 30);
@@ -43,13 +45,12 @@ app.start(new Exo.Scene({
 
     createRenderTexture(container) {
         const renderManager = this.app.renderManager;
-        const renderTexture = new Exo.RenderTexture(Math.ceil(container.width), Math.ceil(container.height));
+        const renderTexture = new RenderTexture(Math.ceil(container.width), Math.ceil(container.height));
 
         renderManager.setRenderTarget(renderTexture);
 
         renderManager.clear();
-        renderManager.draw(container);
-        renderManager.display();
+        container.render(renderManager);
 
         renderManager.setRenderTarget(null);
 
@@ -58,8 +59,7 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._container);
-        renderManager.draw(this._renderSprite);
-        renderManager.display();
+        this._container.render(renderManager);
+        this._renderSprite.render(renderManager);
     },
 }));

@@ -16,9 +16,20 @@
         <script>
             (function () {
                 var params = new URLSearchParams(window.location.search);
-                var noCache = params.get('no-cache') || String(Date.now());
+                var noCache = encodeURIComponent(params.get('no-cache') || String(Date.now()));
+                var importMap = {
+                    imports: {
+                        'exojs': './vendor/exojs/exo.esm.js?no-cache=' + noCache,
+                        'exojs/webgl2': './vendor/exojs/webgl2.esm.js?no-cache=' + noCache,
+                        'exojs/webgpu': './vendor/exojs/webgpu.esm.js?no-cache=' + noCache,
+                        '@examples/runtime': './examples/shared/runtime.js?no-cache=' + noCache
+                    }
+                };
+                var script = document.createElement('script');
 
-                document.write('<script src="vendor/exo.bundle.js?nocache=' + encodeURIComponent(noCache) + '"><\\/script>');
+                script.type = 'importmap';
+                script.textContent = JSON.stringify(importMap);
+                document.currentScript.after(script);
             })();
         </script>
         <script src="vendor/stats.min.js"></script>

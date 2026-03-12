@@ -1,6 +1,19 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <script>
+            (function () {
+                var path = window.location.pathname;
+                var lastSegment = path.split('/').pop() || '';
+                var basePath = path.endsWith('/')
+                    ? path
+                    : (lastSegment.includes('.') ? path.slice(0, path.lastIndexOf('/') + 1) : path + '/');
+                var baseElement = document.createElement('base');
+
+                baseElement.href = basePath;
+                document.head.appendChild(baseElement);
+            })();
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, minimal-ui">
         <meta name="mobile-web-app-capable" content="yes">
@@ -13,6 +26,13 @@
     </head>
 
     <body>
-        <script src="examples.js"></script>
+        <script>
+            (function () {
+                var script = document.createElement('script');
+
+                script.src = new URL('examples.js', document.baseURI).toString();
+                document.body.appendChild(script);
+            })();
+        </script>
     </body>
 </html>

@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, Spritesheet } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', { explosion: 'image/explosion.png' });
@@ -19,7 +21,7 @@ app.start(new Exo.Scene({
             texture = resources.get('texture', 'explosion'),
             data = resources.get('json', 'explosion');
 
-        this._spritesheet = new Exo.Spritesheet(texture, data);
+        this._spritesheet = new Spritesheet(texture, data);
         this._sprite = this._spritesheet.getFrameSprite('explosion-0');
         this._frame = 0;
         this._frames = 64;
@@ -37,7 +39,6 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._sprite);
-        renderManager.display();
+        this._sprite.render(renderManager);
     },
 }));

@@ -10,7 +10,7 @@ The app is built so it can be hosted from a subfolder, and the published `dist/`
 
 - A small example explorer UI built with Lit and MobX
 - A live code editor and preview for each example
-- Local vendored runtime assets such as `exo.bundle.js` and `stats.min.js`
+- Local vendored browser assets for `exojs`, Monaco, and `stats.min.js`
 - Smoke tests that verify the built `dist/` app opens correctly and loads the preview without runtime errors
 
 ## Local Development
@@ -53,6 +53,12 @@ Each example can be opened directly with a hash route in this format:
 https://exoridus.github.io/ExoJS-examples/#category/example-name.js
 ```
 
+## Backend Policy
+
+- Normal examples outside `webgpu/` rely on ExoJS default backend selection.
+- Routes under `webgpu/` stay explicit about `backend: { type: 'webgpu' }` because backend choice is part of the example’s purpose.
+- Advanced backend-specific examples remain explicit and honest; they do not hide behind the default path.
+
 ## Examples
 
 ### Rendering
@@ -67,6 +73,20 @@ https://exoridus.github.io/ExoJS-examples/#category/example-name.js
 - [Display Text](https://exoridus.github.io/ExoJS-examples/#rendering/display-text.js)
 - [Display Video](https://exoridus.github.io/ExoJS-examples/#rendering/display-video.js)
 - [Display SVG](https://exoridus.github.io/ExoJS-examples/#rendering/display-svg.js)
+
+### WebGPU
+
+- [Additive Particles](https://exoridus.github.io/ExoJS-examples/#webgpu/additive-particles.js)
+- [Multi-Texture Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/multi-texture-sprite-stress.js)
+- [Particle Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-stress.js)
+- [Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-stress.js)
+- [Video Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/video-basics.js)
+- [RenderTexture Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/rendertexture-basics.js)
+- [Graphics Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/graphics-basics.js)
+- [Particle Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-basics.js)
+- [Sprite Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-basics.js)
+- [Text Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/text-basics.js)
+- [Custom Triangle Renderer](https://exoridus.github.io/ExoJS-examples/#webgpu/custom-triangle-renderer.js)
 
 ### Input
 

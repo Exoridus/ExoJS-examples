@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, Sprite } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', { bunny: 'image/bunny.png' });
@@ -16,7 +18,7 @@ app.start(new Exo.Scene({
     init(resources) {
         const { width, height } = this.app.canvas;
 
-        this._bunny = new Exo.Sprite(resources.get('texture', 'bunny'));
+        this._bunny = new Sprite(resources.get('texture', 'bunny'));
         this._bunny.setPosition(width / 2 | 0, height / 2 | 0);
         this._bunny.setAnchor(0.5);
     },
@@ -27,7 +29,6 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._bunny);
-        renderManager.display();
+        this._bunny.render(renderManager);
     },
 }));

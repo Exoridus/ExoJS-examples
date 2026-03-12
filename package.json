@@ -11,8 +11,9 @@
   },
   "scripts": {
     "vendor:sync:exo": "node scripts/sync-exo-vendor.mjs",
+    "vendor:sync:monaco": "node scripts/sync-monaco-vendor.mjs",
     "vendor:sync:stats": "node scripts/sync-stats-vendor.mjs",
-    "vendor:sync": "npm run vendor:sync:exo && npm run vendor:sync:stats",
+    "vendor:sync": "npm run vendor:sync:exo && npm run vendor:sync:monaco && npm run vendor:sync:stats",
     "assets:sync:input-prompts": "node scripts/sync-kenney-input-prompts.mjs",
     "dev": "npm run vendor:sync && cross-env NODE_ENV=development SASS_SILENCE_DEPRECATIONS=legacy-js-api rollup -cw",
     "build": "npm run vendor:sync && cross-env NODE_ENV=production SASS_SILENCE_DEPRECATIONS=legacy-js-api rollup -c",
@@ -64,11 +65,8 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.4",
-    "@codemirror/theme-one-dark": "^6.1.3",
-    "@codemirror/view": "^6.36.3",
-    "codemirror": "^6.0.2",
-    "dedent": "^0.7.0"
-  },
-  "peerDependencies": {}
+    "dedent": "^0.7.0",
+    "exojs": "file:../exojs",
+    "monaco-editor": "^0.55.1"
+  }
 }

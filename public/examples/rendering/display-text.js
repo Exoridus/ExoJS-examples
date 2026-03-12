@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, Time, Text } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('font', { example: 'font/AndyBold.woff2' }, { family: 'AndyBold' });
@@ -16,9 +18,9 @@ app.start(new Exo.Scene({
     init() {
         const { width, height } = this.app.canvas;
 
-        this._time = new Exo.Time();
+        this._time = new Time();
 
-        this._text = new Exo.Text('Hello World!', {
+        this._text = new Text('Hello World!', {
             align: 'left',
             fill: 'white',
             stroke: 'black',
@@ -39,7 +41,6 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._text);
-        renderManager.display();
+        this._text.render(renderManager);
     },
 }));

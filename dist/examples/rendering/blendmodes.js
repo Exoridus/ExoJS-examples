@@ -1,44 +1,46 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, ScaleModes, Sprite, BlendModes, Text } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', {
             background: 'image/uv.png',
             bunny: 'image/bunny.png',
         }, {
-            scaleMode: Exo.ScaleModes.NEAREST,
+            scaleMode: ScaleModes.nearest,
         });
     },
 
     init(resources) {
         const { width, height } = this.app.canvas;
 
-        this._background = new Exo.Sprite(resources.get('texture', 'background'));
+        this._background = new Sprite(resources.get('texture', 'background'));
         this._background.setPosition(width / 2, height / 2);
         this._background.setAnchor(0.5, 0.5);
 
-        this._leftBunny = new Exo.Sprite(resources.get('texture', 'bunny'));
+        this._leftBunny = new Sprite(resources.get('texture', 'bunny'));
         this._leftBunny.setAnchor(0.5, 0.5);
         this._leftBunny.setScale(5);
 
-        this._rightBunny = new Exo.Sprite(resources.get('texture', 'bunny'));
+        this._rightBunny = new Sprite(resources.get('texture', 'bunny'));
         this._rightBunny.setAnchor(0.5, 0.5);
         this._rightBunny.setScale(5);
 
         this._blendModes = [
-            Exo.BlendModes.normal,
-            Exo.BlendModes.additive,
-            Exo.BlendModes.subtract,
-            Exo.BlendModes.multiply,
-            Exo.BlendModes.screen,
+            BlendModes.Normal,
+            BlendModes.Additive,
+            BlendModes.Subtract,
+            BlendModes.Multiply,
+            BlendModes.Screen,
         ];
 
         this._blendModeNames = [
@@ -52,7 +54,7 @@ app.start(new Exo.Scene({
         this._blendModeIndex = 0;
         this._ticker = 0;
 
-        this._info = new Exo.Text('Click to switch between blend modes', {
+        this._info = new Text('Click to switch between blend modes', {
             fontSize: 16,
             padding: 10,
             fill: '#fff',
@@ -91,10 +93,9 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this._background);
-        renderManager.draw(this._leftBunny);
-        renderManager.draw(this._rightBunny);
-        renderManager.draw(this._info);
-        renderManager.display();
+        this._background.render(renderManager);
+        this._leftBunny.render(renderManager);
+        this._rightBunny.render(renderManager);
+        this._info.render(renderManager);
     },
 }));

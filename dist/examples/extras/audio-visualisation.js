@@ -1,13 +1,15 @@
-const app = new Exo.Application({
+import { Application, Color, Scene, AudioAnalyser, Texture, Sprite, Time } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('music', { example: 'audio/example.ogg' });
@@ -18,7 +20,7 @@ app.start(new Exo.Scene({
 
         this._music = resources.get('music', 'example');
 
-        this._analyser = new Exo.AudioAnalyser(this._music);
+        this._analyser = new AudioAnalyser(this._music);
 
         this._canvas = document.createElement('canvas');
         this._canvas.style.position = 'absolute';
@@ -40,11 +42,11 @@ app.start(new Exo.Scene({
 
         this._progressStyle = 'rgba(255, 255, 255, 0.1)';
 
-        this._texture = new Exo.Texture(this._canvas);
+        this._texture = new Texture(this._canvas);
 
-        this._screen = new Exo.Sprite(this._texture);
+        this._screen = new Sprite(this._texture);
 
-        this._time = new Exo.Time();
+        this._time = new Time();
 
         this._values = new Float32Array(4);
 
@@ -54,13 +56,14 @@ app.start(new Exo.Scene({
             'rgba(0, 255, 0, 1)',
             'rgba(255, 0, 0, 1)',
         ];
-
-        this._music.play({
-            loop: true,
-            volume: 0.5
-        });
+        window.__EXAMPLE_PREVIEW_AUTOPLAY__ = () => this._music.play({ loop: true, muted: false, volume: 0.5 });
 
         this.app.inputManager.onPointerDown.add(() => {
+            if (this._music.paused) {
+                window.__EXAMPLE_PREVIEW_AUTOPLAY__?.();
+                return;
+            }
+
             this._music.toggle();
         });
     },
@@ -135,7 +138,6 @@ app.start(new Exo.Scene({
         this._screen.updateTexture();
 
         renderManager.clear();
-        renderManager.draw(this._screen);
-        renderManager.display();
+        this._screen.render(renderManager);
     },
 }));

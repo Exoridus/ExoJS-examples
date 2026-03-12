@@ -1,35 +1,37 @@
-const app = new Exo.Application({
+import { Application, Color, seconds, Time, PolarVector, rand, Scene, Size, ParticleOptions, Vector, ParticleSystem, Timer } from 'exojs';
+
+const app = new Application({
     width: 800,
     height: 600,
-    clearColor: Exo.Color.black,
+    clearColor: Color.black,
     resourcePath: 'assets/',
 });
 
 document.body.append(app.canvas);
 
-const explosionInterval	= Exo.seconds(1);
-const explosionDuration	= Exo.seconds(0.2);
-const tailDuration = Exo.seconds(2.5);
+const explosionInterval	= seconds(1);
+const explosionDuration	= seconds(0.2);
+const tailDuration = seconds(2.5);
 const tailsPerExplosion	= 15;
 const particlesPerTail = 25;
 const gravity = 30;
 const fireworkColors = [
-    new Exo.Color(100, 255, 135),
-    new Exo.Color(175, 255, 135),
-    new Exo.Color(85, 190, 255),
-    new Exo.Color(255, 145, 255),
-    new Exo.Color(100, 100, 255),
-    new Exo.Color(140, 250, 190),
-    new Exo.Color(255, 135, 135),
-    new Exo.Color(240, 255, 135),
-    new Exo.Color(245, 215, 80),
+    new Color(100, 255, 135),
+    new Color(175, 255, 135),
+    new Color(85, 190, 255),
+    new Color(255, 145, 255),
+    new Color(100, 100, 255),
+    new Color(140, 250, 190),
+    new Color(255, 135, 135),
+    new Color(240, 255, 135),
+    new Color(245, 215, 80),
 ];
 
 class FireworkEmitter {
 
     constructor(particleOptions) {
         this.particleOptions = particleOptions;
-        this.accumulatedTime = new Exo.Time();
+        this.accumulatedTime = new Time();
         this.tailInterval = explosionDuration.milliseconds / tailsPerExplosion;
     }
 
@@ -37,7 +39,7 @@ class FireworkEmitter {
         this.accumulatedTime.addTime(delta);
 
         while (this.accumulatedTime.milliseconds - this.tailInterval > 0) {
-            const velocity = new Exo.PolarVector(Exo.rand(30, 70), Exo.rand(0, 360));
+            const velocity = new PolarVector(rand(30, 70), rand(0, 360));
             const scale = this.particleOptions.scale.clone();
 
             for (let i = 0; i < particlesPerTail; i++) {
@@ -73,7 +75,7 @@ class FireworkAffector {
     }
 }
 
-app.start(new Exo.Scene({
+app.start(new Scene({
 
     load(loader) {
         loader.add('texture', { particle: 'image/particle.png' });
@@ -85,40 +87,40 @@ app.start(new Exo.Scene({
         /**
          * @type {Size}
          */
-        this.canvasSize = new Exo.Size(width, height);
+        this.canvasSize = new Size(width, height);
 
         /**
          * @type {ParticleOptions}
          */
-        this.particleOptions = new Exo.ParticleOptions({
-            position: new Exo.Vector(
-                Exo.rand(0, this.canvasSize.width),
-                Exo.rand(0, this.canvasSize.height)
+        this.particleOptions = new ParticleOptions({
+            position: new Vector(
+                rand(0, this.canvasSize.width),
+                rand(0, this.canvasSize.height)
             ),
-            scale: new Exo.Vector(0.95, 0.95),
-            tint: fireworkColors[Exo.rand(0, fireworkColors.length - 1) | 0],
+            scale: new Vector(0.95, 0.95),
+            tint: fireworkColors[rand(0, fireworkColors.length - 1) | 0],
             totalLifetime: tailDuration,
         });
 
         /**
          * @type {ParticleSystem}
          */
-        this.particleSystem = new Exo.ParticleSystem(resources.get('texture', 'particle'));
+        this.particleSystem = new ParticleSystem(resources.get('texture', 'particle'));
         this.particleSystem.addEmitter(new FireworkEmitter(this.particleOptions));
         this.particleSystem.addAffector(new FireworkAffector());
 
         /**
          * @type {Timer}
          */
-        this.explosionTimer = new Exo.Timer(explosionInterval, true);
+        this.explosionTimer = new Timer(explosionInterval, true);
     },
 
     update(delta) {
         if (this.explosionTimer.expired) {
-            this.particleOptions.tint = fireworkColors[Exo.rand(0, fireworkColors.length - 1) | 0];
+            this.particleOptions.tint = fireworkColors[rand(0, fireworkColors.length - 1) | 0];
             this.particleOptions.position.set(
-                Exo.rand(0, this.canvasSize.width),
-                Exo.rand(0, this.canvasSize.height)
+                rand(0, this.canvasSize.width),
+                rand(0, this.canvasSize.height)
             );
 
             this.explosionTimer.restart();
@@ -129,7 +131,6 @@ app.start(new Exo.Scene({
 
     draw(renderManager) {
         renderManager.clear();
-        renderManager.draw(this.particleSystem);
-        renderManager.display();
+        this.particleSystem.render(renderManager);
     },
 }));
