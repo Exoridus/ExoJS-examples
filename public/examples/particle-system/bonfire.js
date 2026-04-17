@@ -1,4 +1,4 @@
-import { Application, Color, Scene, ParticleOptions, ColorAffector, UniversalEmitter, ParticleSystem, BlendModes, rand, seconds } from 'exojs';
+import { Application, Color, Scene, ParticleOptions, ColorAffector, UniversalEmitter, ParticleSystem, BlendModes, rand, seconds, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,20 +9,19 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { particle: 'image/particle.png' });
+    async load(loader) {
+        await loader.load(Texture, { particle: 'image/particle.png' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
         this._particleOptions = new ParticleOptions();
         this._colorAffector = new ColorAffector(new Color(194, 64, 30, 1), new Color(0, 0, 0, 0));
         this._particleEmitter = new UniversalEmitter(50, this._particleOptions);
 
-        this._particleSystem = new ParticleSystem(resources.get('texture', 'particle'));
+        this._particleSystem = new ParticleSystem(loader.get(Texture, 'particle'));
         this._particleSystem.setPosition(width * 0.5, height * 0.75);
         this._particleSystem.setBlendMode(BlendModes.Additive);
         this._particleSystem.addAffector(this._colorAffector);

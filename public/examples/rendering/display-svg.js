@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Texture, Sprite } from 'exojs';
+import { Application, Color, Scene, Texture, Sprite, SvgAsset } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,16 +9,15 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('svg', { tiger: 'svg/tiger.svg' });
+    async load(loader) {
+        await loader.load(SvgAsset, { tiger: 'svg/tiger.svg' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._texture = new Texture(resources.get('svg', 'tiger'));
+        this._texture = new Texture(loader.get(SvgAsset, 'tiger'));
 
         this._tiger = new Sprite(this._texture);
         this._tiger.setAnchor(0.5);

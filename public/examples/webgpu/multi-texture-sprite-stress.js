@@ -1,124 +1,109 @@
 import { Application, Color, Container, Rectangle, Scene, Sprite, Texture } from 'exojs';
-import { createInfoElement, formatErrorMessage, getExampleMeta, showInfo, supportsWebGpu } from '@examples/runtime';
 
 const GRID_COLUMNS = 32;
 const GRID_ROWS = 18;
 const SPRITE_COUNT = GRID_COLUMNS * GRID_ROWS;
 const TEXTURE_COUNT = 4;
 
-const exampleMeta = getExampleMeta();
-const infoElement = createInfoElement('460px');
-
-if (!supportsWebGpu()) {
-    showInfo(infoElement, 'WebGPU Unavailable', exampleMeta.unsupportedNote || '', true);
-} else {
-    const app = new Application({
-        width: 800,
-        height: 600,
-        clearColor: new Color(0.018, 0.02, 0.04, 1),
-        backend: { type: 'webgpu' },
-    });
-
-    document.body.append(app.canvas, infoElement);
-    showInfo(
-        infoElement,
-        exampleMeta.title || 'Multi-Texture Sprite Stress',
-        `${exampleMeta.description || ''} ${SPRITE_COUNT} sprites are active across ${TEXTURE_COUNT} separate textures.`.trim()
-    );
-
-    app.start(new Scene({
-
-        init() {
-            const { width, height } = this.app.canvas;
-
-            this._sprites = [];
-            this._spriteLayer = new Container();
-            this._spriteLayer.setPosition(width / 2, height / 2);
-            this._textureInfos = createTextureInfos();
-
-            let index = 0;
-
-            for (let row = 0; row < GRID_ROWS; row++) {
-                for (let column = 0; column < GRID_COLUMNS; column++) {
-                    const textureInfo = this._textureInfos[index % this._textureInfos.length];
-                    const sprite = new Sprite(textureInfo.texture);
-                    const frame = textureInfo.frames[(row + column + index) % textureInfo.frames.length];
-                    const offsetX = (column - ((GRID_COLUMNS - 1) / 2)) * 24;
-                    const offsetY = (row - ((GRID_ROWS - 1) / 2)) * 25;
-                    const phase = index * 0.11;
-                    const baseScale = 0.56 + ((index % 4) * 0.09);
-                    const tint = textureInfo.palette[index % textureInfo.palette.length];
-
-                    sprite.setTextureFrame(frame);
-                    sprite.setAnchor(0.5);
-                    sprite.setPosition(offsetX, offsetY);
-                    sprite.setScale(baseScale);
-                    sprite.setTint(tint);
-
-                    this._sprites.push({
-                        sprite,
-                        offsetX,
-                        offsetY,
-                        phase,
-                        baseScale,
-                        driftX: 8 + ((index % 6) * 2),
-                        driftY: 5 + ((index % 5) * 2),
-                        rotationSpeed: ((index % 2 === 0) ? 1 : -1) * (18 + ((index % 7) * 6)),
-                    });
-
-                    this._spriteLayer.addChild(sprite);
-                    index++;
-                }
-            }
-        },
-
-        update(delta) {
-            const time = this.app.activeTime.seconds;
-
-            this._spriteLayer.rotation = Math.sin(time * 0.45) * 5;
-
-            for (const entry of this._sprites) {
-                const localPhase = time + entry.phase;
-                const scale = entry.baseScale + (Math.sin(localPhase * 1.9) * 0.09);
-
-                entry.sprite.x = entry.offsetX + Math.sin(localPhase * 1.35) * entry.driftX;
-                entry.sprite.y = entry.offsetY + Math.cos(localPhase * 1.55) * entry.driftY;
-                entry.sprite.rotation += delta.seconds * entry.rotationSpeed;
-                entry.sprite.setScale(scale);
-            }
-        },
-
-        draw(renderManager) {
-            renderManager.clear();
-            this._spriteLayer.render(renderManager);
-
-        },
-
-        unload() {
-            this._spriteLayer?.destroy();
-            this._spriteLayer = null;
-            this._sprites = null;
-            this._textureInfos = null;
-        },
-
-        destroy() {
-            this._spriteLayer?.destroy();
-            this._spriteLayer = null;
-            this._sprites = null;
-            this._textureInfos = null;
-        },
-    })).catch((error) => {
-        app.canvas.remove();
-        app.destroy();
-
-        showInfo(
-            infoElement,
-            'WebGPU Setup Failed',
-            `${exampleMeta.unsupportedNote || ''} ${formatErrorMessage(error)}`.trim(),
-            true
-        );
-    });
+if (!('gpu' in navigator)) {
+    throw new Error('WebGPU is not supported in this browser.');
 }
+const app = new Application({
+    width: 800,
+    height: 600,
+    clearColor: new Color(0.018, 0.02, 0.04, 1),
+    backend: { type: 'webgpu' },
+});
+
+document.body.append(app.canvas);
+
+app.start(Scene.create({
+
+    init() {
+        const { width, height } = this.app.canvas;
+
+        this._sprites = [];
+        this._spriteLayer = new Container();
+        this._spriteLayer.setPosition(width / 2, height / 2);
+        this._textureInfos = createTextureInfos();
+
+        let index = 0;
+
+        for (let row = 0; row < GRID_ROWS; row++) {
+            for (let column = 0; column < GRID_COLUMNS; column++) {
+                const textureInfo = this._textureInfos[index % this._textureInfos.length];
+                const sprite = new Sprite(textureInfo.texture);
+                const frame = textureInfo.frames[(row + column + index) % textureInfo.frames.length];
+                const offsetX = (column - ((GRID_COLUMNS - 1) / 2)) * 24;
+                const offsetY = (row - ((GRID_ROWS - 1) / 2)) * 25;
+                const phase = index * 0.11;
+                const baseScale = 0.56 + ((index % 4) * 0.09);
+                const tint = textureInfo.palette[index % textureInfo.palette.length];
+
+                sprite.setTextureFrame(frame);
+                sprite.setAnchor(0.5);
+                sprite.setPosition(offsetX, offsetY);
+                sprite.setScale(baseScale);
+                sprite.setTint(tint);
+
+                this._sprites.push({
+                    sprite,
+                    offsetX,
+                    offsetY,
+                    phase,
+                    baseScale,
+                    driftX: 8 + ((index % 6) * 2),
+                    driftY: 5 + ((index % 5) * 2),
+                    rotationSpeed: ((index % 2 === 0) ? 1 : -1) * (18 + ((index % 7) * 6)),
+                });
+
+                this._spriteLayer.addChild(sprite);
+                index++;
+            }
+        }
+    },
+
+    update(delta) {
+        const time = this.app.activeTime.seconds;
+
+        this._spriteLayer.rotation = Math.sin(time * 0.45) * 5;
+
+        for (const entry of this._sprites) {
+            const localPhase = time + entry.phase;
+            const scale = entry.baseScale + (Math.sin(localPhase * 1.9) * 0.09);
+
+            entry.sprite.x = entry.offsetX + Math.sin(localPhase * 1.35) * entry.driftX;
+            entry.sprite.y = entry.offsetY + Math.cos(localPhase * 1.55) * entry.driftY;
+            entry.sprite.rotation += delta.seconds * entry.rotationSpeed;
+            entry.sprite.setScale(scale);
+        }
+    },
+
+    draw(renderManager) {
+        renderManager.clear();
+        this._spriteLayer.render(renderManager);
+
+    },
+
+    unload() {
+        this._spriteLayer?.destroy();
+        this._spriteLayer = null;
+        this._sprites = null;
+        this._textureInfos = null;
+    },
+
+    destroy() {
+        this._spriteLayer?.destroy();
+        this._spriteLayer = null;
+        this._sprites = null;
+        this._textureInfos = null;
+    },
+})).catch((error) => {
+    app.canvas.remove();
+    app.destroy();
+
+    throw error;
+});
 
 function createTextureInfos() {
     return [

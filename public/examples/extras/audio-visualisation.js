@@ -1,4 +1,4 @@
-import { Application, Color, Scene, AudioAnalyser, Texture, Sprite, Time } from 'exojs';
+import { Application, Color, Scene, AudioAnalyser, Texture, Sprite, Time, Music } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,16 +9,15 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('music', { example: 'audio/example.ogg' });
+    async load(loader) {
+        await loader.load(Music, { example: 'audio/example.ogg' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._music = resources.get('music', 'example');
+        this._music = loader.get(Music, 'example');
 
         this._analyser = new AudioAnalyser(this._music);
 

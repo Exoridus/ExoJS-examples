@@ -1,4 +1,4 @@
-import { Application, Color, seconds, Time, PolarVector, rand, Scene, Size, ParticleOptions, Vector, ParticleSystem, Timer } from 'exojs';
+import { Application, Color, seconds, Time, PolarVector, rand, Scene, Size, ParticleOptions, Vector, ParticleSystem, Timer, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -63,7 +63,7 @@ class FireworkEmitter {
 class FireworkAffector {
 
     /**
-     * @param {Particle} particle
+     * @param {import('exojs').Particle} particle
      * @param {Time} delta
      * @returns {FireworkAffector}
      */
@@ -75,13 +75,12 @@ class FireworkAffector {
     }
 }
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { particle: 'image/particle.png' });
+    async load(loader) {
+        await loader.load(Texture, { particle: 'image/particle.png' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
         /**
@@ -105,7 +104,7 @@ app.start(new Scene({
         /**
          * @type {ParticleSystem}
          */
-        this.particleSystem = new ParticleSystem(resources.get('texture', 'particle'));
+        this.particleSystem = new ParticleSystem(loader.get(Texture, 'particle'));
         this.particleSystem.addEmitter(new FireworkEmitter(this.particleOptions));
         this.particleSystem.addAffector(new FireworkAffector());
 

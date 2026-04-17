@@ -1,5 +1,5 @@
 declare module "math/Matrix" {
-    import type { Cloneable } from "types/types";
+    import type { Cloneable } from "core/types";
     /**
      * | a | b | x |
      * | c | d | y |
@@ -33,7 +33,7 @@ declare module "math/Matrix" {
     }
 }
 declare module "math/Interval" {
-    import type { Cloneable } from "types/types";
+    import type { Cloneable } from "core/types";
     export class Interval implements Cloneable {
         min: number;
         max: number;
@@ -50,17 +50,17 @@ declare module "math/Interval" {
         static get temp(): Interval;
     }
 }
-declare module "types/Collision" {
+declare module "math/Collision" {
     import type { Vector } from "math/Vector";
     import type { Interval } from "math/Interval";
     export const enum CollisionType {
-        point = 0,
-        line = 1,
-        rectangle = 2,
-        circle = 3,
-        ellipse = 4,
-        polygon = 5,
-        sceneNode = 6
+        Point = 0,
+        Line = 1,
+        Rectangle = 2,
+        Circle = 3,
+        Ellipse = 4,
+        Polygon = 5,
+        SceneNode = 6
     }
     export interface Collidable {
         readonly collisionType: CollisionType;
@@ -81,20 +81,20 @@ declare module "types/Collision" {
     }
 }
 declare module "math/ShapeLike" {
-    import type { Collidable } from "types/Collision";
-    import type { Cloneable, Destroyable, HasBoundingBox } from "types/types";
+    import type { Collidable } from "math/Collision";
+    import type { Cloneable, Destroyable, HasBoundingBox } from "core/types";
     export interface ShapeLike extends Collidable, Cloneable, Destroyable, HasBoundingBox {
     }
 }
-declare module "types/primitives/PointLike" {
+declare module "math/PointLike" {
     export interface PointLike {
         x: number;
         y: number;
     }
 }
-declare module "utils/collision-primitives" {
-    import { VoronoiRegion } from "utils/math";
-    import type { PointLike } from "types/primitives/PointLike";
+declare module "math/collision-primitives" {
+    import { VoronoiRegion } from "math/utils";
+    import type { PointLike } from "math/PointLike";
     interface RectangleLikeLike extends PointLike {
         width: number;
         height: number;
@@ -192,7 +192,7 @@ declare module "math/ObservableVector" {
     }
 }
 declare module "math/Flags" {
-    import type { TypedEnum } from "types/types";
+    import type { TypedEnum } from "core/types";
     export class Flags<T extends TypedEnum<T, number>> {
         private _value;
         get value(): number;
@@ -275,8 +275,115 @@ declare module "core/Bounds" {
         destroy(): void;
     }
 }
+declare module "math/Size" {
+    import type { Cloneable } from "core/types";
+    export class Size implements Cloneable {
+        protected _width: number;
+        protected _height: number;
+        constructor(width?: number, height?: number);
+        get width(): number;
+        set width(width: number);
+        get height(): number;
+        set height(height: number);
+        set(width: number, height?: number): this;
+        add(width: number, height?: number): this;
+        subtract(width: number, height?: number): this;
+        scale(width: number, height?: number): this;
+        divide(width: number, height?: number): this;
+        copy(size: {
+            width: number;
+            height: number;
+        }): this;
+        clone(): this;
+        equals({ width, height }?: Partial<Size>): boolean;
+        destroy(): void;
+        static readonly zero: Size;
+        static get temp(): Size;
+    }
+}
+declare module "math/Random" {
+    export class Random {
+        private _state;
+        private _iteration;
+        private _seed;
+        private _value;
+        constructor(seed?: number);
+        get seed(): number;
+        get value(): number;
+        get iteration(): number;
+        setSeed(seed: number): this;
+        reset(): this;
+        next(min?: number, max?: number): number;
+        destroy(): void;
+        private _twist;
+    }
+}
+declare module "core/Time" {
+    import type { Cloneable, TimeInterval } from "core/types";
+    export class Time implements Cloneable {
+        private _milliseconds;
+        constructor(time?: number, factor?: TimeInterval);
+        get milliseconds(): number;
+        set milliseconds(milliseconds: number);
+        get seconds(): number;
+        set seconds(seconds: number);
+        get minutes(): number;
+        set minutes(minutes: number);
+        get hours(): number;
+        set hours(hours: number);
+        set(time?: number, factor?: TimeInterval): this;
+        setMilliseconds(milliseconds: number): this;
+        setSeconds(seconds: number): this;
+        setMinutes(minutes: number): this;
+        setHours(hours: number): this;
+        equals({ milliseconds, seconds, minutes, hours }?: Partial<Time>): boolean;
+        greaterThan(time: Time): boolean;
+        lessThan(time: Time): boolean;
+        clone(): this;
+        copy(time: Time): this;
+        add(value?: number, factor?: TimeInterval): this;
+        addTime(time: Time): this;
+        subtract(value?: number, factor?: TimeInterval): this;
+        subtractTime(time: Time): this;
+        destroy(): void;
+        static readonly milliseconds: TimeInterval;
+        static readonly seconds: TimeInterval;
+        static readonly minutes: TimeInterval;
+        static readonly hours: TimeInterval;
+        static readonly zero: Time;
+        static readonly oneMillisecond: Time;
+        static readonly oneSecond: Time;
+        static readonly oneMinute: Time;
+        static readonly oneHour: Time;
+        static get temp(): Time;
+    }
+}
+declare module "core/utils" {
+    import { Size } from "math/Size";
+    import type { TextureSource } from "core/types";
+    import { Time } from "core/Time";
+    export const rand: (min?: number, max?: number) => number;
+    export const noop: () => void;
+    export const stopEvent: (event: Event) => void;
+    export const supportsWebAudio: boolean;
+    export const supportsIndexedDb: boolean;
+    export const supportsTouchEvents: boolean;
+    export const supportsPointerEvents: boolean;
+    export const supportsEventOptions: () => boolean;
+    export const getPreciseTime: () => number;
+    export const milliseconds: (value: number) => Time;
+    export const seconds: (value: number) => Time;
+    export const minutes: (value: number) => Time;
+    export const hours: (value: number) => Time;
+    export const emptyArrayBuffer: ArrayBuffer;
+    export const removeArrayItems: <T = unknown>(array: Array<T>, startIndex: number, amount: number) => Array<T>;
+    export const supportsCodec: (...codecs: Array<string>) => boolean;
+    export const getCanvasSourceSize: (source: CanvasImageSource) => Size;
+    export const getTextureSourceSize: (source: TextureSource) => Size;
+    export const canvasSourceToDataUrl: (source: CanvasImageSource) => string;
+}
 declare module "core/Color" {
-    import type { Cloneable } from "types/types";
+    import type { Cloneable } from "core/types";
     export class Color implements Cloneable {
         private _r;
         private _g;
@@ -453,74 +560,10 @@ declare module "core/Color" {
         static readonly yellowGreen: Color;
     }
 }
-declare module "types/rendering" {
-    export enum BlendModes {
-        Normal = 0,
-        Additive = 1,
-        Subtract = 2,
-        Multiply = 3,
-        Screen = 4
-    }
-    export enum ScaleModes {
-        Nearest = 9728,
-        Linear = 9729,
-        NearestMipmapNearest = 9984,
-        LinearMipmapNearest = 9985,
-        NearestMipmapLinear = 9986,
-        LinearMipmapLinear = 9987
-    }
-    export enum WrapModes {
-        Repeat = 10497,
-        ClampToEdge = 33071,
-        MirroredRepeat = 33648
-    }
-    export enum RenderingPrimitives {
-        Points = 0,
-        Lines = 1,
-        LineLoop = 2,
-        LineStrip = 3,
-        Triangles = 4,
-        TriangleStrip = 5,
-        TriangleFan = 6
-    }
-    export enum BufferTypes {
-        ArrayBuffer = 34962,
-        ElementArrayBuffer = 34963,
-        CopyReadBuffer = 36662,
-        CopyWriteBuffer = 36663,
-        TransformFeedbackBuffer = 35982,
-        UniformBuffer = 35345,
-        PixelPackBuffer = 35051,
-        PixelUnpackBuffer = 35052
-    }
-    export enum BufferUsage {
-        StaticDraw = 35044,
-        StaticRead = 35045,
-        StaticCopy = 35046,
-        DynamicDraw = 35048,
-        DynamicRead = 35049,
-        DynamicCopy = 35050,
-        StreamDraw = 35040,
-        StreamRead = 35041,
-        StreamCopy = 35042
-    }
-    export enum ShaderPrimitives {
-        Int = 5124,
-        IntVec2 = 35667,
-        IntVec3 = 35668,
-        IntVec4 = 35669,
-        Float = 5126,
-        FloatVec2 = 35664,
-        FloatVec3 = 35665,
-        FloatVec4 = 35666,
-        Bool = 35670,
-        BoolVec2 = 35671,
-        BoolVec3 = 35672,
-        BoolVec4 = 35673,
-        FloatMat2 = 35674,
-        FloatMat3 = 35675,
-        FloatMat4 = 35676,
-        Sampler2D = 35678
+declare module "rendering/RenderBackendType" {
+    export enum RenderBackendType {
+        WebGl2 = 0,
+        WebGpu = 1
     }
 }
 declare module "math/ObservableSize" {
@@ -603,87 +646,6 @@ declare module "rendering/View" {
         private _setScalingDirty;
     }
 }
-declare module "rendering/Renderer" {
-    import type { Drawable } from "rendering/Drawable";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export enum RendererType {
-        Sprite = 1,
-        Particle = 2,
-        Primitive = 3
-    }
-    export interface Renderer {
-        connect(renderManager: RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        render(drawable: Drawable): this;
-        flush(): this;
-        destroy(): void;
-    }
-}
-declare module "rendering/shader/ShaderMappings" {
-    export const primitiveByteSizeMapping: Record<number, number>;
-    export const primitiveArrayConstructors: Record<number, Float32ArrayConstructor | Int32ArrayConstructor | Uint8ArrayConstructor>;
-    export const primitiveTypeNames: Record<number, string>;
-}
-declare module "rendering/shader/ShaderAttribute" {
-    export class ShaderAttribute {
-        readonly index: number;
-        readonly name: string;
-        readonly type: number;
-        readonly size: number;
-        location: number;
-        constructor(index: number, name: string, type: number);
-        destroy(): void;
-    }
-}
-declare module "rendering/shader/ShaderUniform" {
-    import type { TypedArray } from "types/types";
-    export class ShaderUniform {
-        readonly index: number;
-        readonly type: number;
-        readonly size: number;
-        readonly name: string;
-        private readonly _value;
-        private _dirty;
-        constructor(index: number, type: number, size: number, name: string, data: TypedArray);
-        get propName(): string;
-        get value(): TypedArray;
-        get dirty(): boolean;
-        setValue(value: TypedArray): this;
-        markClean(): void;
-        destroy(): void;
-    }
-}
-declare module "rendering/shader/Shader" {
-    import type { ShaderAttribute } from "rendering/shader/ShaderAttribute";
-    import type { ShaderUniform } from "rendering/shader/ShaderUniform";
-    export interface ShaderRuntime {
-        initialize(shader: Shader): void;
-        bind(shader: Shader): void;
-        unbind(shader: Shader): void;
-        sync(shader: Shader): void;
-        destroy(shader: Shader): void;
-    }
-    export class Shader {
-        readonly attributes: Map<string, ShaderAttribute>;
-        readonly uniforms: Map<string, ShaderUniform>;
-        private readonly _vertexSource;
-        private readonly _fragmentSource;
-        private _runtime;
-        constructor(vertexSource: string, fragmentSource: string);
-        get vertexSource(): string;
-        get fragmentSource(): string;
-        connect(runtime: ShaderRuntime): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        sync(): this;
-        getAttribute(name: string): ShaderAttribute;
-        getUniform(name: string): ShaderUniform;
-        destroy(): void;
-    }
-}
 declare module "rendering/RenderTarget" {
     import { Size } from "math/Size";
     import { View } from "rendering/View";
@@ -720,8 +682,609 @@ declare module "rendering/RenderTarget" {
         protected _touch(): void;
     }
 }
+declare module "rendering/types" {
+    export enum BlendModes {
+        Normal = 0,
+        Additive = 1,
+        Subtract = 2,
+        Multiply = 3,
+        Screen = 4
+    }
+    export enum ScaleModes {
+        Nearest = 9728,
+        Linear = 9729,
+        NearestMipmapNearest = 9984,
+        LinearMipmapNearest = 9985,
+        NearestMipmapLinear = 9986,
+        LinearMipmapLinear = 9987
+    }
+    export enum WrapModes {
+        Repeat = 10497,
+        ClampToEdge = 33071,
+        MirroredRepeat = 33648
+    }
+    export enum RenderingPrimitives {
+        Points = 0,
+        Lines = 1,
+        LineLoop = 2,
+        LineStrip = 3,
+        Triangles = 4,
+        TriangleStrip = 5,
+        TriangleFan = 6
+    }
+    export enum BufferTypes {
+        ArrayBuffer = 34962,
+        ElementArrayBuffer = 34963,
+        CopyReadBuffer = 36662,
+        CopyWriteBuffer = 36663,
+        TransformFeedbackBuffer = 35982,
+        UniformBuffer = 35345,
+        PixelPackBuffer = 35051,
+        PixelUnpackBuffer = 35052
+    }
+    export enum BufferUsage {
+        StaticDraw = 35044,
+        StaticRead = 35045,
+        StaticCopy = 35046,
+        DynamicDraw = 35048,
+        DynamicRead = 35049,
+        DynamicCopy = 35050,
+        StreamDraw = 35040,
+        StreamRead = 35041,
+        StreamCopy = 35042
+    }
+    export enum ShaderPrimitives {
+        Int = 5124,
+        IntVec2 = 35667,
+        IntVec3 = 35668,
+        IntVec4 = 35669,
+        Float = 5126,
+        FloatVec2 = 35664,
+        FloatVec3 = 35665,
+        FloatVec4 = 35666,
+        Bool = 35670,
+        BoolVec2 = 35671,
+        BoolVec3 = 35672,
+        BoolVec4 = 35673,
+        FloatMat2 = 35674,
+        FloatMat3 = 35675,
+        FloatMat4 = 35676,
+        Sampler2D = 35678
+    }
+}
+declare module "rendering/Drawable" {
+    import { SceneNode } from "core/SceneNode";
+    import { Color } from "core/Color";
+    import { BlendModes } from "rendering/types";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    export class Drawable extends SceneNode {
+        private _tint;
+        private _blendMode;
+        get tint(): Color;
+        set tint(tint: Color);
+        get blendMode(): BlendModes;
+        set blendMode(blendMode: BlendModes);
+        setTint(color: Color): this;
+        setBlendMode(blendMode: BlendModes): this;
+        render(renderManager: SceneRenderRuntime): this;
+        destroy(): void;
+    }
+}
+declare module "rendering/RenderPass" {
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    export interface RenderPass {
+        execute(runtime: SceneRenderRuntime): void;
+    }
+}
+declare module "rendering/SceneRenderRuntime" {
+    import type { Color } from "core/Color";
+    import type { RenderBackendType } from "rendering/RenderBackendType";
+    import type { RenderTarget } from "rendering/RenderTarget";
+    import type { View } from "rendering/View";
+    import type { Drawable } from "rendering/Drawable";
+    import type { RenderPass } from "rendering/RenderPass";
+    export interface SceneRenderRuntime {
+        readonly backendType: RenderBackendType;
+        readonly view: View;
+        readonly renderTarget: RenderTarget;
+        initialize(): Promise<this>;
+        clear(color?: Color): this;
+        resize(width: number, height: number): this;
+        setView(view: View | null): this;
+        setRenderTarget(target: RenderTarget | null): this;
+        draw(drawable: Drawable): this;
+        execute(pass: RenderPass): this;
+        flush(): this;
+        destroy(): void;
+    }
+}
+declare module "rendering/Container" {
+    import { SceneNode } from "core/SceneNode";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    export class Container extends SceneNode {
+        private readonly _children;
+        get children(): Array<SceneNode>;
+        get width(): number;
+        set width(value: number);
+        get height(): number;
+        set height(value: number);
+        get left(): number;
+        get top(): number;
+        get right(): number;
+        get bottom(): number;
+        addChild(child: SceneNode): this;
+        addChildAt(child: SceneNode, index: number): this;
+        swapChildren(firstChild: SceneNode, secondChild: SceneNode): this;
+        getChildIndex(child: SceneNode): number;
+        setChildIndex(child: SceneNode, index: number): this;
+        getChildAt(index: number): SceneNode;
+        removeChild(child: SceneNode): this;
+        removeChildAt(index: number): this;
+        removeChildren(begin?: number, end?: number): this;
+        render(renderManager: SceneRenderRuntime): this;
+        contains(x: number, y: number): boolean;
+        updateBounds(): this;
+        destroy(): void;
+    }
+}
+declare module "math/Line" {
+    import { Vector } from "math/Vector";
+    import { Rectangle } from "math/Rectangle";
+    import type { ShapeLike } from "math/ShapeLike";
+    import { Interval } from "math/Interval";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    export class Line implements ShapeLike {
+        readonly collisionType: CollisionType;
+        private readonly _fromPosition;
+        private readonly _toPosition;
+        constructor(x1?: number, y1?: number, x2?: number, y2?: number);
+        get fromPosition(): Vector;
+        set fromPosition(positionFrom: Vector);
+        get fromX(): number;
+        set fromX(fromX: number);
+        get fromY(): number;
+        set fromY(fromY: number);
+        get toPosition(): Vector;
+        set toPosition(positionTo: Vector);
+        get toX(): number;
+        set toX(toX: number);
+        get toY(): number;
+        set toY(toY: number);
+        set(x1: number, y1: number, x2: number, y2: number): this;
+        copy(line: Line): this;
+        clone(): this;
+        getBounds(): Rectangle;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        contains(x: number, y: number, threshold?: number): boolean;
+        equals({ fromX, fromY, toX, toY }?: Partial<Line>): boolean;
+        destroy(): void;
+        static get temp(): Line;
+    }
+}
+declare module "math/Polygon" {
+    import { Interval } from "math/Interval";
+    import { Vector } from "math/Vector";
+    import { Rectangle } from "math/Rectangle";
+    import type { ShapeLike } from "math/ShapeLike";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    export class Polygon implements ShapeLike {
+        readonly collisionType: CollisionType;
+        private readonly _position;
+        private readonly _points;
+        private readonly _edges;
+        private readonly _normals;
+        constructor(points?: Array<Vector>, x?: number, y?: number);
+        get position(): Vector;
+        set position(position: Vector);
+        get x(): number;
+        set x(x: number);
+        get y(): number;
+        set y(y: number);
+        get points(): Array<Vector>;
+        set points(points: Array<Vector>);
+        get edges(): Array<Vector>;
+        get normals(): Array<Vector>;
+        setPosition(x: number, y: number): this;
+        setPoints(newPoints: Array<Vector>): this;
+        set(x: number, y: number, points: Array<Vector>): this;
+        copy(polygon: Polygon): this;
+        clone(): this;
+        equals({ x, y, points }?: Partial<Polygon>): boolean;
+        getBounds(): Rectangle;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        contains(x: number, y: number): boolean;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        destroy(): void;
+        static get temp(): Polygon;
+    }
+}
+declare module "math/Ellipse" {
+    import { Vector } from "math/Vector";
+    import { Rectangle } from "math/Rectangle";
+    import type { ShapeLike } from "math/ShapeLike";
+    import { Interval } from "math/Interval";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    export class Ellipse implements ShapeLike {
+        readonly collisionType: CollisionType;
+        private readonly _position;
+        private readonly _radius;
+        constructor(x?: number, y?: number, halfWidth?: number, halfHeight?: number);
+        get position(): Vector;
+        set position(position: Vector);
+        get x(): number;
+        set x(x: number);
+        get y(): number;
+        set y(y: number);
+        get radius(): Vector;
+        set radius(size: Vector);
+        get rx(): number;
+        set rx(radiusX: number);
+        get ry(): number;
+        set ry(radiusY: number);
+        setPosition(x: number, y: number): this;
+        setRadius(radiusX: number, radiusY?: number): this;
+        set(x: number, y: number, radiusX: number, radiusY: number): this;
+        copy(ellipse: Ellipse): this;
+        clone(): this;
+        getBounds(): Rectangle;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        contains(x: number, y: number): boolean;
+        equals({ x, y, rx, ry }?: Partial<Ellipse>): boolean;
+        destroy(): void;
+    }
+}
+declare module "core/SceneNode" {
+    import { Transformable } from "math/Transformable";
+    import { Matrix } from "math/Matrix";
+    import { Rectangle } from "math/Rectangle";
+    import { Bounds } from "core/Bounds";
+    import { ObservableVector } from "math/ObservableVector";
+    import type { Container } from "rendering/Container";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    import type { Vector } from "math/Vector";
+    import { Interval } from "math/Interval";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    import type { View } from "rendering/View";
+    export class SceneNode extends Transformable implements Collidable {
+        readonly collisionType: CollisionType;
+        protected _bounds: Bounds;
+        private _visible;
+        private _globalTransform;
+        private _localBounds;
+        private _anchor;
+        private _parentNode;
+        get anchor(): ObservableVector;
+        set anchor(anchor: ObservableVector);
+        get parent(): Container | null;
+        set parent(parent: Container | null);
+        get parentNode(): Container | null;
+        set parentNode(parentNode: Container | null);
+        get visible(): boolean;
+        set visible(visible: boolean);
+        get globalTransform(): Matrix;
+        get localBounds(): Rectangle;
+        get bounds(): Rectangle;
+        get isAlignedBox(): boolean;
+        setAnchor(x: number, y?: number): this;
+        getLocalBounds(): Rectangle;
+        getBounds(): Rectangle;
+        updateBounds(): this;
+        updateParentTransform(): this;
+        getGlobalTransform(): Matrix;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        contains(x: number, y: number): boolean;
+        inView(view: View): boolean;
+        render(_runtime: SceneRenderRuntime): this;
+        destroy(): void;
+        private _updateOrigin;
+    }
+}
+declare module "math/Circle" {
+    import { Vector } from "math/Vector";
+    import { Rectangle } from "math/Rectangle";
+    import { Interval } from "math/Interval";
+    import type { ShapeLike } from "math/ShapeLike";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    export class Circle implements ShapeLike {
+        static collisionSegments: number;
+        readonly collisionType: CollisionType;
+        private readonly _position;
+        private _collisionVertices;
+        private _radius;
+        constructor(x?: number, y?: number, radius?: number);
+        get position(): Vector;
+        set position(position: Vector);
+        get x(): number;
+        set x(x: number);
+        get y(): number;
+        set y(y: number);
+        get radius(): number;
+        set radius(radius: number);
+        setPosition(x: number, y: number): this;
+        setRadius(radius: number): this;
+        set(x: number, y: number, radius: number): this;
+        copy(circle: Circle): this;
+        clone(): this;
+        equals({ x, y, radius }?: Partial<Circle>): boolean;
+        getBounds(): Rectangle;
+        /**
+         * todo - cache this
+         */
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        contains(x: number, y: number): boolean;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        destroy(): void;
+        private getCollisionVertices;
+        private getCollisionVertex;
+        static get temp(): Circle;
+    }
+}
+declare module "math/collision-detection" {
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import type { Circle } from "math/Circle";
+    import type { Ellipse } from "math/Ellipse";
+    import type { Line } from "math/Line";
+    import type { Polygon } from "math/Polygon";
+    import type { Rectangle } from "math/Rectangle";
+    import type { PointLike } from "math/PointLike";
+    /**
+     * INTERSECTION
+     */
+    const intersectionSat: (shapeA: Collidable, shapeB: Collidable) => boolean;
+    const intersectionPointPoint: (pointA: PointLike, pointB: PointLike, threshold?: number) => boolean;
+    const intersectionPointLine: (point: PointLike, line: Line, threshold?: number) => boolean;
+    const intersectionPointRect: (point: PointLike, rectangle: Rectangle) => boolean;
+    const intersectionPointCircle: (point: PointLike, circle: Circle) => boolean;
+    const intersectionPointEllipse: (point: PointLike, ellipse: Ellipse) => boolean;
+    const intersectionPointPoly: (point: PointLike, polygon: Polygon) => boolean;
+    const intersectionLineLine: (lineA: Line, lineB: Line) => boolean;
+    const intersectionLineRect: (line: Line, rectangle: Rectangle) => boolean;
+    const intersectionLineCircle: (line: Line, circle: Circle) => boolean;
+    const intersectionLineEllipse: (line: Line, ellipse: Ellipse) => boolean;
+    const intersectionLinePoly: (line: Line, polygon: Polygon) => boolean;
+    const intersectionRectRect: (rectA: Rectangle, rectB: Rectangle) => boolean;
+    const intersectionRectCircle: ({ x: rx, y: ry, width, height }: Rectangle, { x: cx, y: cy, radius }: Circle) => boolean;
+    const intersectionRectEllipse: (rectangle: Rectangle, ellipse: Ellipse) => boolean;
+    const intersectionRectPoly: (rectangle: Rectangle, polygon: Polygon) => boolean;
+    const intersectionCircleCircle: ({ x: x1, y: y1, radius: r1 }: Circle, { x: x2, y: y2, radius: r2 }: Circle) => boolean;
+    const intersectionCircleEllipse: (circle: Circle, ellipse: Ellipse) => boolean;
+    const intersectionCirclePoly: ({ x: cx, y: cy, radius }: Circle, { x: px, y: py, points, edges }: Polygon) => boolean;
+    const intersectionEllipseEllipse: (ellipseA: Ellipse, ellipseB: Ellipse) => boolean;
+    const intersectionEllipsePoly: (ellipse: Ellipse, polygon: Polygon) => boolean;
+    const intersectionPolyPoly: (polygonA: Polygon, polygonB: Polygon) => boolean;
+    /**
+     * COLLISION DETECTION
+     */
+    const getCollisionRectangleRectangle: (rectA: Rectangle, rectB: Rectangle) => CollisionResponse | null;
+    const getCollisionCircleCircle: (circleA: Circle, circleB: Circle) => CollisionResponse | null;
+    const getCollisionCircleRectangle: (circle: Circle, rect: Rectangle, swap?: boolean) => CollisionResponse | null;
+    const getCollisionPolygonCircle: (polygon: Polygon, circle: Circle, swap?: boolean) => CollisionResponse | null;
+    const getCollisionSat: (shapeA: Collidable, shapeB: Collidable) => CollisionResponse | null;
+    export { intersectionSat, intersectionPointPoint, intersectionPointLine, intersectionPointRect, intersectionPointCircle, intersectionPointEllipse, intersectionPointPoly, intersectionLineLine, intersectionLineRect, intersectionLineCircle, intersectionLineEllipse, intersectionLinePoly, intersectionRectRect, intersectionRectCircle, intersectionRectEllipse, intersectionRectPoly, intersectionCircleCircle, intersectionCircleEllipse, intersectionCirclePoly, intersectionEllipseEllipse, intersectionEllipsePoly, intersectionPolyPoly, getCollisionSat, getCollisionRectangleRectangle, getCollisionCircleRectangle, getCollisionCircleCircle, getCollisionPolygonCircle, };
+}
+declare module "math/Vector" {
+    import type { ShapeLike } from "math/ShapeLike";
+    import { Interval } from "math/Interval";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    import { Rectangle } from "math/Rectangle";
+    import { AbstractVector } from "math/AbstractVector";
+    export class Vector extends AbstractVector implements ShapeLike {
+        readonly collisionType: CollisionType;
+        x: number;
+        y: number;
+        constructor(x?: number, y?: number);
+        clone(): this;
+        copy(vector: Vector): this;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        getBounds(): Rectangle;
+        contains(x: number, y: number): boolean;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, interval?: Interval): Interval;
+        destroy(): void;
+        static get temp(): Vector;
+        static readonly zero: Vector;
+        static readonly one: Vector;
+        static add(v1: Vector, v2: Vector): Vector;
+        static subtract(v1: Vector, v2: Vector): Vector;
+        static multiply(v1: Vector, v2: Vector): Vector;
+        static divide(v1: Vector, v2: Vector): Vector;
+    }
+}
+declare module "math/utils" {
+    import type { Vector } from "math/Vector";
+    export const tau: number;
+    export const radiansPerDegree: number;
+    export const degreesPerRadian: number;
+    export const enum VoronoiRegion {
+        left = -1,
+        middle = 0,
+        right = 1
+    }
+    export const trimRotation: (degrees: number) => number;
+    export const degreesToRadians: (degree: number) => number;
+    export const radiansToDegrees: (radian: number) => number;
+    export const clamp: (value: number, min: number, max: number) => number;
+    export const sign: (value: number) => number;
+    export const lerp: (startValue: number, endValue: number, ratio: number) => number;
+    export const isPowerOfTwo: (value: number) => boolean;
+    export const inRange: (value: number, min: number, max: number) => boolean;
+    export const getDistance: (x1: number, y1: number, x2: number, y2: number) => number;
+    export const bezierCurveTo: (fromX: number, fromY: number, cpX1: number, cpY1: number, cpX2: number, cpY2: number, toX: number, toY: number, path?: Array<number>, len?: number) => Array<number>;
+    export const quadraticCurveTo: (fromX: number, fromY: number, cpX: number, cpY: number, toX: number, toY: number, path?: Array<number>, len?: number) => Array<number>;
+    export const getVoronoiRegion: (line: Vector, point: Vector) => VoronoiRegion;
+}
+declare module "math/Rectangle" {
+    import { Size } from "math/Size";
+    import { Interval } from "math/Interval";
+    import type { Matrix } from "math/Matrix";
+    import type { ShapeLike } from "math/ShapeLike";
+    import type { Collidable, CollisionResponse } from "math/Collision";
+    import { CollisionType } from "math/Collision";
+    import type { Vector } from "math/Vector";
+    export class Rectangle implements ShapeLike {
+        readonly collisionType: CollisionType;
+        private readonly _position;
+        private readonly _size;
+        private _normals;
+        private _normalsDirty;
+        constructor(x?: number, y?: number, width?: number, height?: number);
+        get position(): Vector;
+        set position(position: Vector);
+        get x(): number;
+        set x(x: number);
+        get y(): number;
+        set y(y: number);
+        get size(): Size;
+        set size(size: Size);
+        get width(): number;
+        set width(width: number);
+        get height(): number;
+        set height(height: number);
+        get left(): number;
+        get top(): number;
+        get right(): number;
+        get bottom(): number;
+        setPosition(x: number, y: number): this;
+        setSize(width: number, height: number): this;
+        set(x: number, y: number, width: number, height: number): this;
+        copy(rectangle: Rectangle): this;
+        clone(): this;
+        equals({ x, y, width, height }?: Partial<Rectangle>): boolean;
+        getBounds(): Rectangle;
+        getNormals(): Array<Vector>;
+        project(axis: Vector, result?: Interval): Interval;
+        transform(matrix: Matrix, result?: Rectangle): Rectangle;
+        contains(x: number, y: number): boolean;
+        containsRect(rect: Rectangle): boolean;
+        intersectsWith(target: Collidable): boolean;
+        collidesWith(target: Collidable): CollisionResponse | null;
+        destroy(): void;
+        private _updateNormals;
+        static get temp(): Rectangle;
+    }
+}
+declare module "core/types" {
+    import type { Rectangle } from "math/Rectangle";
+    export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
+    export type TimeInterval = 1 | 1000 | 60000 | 3600000;
+    export type TypedEnum<Enum, Type> = {
+        [Key in keyof Enum]: Type;
+    };
+    export type ValueOf<T> = T[keyof T];
+    export type Mutable<T> = {
+        -readonly [P in keyof T]: T[P];
+    };
+    export type TextureSource = HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | null;
+    export interface PlaybackOptions {
+        volume: number;
+        playbackRate: number;
+        loop: boolean;
+        muted: boolean;
+        time: number;
+    }
+    export interface Cloneable {
+        clone(): this;
+        copy(source: this): this;
+    }
+    export interface Destroyable {
+        destroy(): void;
+    }
+    export interface HasBoundingBox {
+        getBounds(): Rectangle;
+    }
+    export enum ResourceTypes {
+        Font = "font",
+        Video = "video",
+        Music = "music",
+        Sound = "sound",
+        Image = "image",
+        Texture = "texture",
+        Text = "text",
+        Json = "json",
+        Svg = "svg"
+    }
+    export enum StorageNames {
+        Font = "font",
+        Video = "video",
+        Music = "music",
+        Sound = "sound",
+        Image = "image",
+        Text = "text",
+        Json = "json"
+    }
+}
+declare module "core/Clock" {
+    import { Time } from "core/Time";
+    export class Clock {
+        private _startTime;
+        private _elapsedTime;
+        private _running;
+        constructor(startTime?: Time, autoStart?: boolean);
+        get running(): boolean;
+        get elapsedTime(): Time;
+        get elapsedMilliseconds(): number;
+        get elapsedSeconds(): number;
+        get elapsedMinutes(): number;
+        get elapsedHours(): number;
+        start(): this;
+        stop(): this;
+        reset(): this;
+        restart(): this;
+        destroy(): void;
+    }
+}
+declare module "core/Signal" {
+    type SignalHandler<Args extends Array<unknown>> = (...params: Args) => void | boolean;
+    interface SignalBinding<Args extends Array<unknown>> {
+        handler: SignalHandler<Args>;
+        context?: object;
+    }
+    export class Signal<Args extends Array<unknown> = []> {
+        private readonly _bindings;
+        get bindings(): ReadonlyArray<SignalBinding<Args>>;
+        has(handler: SignalHandler<Args>, context?: object): boolean;
+        add(handler: SignalHandler<Args>, context?: object): this;
+        once(handler: SignalHandler<Args>, context?: object): this;
+        remove(handler: SignalHandler<Args>, context?: object): this;
+        clearByContext(context?: object): this;
+        clear(): this;
+        dispatch(...params: Args): this;
+        destroy(): void;
+    }
+}
+declare module "rendering/utils" {
+    export const createQuadIndices: (size: number) => Uint16Array;
+    export interface CreateCanvasOptions {
+        canvas?: HTMLCanvasElement;
+        fillStyle?: string;
+        width?: number;
+        height?: number;
+    }
+    export const createCanvas: (options?: CreateCanvasOptions) => HTMLCanvasElement;
+    export const determineFontHeight: (font: string) => number;
+}
 declare module "rendering/texture/Sampler" {
-    import type { ScaleModes, WrapModes } from "types/rendering";
+    import type { ScaleModes, WrapModes } from "rendering/types";
     export interface SamplerOptions {
         scaleMode: ScaleModes;
         wrapMode: WrapModes;
@@ -751,60 +1314,11 @@ declare module "rendering/texture/Sampler" {
         private updateWrapModeParameters;
     }
 }
-declare module "rendering/texture/RenderTexture" {
-    import { RenderTarget } from "rendering/RenderTarget";
-    import { ScaleModes, WrapModes } from "types/rendering";
-    import type { SamplerOptions } from "rendering/texture/Sampler";
-    export class RenderTexture extends RenderTarget {
-        static defaultSamplerOptions: SamplerOptions;
-        private _source;
-        private _textureVersion;
-        private _scaleMode;
-        private _wrapMode;
-        private _premultiplyAlpha;
-        private _generateMipMap;
-        private _flipY;
-        constructor(width: number, height: number, options?: Partial<SamplerOptions>);
-        get source(): DataView | null;
-        set source(source: DataView | null);
-        get scaleMode(): ScaleModes;
-        set scaleMode(scaleMode: ScaleModes);
-        get wrapMode(): WrapModes;
-        set wrapMode(wrapMode: WrapModes);
-        get premultiplyAlpha(): boolean;
-        set premultiplyAlpha(premultiplyAlpha: boolean);
-        get generateMipMap(): boolean;
-        set generateMipMap(generateMipMap: boolean);
-        get flipY(): boolean;
-        set flipY(flipY: boolean);
-        get powerOfTwo(): boolean;
-        get textureVersion(): number;
-        setScaleMode(scaleMode: ScaleModes): this;
-        setWrapMode(wrapMode: WrapModes): this;
-        setPremultiplyAlpha(premultiplyAlpha: boolean): this;
-        setSource(source: DataView | null): this;
-        updateSource(): this;
-        setSize(width: number, height: number): this;
-        destroy(): void;
-        private _touchTexture;
-    }
-}
-declare module "utils/rendering" {
-    export const createQuadIndices: (size: number) => Uint16Array;
-    export interface CreateCanvasOptions {
-        canvas?: HTMLCanvasElement;
-        fillStyle?: string;
-        width?: number;
-        height?: number;
-    }
-    export const createCanvas: (options?: CreateCanvasOptions) => HTMLCanvasElement;
-    export const determineFontHeight: (font: string) => number;
-}
 declare module "rendering/texture/Texture" {
-    import { ScaleModes, WrapModes } from "types/rendering";
+    import { ScaleModes, WrapModes } from "rendering/types";
     import { Size } from "math/Size";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import type { TextureSource } from "types/types";
+    import type { TextureSource } from "core/types";
     export class Texture {
         private static _black;
         private static _white;
@@ -854,839 +1368,8 @@ declare module "rendering/texture/Texture" {
         private _touch;
     }
 }
-declare module "rendering/RenderBuffer" {
-    import type { BufferTypes, BufferUsage } from "types/rendering";
-    import type { TypedArray } from "types/types";
-    type DataContainer = ArrayBuffer | SharedArrayBuffer | ArrayBufferView | TypedArray;
-    export interface RenderBufferRuntime {
-        bind(buffer: RenderBuffer): void;
-        upload(buffer: RenderBuffer, offset: number): void;
-        destroy(buffer: RenderBuffer): void;
-    }
-    export class RenderBuffer {
-        private readonly _type;
-        private readonly _usage;
-        private _runtime;
-        private _data;
-        private _version;
-        constructor(type: BufferTypes, data: DataContainer, usage: BufferUsage);
-        get type(): number;
-        get usage(): BufferUsage;
-        get data(): DataContainer;
-        get version(): number;
-        connect(runtime: RenderBufferRuntime): this;
-        disconnect(): this;
-        upload(data: DataContainer, offset?: number): void;
-        bind(): void;
-        destroy(): void;
-    }
-}
-declare module "rendering/VertexArrayObject" {
-    import { RenderingPrimitives } from "types/rendering";
-    import type { ShaderAttribute } from "rendering/shader/ShaderAttribute";
-    import type { RenderBuffer } from "rendering/RenderBuffer";
-    interface IVaoAttribute {
-        readonly buffer: RenderBuffer;
-        readonly location: number;
-        readonly size: number;
-        readonly type: number;
-        readonly normalized: boolean;
-        readonly stride: number;
-        readonly start: number;
-    }
-    export interface VertexArrayObjectRuntime {
-        bind(vao: VertexArrayObject): void;
-        unbind(vao: VertexArrayObject): void;
-        draw(vao: VertexArrayObject, size: number, start: number, type: RenderingPrimitives): void;
-        destroy(vao: VertexArrayObject): void;
-    }
-    export class VertexArrayObject {
-        private readonly _attributes;
-        private _indexBuffer;
-        private _drawMode;
-        private _runtime;
-        private _version;
-        constructor(drawMode?: RenderingPrimitives);
-        get attributes(): Array<IVaoAttribute>;
-        get indexBuffer(): RenderBuffer | null;
-        get drawMode(): RenderingPrimitives;
-        get version(): number;
-        connect(runtime: VertexArrayObjectRuntime): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        addAttribute(buffer: RenderBuffer, attribute: ShaderAttribute, type?: number, normalized?: boolean, stride?: number, start?: number): this;
-        addIndex(buffer: RenderBuffer): this;
-        clear(): this;
-        draw(size: number, start: number, type?: RenderingPrimitives): this;
-        destroy(): void;
-    }
-}
-declare module "rendering/RenderBackend" {
-    import type { BlendModes } from "types/rendering";
-    import type { Renderer, RendererType } from "rendering/Renderer";
-    import type { Shader } from "rendering/shader/Shader";
-    import type { RenderTexture } from "rendering/texture/RenderTexture";
-    import type { Texture } from "rendering/texture/Texture";
-    import type { VertexArrayObject } from "rendering/VertexArrayObject";
-    import type { View } from "rendering/View";
-    export interface RenderBackend {
-        readonly view: View;
-        getRenderer(name: RendererType): Renderer;
-        setRenderer(renderer: Renderer | null): this;
-        /**
-         * Stage 0 debt: shader/program binding stays WebGL-shaped for now.
-         */
-        setShader(shader: Shader | null): this;
-        /**
-         * Stage 0 debt: texture binding stays WebGL-shaped for now.
-         */
-        setTexture(texture: Texture | RenderTexture | null, unit?: number): this;
-        setBlendMode(blendMode: BlendModes | null): this;
-        /**
-         * Stage 0 debt: VAO binding stays WebGL-shaped for now.
-         */
-        setVao(vao: VertexArrayObject | null): this;
-    }
-}
-declare module "rendering/Drawable" {
-    import { SceneNode } from "core/SceneNode";
-    import { Color } from "core/Color";
-    import { BlendModes } from "types/rendering";
-    import type { View } from "rendering/View";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export class Drawable extends SceneNode {
-        private _visible;
-        private _tint;
-        private _blendMode;
-        get visible(): boolean;
-        set visible(visible: boolean);
-        get tint(): Color;
-        set tint(tint: Color);
-        get blendMode(): BlendModes;
-        set blendMode(blendMode: BlendModes);
-        setTint(color: Color): this;
-        setBlendMode(blendMode: BlendModes): this;
-        render(renderManager: RenderBackend): this;
-        inView(view: View): boolean;
-        destroy(): void;
-    }
-}
-declare module "rendering/Container" {
-    import { Drawable } from "rendering/Drawable";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export class Container extends Drawable {
-        private readonly _children;
-        get children(): Array<Drawable>;
-        get width(): number;
-        set width(value: number);
-        get height(): number;
-        set height(value: number);
-        get left(): number;
-        get top(): number;
-        get right(): number;
-        get bottom(): number;
-        addChild(child: Drawable): this;
-        addChildAt(child: Drawable, index: number): this;
-        swapChildren(firstChild: Drawable, secondChild: Drawable): this;
-        getChildIndex(child: Drawable): number;
-        setChildIndex(child: Drawable, index: number): this;
-        getChildAt(index: number): Drawable;
-        removeChild(child: Drawable): this;
-        removeChildAt(index: number): this;
-        removeChildren(begin?: number, end?: number): this;
-        render(renderManager: RenderBackend): this;
-        contains(x: number, y: number): boolean;
-        updateBounds(): this;
-        destroy(): void;
-    }
-}
-declare module "math/Line" {
-    import { Vector } from "math/Vector";
-    import { Rectangle } from "math/Rectangle";
-    import type { ShapeLike } from "math/ShapeLike";
-    import { Interval } from "math/Interval";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    export class Line implements ShapeLike {
-        readonly collisionType: CollisionType;
-        private readonly _fromPosition;
-        private readonly _toPosition;
-        constructor(x1?: number, y1?: number, x2?: number, y2?: number);
-        get fromPosition(): Vector;
-        set fromPosition(positionFrom: Vector);
-        get fromX(): number;
-        set fromX(fromX: number);
-        get fromY(): number;
-        set fromY(fromY: number);
-        get toPosition(): Vector;
-        set toPosition(positionTo: Vector);
-        get toX(): number;
-        set toX(toX: number);
-        get toY(): number;
-        set toY(toY: number);
-        set(x1: number, y1: number, x2: number, y2: number): this;
-        copy(line: Line): this;
-        clone(): this;
-        getBounds(): Rectangle;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        contains(x: number, y: number, threshold?: number): boolean;
-        equals({ fromX, fromY, toX, toY }?: Partial<Line>): boolean;
-        destroy(): void;
-        static get temp(): Line;
-    }
-}
-declare module "math/Polygon" {
-    import { Interval } from "math/Interval";
-    import { Vector } from "math/Vector";
-    import { Rectangle } from "math/Rectangle";
-    import type { ShapeLike } from "math/ShapeLike";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    export class Polygon implements ShapeLike {
-        readonly collisionType: CollisionType;
-        private readonly _position;
-        private readonly _points;
-        private readonly _edges;
-        private readonly _normals;
-        constructor(points?: Array<Vector>, x?: number, y?: number);
-        get position(): Vector;
-        set position(position: Vector);
-        get x(): number;
-        set x(x: number);
-        get y(): number;
-        set y(y: number);
-        get points(): Array<Vector>;
-        set points(points: Array<Vector>);
-        get edges(): Array<Vector>;
-        get normals(): Array<Vector>;
-        setPosition(x: number, y: number): this;
-        setPoints(newPoints: Array<Vector>): this;
-        set(x: number, y: number, points: Array<Vector>): this;
-        copy(polygon: Polygon): this;
-        clone(): this;
-        equals({ x, y, points }?: Partial<Polygon>): boolean;
-        getBounds(): Rectangle;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        contains(x: number, y: number): boolean;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        destroy(): void;
-        static get temp(): Polygon;
-    }
-}
-declare module "math/Ellipse" {
-    import { Vector } from "math/Vector";
-    import { Rectangle } from "math/Rectangle";
-    import type { ShapeLike } from "math/ShapeLike";
-    import { Interval } from "math/Interval";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    export class Ellipse implements ShapeLike {
-        readonly collisionType: CollisionType;
-        private readonly _position;
-        private readonly _radius;
-        constructor(x?: number, y?: number, halfWidth?: number, halfHeight?: number);
-        get position(): Vector;
-        set position(position: Vector);
-        get x(): number;
-        set x(x: number);
-        get y(): number;
-        set y(y: number);
-        get radius(): Vector;
-        set radius(size: Vector);
-        get rx(): number;
-        set rx(radiusX: number);
-        get ry(): number;
-        set ry(radiusY: number);
-        setPosition(x: number, y: number): this;
-        setRadius(radiusX: number, radiusY?: number): this;
-        set(x: number, y: number, radiusX: number, radiusY: number): this;
-        copy(ellipse: Ellipse): this;
-        clone(): this;
-        getBounds(): Rectangle;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        contains(x: number, y: number): boolean;
-        equals({ x, y, rx, ry }?: Partial<Ellipse>): boolean;
-        destroy(): void;
-    }
-}
-declare module "core/SceneNode" {
-    import { Transformable } from "math/Transformable";
-    import { Matrix } from "math/Matrix";
-    import { Rectangle } from "math/Rectangle";
-    import { Bounds } from "core/Bounds";
-    import { ObservableVector } from "math/ObservableVector";
-    import type { Container } from "rendering/Container";
-    import type { Vector } from "math/Vector";
-    import { Interval } from "math/Interval";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    export class SceneNode extends Transformable implements Collidable {
-        readonly collisionType: CollisionType;
-        protected _bounds: Bounds;
-        private _globalTransform;
-        private _localBounds;
-        private _anchor;
-        private _parent;
-        get anchor(): ObservableVector;
-        set anchor(anchor: ObservableVector);
-        get parent(): Container | null;
-        set parent(parent: Container | null);
-        get globalTransform(): Matrix;
-        get localBounds(): Rectangle;
-        get bounds(): Rectangle;
-        get isAlignedBox(): boolean;
-        setAnchor(x: number, y?: number): this;
-        getLocalBounds(): Rectangle;
-        getBounds(): Rectangle;
-        updateBounds(): this;
-        updateParentTransform(): this;
-        getGlobalTransform(): Matrix;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        contains(x: number, y: number): boolean;
-        destroy(): void;
-        private _updateOrigin;
-    }
-}
-declare module "math/Circle" {
-    import { Vector } from "math/Vector";
-    import { Rectangle } from "math/Rectangle";
-    import { Interval } from "math/Interval";
-    import type { ShapeLike } from "math/ShapeLike";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    export class Circle implements ShapeLike {
-        static collisionSegments: number;
-        readonly collisionType: CollisionType;
-        private readonly _position;
-        private _collisionVertices;
-        private _radius;
-        constructor(x?: number, y?: number, radius?: number);
-        get position(): Vector;
-        set position(position: Vector);
-        get x(): number;
-        set x(x: number);
-        get y(): number;
-        set y(y: number);
-        get radius(): number;
-        set radius(radius: number);
-        setPosition(x: number, y: number): this;
-        setRadius(radius: number): this;
-        set(x: number, y: number, radius: number): this;
-        copy(circle: Circle): this;
-        clone(): this;
-        equals({ x, y, radius }?: Partial<Circle>): boolean;
-        getBounds(): Rectangle;
-        /**
-         * todo - cache this
-         */
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        contains(x: number, y: number): boolean;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        destroy(): void;
-        private getCollisionVertices;
-        private getCollisionVertex;
-        static get temp(): Circle;
-    }
-}
-declare module "utils/collision-detection" {
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import type { Circle } from "math/Circle";
-    import type { Ellipse } from "math/Ellipse";
-    import type { Line } from "math/Line";
-    import type { Polygon } from "math/Polygon";
-    import type { Rectangle } from "math/Rectangle";
-    import type { PointLike } from "types/primitives/PointLike";
-    /**
-     * INTERSECTION
-     */
-    const intersectionSat: (shapeA: Collidable, shapeB: Collidable) => boolean;
-    const intersectionPointPoint: (pointA: PointLike, pointB: PointLike, threshold?: number) => boolean;
-    const intersectionPointLine: (point: PointLike, line: Line, threshold?: number) => boolean;
-    const intersectionPointRect: (point: PointLike, rectangle: Rectangle) => boolean;
-    const intersectionPointCircle: (point: PointLike, circle: Circle) => boolean;
-    const intersectionPointEllipse: (point: PointLike, ellipse: Ellipse) => boolean;
-    const intersectionPointPoly: (point: PointLike, polygon: Polygon) => boolean;
-    const intersectionLineLine: (lineA: Line, lineB: Line) => boolean;
-    const intersectionLineRect: (line: Line, rectangle: Rectangle) => boolean;
-    const intersectionLineCircle: (line: Line, circle: Circle) => boolean;
-    const intersectionLineEllipse: (line: Line, ellipse: Ellipse) => boolean;
-    const intersectionLinePoly: (line: Line, polygon: Polygon) => boolean;
-    const intersectionRectRect: (rectA: Rectangle, rectB: Rectangle) => boolean;
-    const intersectionRectCircle: ({ x: rx, y: ry, width, height }: Rectangle, { x: cx, y: cy, radius }: Circle) => boolean;
-    const intersectionRectEllipse: (rectangle: Rectangle, ellipse: Ellipse) => boolean;
-    const intersectionRectPoly: (rectangle: Rectangle, polygon: Polygon) => boolean;
-    const intersectionCircleCircle: ({ x: x1, y: y1, radius: r1 }: Circle, { x: x2, y: y2, radius: r2 }: Circle) => boolean;
-    const intersectionCircleEllipse: (circle: Circle, ellipse: Ellipse) => boolean;
-    const intersectionCirclePoly: ({ x: cx, y: cy, radius }: Circle, { x: px, y: py, points, edges }: Polygon) => boolean;
-    const intersectionEllipseEllipse: (ellipseA: Ellipse, ellipseB: Ellipse) => boolean;
-    const intersectionEllipsePoly: (ellipse: Ellipse, polygon: Polygon) => boolean;
-    const intersectionPolyPoly: (polygonA: Polygon, polygonB: Polygon) => boolean;
-    /**
-     * COLLISION DETECTION
-     */
-    const getCollisionRectangleRectangle: (rectA: Rectangle, rectB: Rectangle) => CollisionResponse | null;
-    const getCollisionCircleCircle: (circleA: Circle, circleB: Circle) => CollisionResponse | null;
-    const getCollisionCircleRectangle: (circle: Circle, rect: Rectangle, swap?: boolean) => CollisionResponse | null;
-    const getCollisionPolygonCircle: (polygon: Polygon, circle: Circle, swap?: boolean) => CollisionResponse | null;
-    const getCollisionSat: (shapeA: Collidable, shapeB: Collidable) => CollisionResponse | null;
-    export { intersectionSat, intersectionPointPoint, intersectionPointLine, intersectionPointRect, intersectionPointCircle, intersectionPointEllipse, intersectionPointPoly, intersectionLineLine, intersectionLineRect, intersectionLineCircle, intersectionLineEllipse, intersectionLinePoly, intersectionRectRect, intersectionRectCircle, intersectionRectEllipse, intersectionRectPoly, intersectionCircleCircle, intersectionCircleEllipse, intersectionCirclePoly, intersectionEllipseEllipse, intersectionEllipsePoly, intersectionPolyPoly, getCollisionSat, getCollisionRectangleRectangle, getCollisionCircleRectangle, getCollisionCircleCircle, getCollisionPolygonCircle, };
-}
-declare module "math/Vector" {
-    import type { ShapeLike } from "math/ShapeLike";
-    import { Interval } from "math/Interval";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    import { Rectangle } from "math/Rectangle";
-    import { AbstractVector } from "math/AbstractVector";
-    export class Vector extends AbstractVector implements ShapeLike {
-        readonly collisionType: CollisionType;
-        x: number;
-        y: number;
-        constructor(x?: number, y?: number);
-        clone(): this;
-        copy(vector: Vector): this;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        getBounds(): Rectangle;
-        contains(x: number, y: number): boolean;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, interval?: Interval): Interval;
-        destroy(): void;
-        static get temp(): Vector;
-        static readonly zero: Vector;
-        static readonly one: Vector;
-        static add(v1: Vector, v2: Vector): Vector;
-        static subtract(v1: Vector, v2: Vector): Vector;
-        static multiply(v1: Vector, v2: Vector): Vector;
-        static divide(v1: Vector, v2: Vector): Vector;
-    }
-}
-declare module "utils/math" {
-    import type { Vector } from "math/Vector";
-    export const tau: number;
-    export const radiansPerDegree: number;
-    export const degreesPerRadian: number;
-    export const enum VoronoiRegion {
-        left = -1,
-        middle = 0,
-        right = 1
-    }
-    export const trimRotation: (degrees: number) => number;
-    export const degreesToRadians: (degree: number) => number;
-    export const radiansToDegrees: (radian: number) => number;
-    export const clamp: (value: number, min: number, max: number) => number;
-    export const sign: (value: number) => number;
-    export const lerp: (startValue: number, endValue: number, ratio: number) => number;
-    export const isPowerOfTwo: (value: number) => boolean;
-    export const inRange: (value: number, min: number, max: number) => boolean;
-    export const getDistance: (x1: number, y1: number, x2: number, y2: number) => number;
-    export const bezierCurveTo: (fromX: number, fromY: number, cpX1: number, cpY1: number, cpX2: number, cpY2: number, toX: number, toY: number, path?: Array<number>, len?: number) => Array<number>;
-    export const quadraticCurveTo: (fromX: number, fromY: number, cpX: number, cpY: number, toX: number, toY: number, path?: Array<number>, len?: number) => Array<number>;
-    export const getVoronoiRegion: (line: Vector, point: Vector) => VoronoiRegion;
-}
-declare module "math/Rectangle" {
-    import { Size } from "math/Size";
-    import { Interval } from "math/Interval";
-    import type { Matrix } from "math/Matrix";
-    import type { ShapeLike } from "math/ShapeLike";
-    import type { Collidable, CollisionResponse } from "types/Collision";
-    import { CollisionType } from "types/Collision";
-    import type { Vector } from "math/Vector";
-    export class Rectangle implements ShapeLike {
-        readonly collisionType: CollisionType;
-        private readonly _position;
-        private readonly _size;
-        private _normals;
-        private _normalsDirty;
-        constructor(x?: number, y?: number, width?: number, height?: number);
-        get position(): Vector;
-        set position(position: Vector);
-        get x(): number;
-        set x(x: number);
-        get y(): number;
-        set y(y: number);
-        get size(): Size;
-        set size(size: Size);
-        get width(): number;
-        set width(width: number);
-        get height(): number;
-        set height(height: number);
-        get left(): number;
-        get top(): number;
-        get right(): number;
-        get bottom(): number;
-        setPosition(x: number, y: number): this;
-        setSize(width: number, height: number): this;
-        set(x: number, y: number, width: number, height: number): this;
-        copy(rectangle: Rectangle): this;
-        clone(): this;
-        equals({ x, y, width, height }?: Partial<Rectangle>): boolean;
-        getBounds(): Rectangle;
-        getNormals(): Array<Vector>;
-        project(axis: Vector, result?: Interval): Interval;
-        transform(matrix: Matrix, result?: Rectangle): Rectangle;
-        contains(x: number, y: number): boolean;
-        containsRect(rect: Rectangle): boolean;
-        intersectsWith(target: Collidable): boolean;
-        collidesWith(target: Collidable): CollisionResponse | null;
-        destroy(): void;
-        private _updateNormals;
-        static get temp(): Rectangle;
-    }
-}
-declare module "types/types" {
-    import type { Rectangle } from "math/Rectangle";
-    export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
-    export type TimeInterval = 1 | 1000 | 60000 | 3600000;
-    export type TypedEnum<Enum, Type> = {
-        [Key in keyof Enum]: Type;
-    };
-    export type ValueOf<T> = T[keyof T];
-    export type Mutable<T> = {
-        -readonly [P in keyof T]: T[P];
-    };
-    export type TextureSource = HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | null;
-    export interface PlaybackOptions {
-        volume: number;
-        playbackRate: number;
-        loop: boolean;
-        muted: boolean;
-        time: number;
-    }
-    export interface Cloneable {
-        clone(): this;
-        copy(source: this): this;
-    }
-    export interface Destroyable {
-        destroy(): void;
-    }
-    export interface HasBoundingBox {
-        getBounds(): Rectangle;
-    }
-    export enum ResourceTypes {
-        font = "font",
-        video = "video",
-        music = "music",
-        sound = "sound",
-        image = "image",
-        texture = "texture",
-        text = "text",
-        json = "json",
-        svg = "svg"
-    }
-    export enum StorageNames {
-        font = "font",
-        video = "video",
-        music = "music",
-        sound = "sound",
-        image = "image",
-        text = "text",
-        json = "json"
-    }
-}
-declare module "math/Size" {
-    import type { Cloneable } from "types/types";
-    export class Size implements Cloneable {
-        protected _width: number;
-        protected _height: number;
-        constructor(width?: number, height?: number);
-        get width(): number;
-        set width(width: number);
-        get height(): number;
-        set height(height: number);
-        set(width: number, height?: number): this;
-        add(width: number, height?: number): this;
-        subtract(width: number, height?: number): this;
-        scale(width: number, height?: number): this;
-        divide(width: number, height?: number): this;
-        copy(size: {
-            width: number;
-            height: number;
-        }): this;
-        clone(): this;
-        equals({ width, height }?: Partial<Size>): boolean;
-        destroy(): void;
-        static readonly zero: Size;
-        static get temp(): Size;
-    }
-}
-declare module "math/Random" {
-    export class Random {
-        private _state;
-        private _iteration;
-        private _seed;
-        private _value;
-        constructor(seed?: number);
-        get seed(): number;
-        get value(): number;
-        get iteration(): number;
-        setSeed(seed: number): this;
-        reset(): this;
-        next(min?: number, max?: number): number;
-        destroy(): void;
-        private _twist;
-    }
-}
-declare module "core/Time" {
-    import type { Cloneable, TimeInterval } from "types/types";
-    export class Time implements Cloneable {
-        private _milliseconds;
-        constructor(time?: number, factor?: TimeInterval);
-        get milliseconds(): number;
-        set milliseconds(milliseconds: number);
-        get seconds(): number;
-        set seconds(seconds: number);
-        get minutes(): number;
-        set minutes(minutes: number);
-        get hours(): number;
-        set hours(hours: number);
-        set(time?: number, factor?: TimeInterval): this;
-        setMilliseconds(milliseconds: number): this;
-        setSeconds(seconds: number): this;
-        setMinutes(minutes: number): this;
-        setHours(hours: number): this;
-        equals({ milliseconds, seconds, minutes, hours }?: Partial<Time>): boolean;
-        greaterThan(time: Time): boolean;
-        lessThan(time: Time): boolean;
-        clone(): this;
-        copy(time: Time): this;
-        add(value?: number, factor?: TimeInterval): this;
-        addTime(time: Time): this;
-        subtract(value?: number, factor?: TimeInterval): this;
-        subtractTime(time: Time): this;
-        destroy(): void;
-        static readonly milliseconds: TimeInterval;
-        static readonly seconds: TimeInterval;
-        static readonly minutes: TimeInterval;
-        static readonly hours: TimeInterval;
-        static readonly zero: Time;
-        static readonly oneMillisecond: Time;
-        static readonly oneSecond: Time;
-        static readonly oneMinute: Time;
-        static readonly oneHour: Time;
-        static get temp(): Time;
-    }
-}
-declare module "utils/core" {
-    import { Size } from "math/Size";
-    import type { TextureSource } from "types/types";
-    import { Time } from "core/Time";
-    export const rand: (min?: number, max?: number) => number;
-    export const noop: () => void;
-    export const stopEvent: (event: Event) => void;
-    export const supportsWebAudio: boolean;
-    export const supportsIndexedDb: boolean;
-    export const supportsTouchEvents: boolean;
-    export const supportsPointerEvents: boolean;
-    export const supportsEventOptions: () => boolean;
-    export const getPreciseTime: () => number;
-    export const milliseconds: (value: number) => Time;
-    export const seconds: (value: number) => Time;
-    export const minutes: (value: number) => Time;
-    export const hours: (value: number) => Time;
-    export const emptyArrayBuffer: ArrayBuffer;
-    export const removeArrayItems: <T = unknown>(array: Array<T>, startIndex: number, amount: number) => Array<T>;
-    export const supportsCodec: (...codecs: Array<string>) => boolean;
-    export const getCanvasSourceSize: (source: CanvasImageSource) => Size;
-    export const getTextureSourceSize: (source: TextureSource) => Size;
-    export const canvasSourceToDataUrl: (source: CanvasImageSource) => string;
-}
-declare module "rendering/primitives/Geometry" {
-    interface IGeometryOptions {
-        vertices?: Array<number>;
-        indices?: Array<number>;
-        points?: Array<number>;
-    }
-    export class Geometry {
-        readonly vertices: Float32Array;
-        readonly indices: Uint16Array;
-        readonly points: Array<number>;
-        constructor({ vertices, indices, points, }?: IGeometryOptions);
-        destroy(): void;
-    }
-}
-declare module "utils/geometry" {
-    import { Geometry } from "rendering/primitives/Geometry";
-    export const buildLine: (startX: number, startY: number, endX: number, endY: number, width: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildPath: (points: Array<number>, width: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildCircle: (centerX: number, centerY: number, radius: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildEllipse: (centerX: number, centerY: number, radiusX: number, radiusY: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildPolygon: (points: Array<number>, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildRectangle: (x: number, y: number, width: number, height: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
-    export const buildStar: (centerX: number, centerY: number, points: number, radius: number, innerRadius?: number, rotation?: number) => Geometry;
-}
-declare module "utils/resources" {
-    export const determineMimeType: (arrayBuffer: ArrayBuffer) => string;
-}
-declare module "core/Signal" {
-    type SignalHandler<Args extends Array<unknown>> = (...params: Args) => void | boolean;
-    interface ISignalBinding<Args extends Array<unknown>> {
-        handler: SignalHandler<Args>;
-        context?: object;
-    }
-    export class Signal<Args extends Array<unknown> = []> {
-        private readonly _bindings;
-        get bindings(): ReadonlyArray<ISignalBinding<Args>>;
-        has(handler: SignalHandler<Args>, context?: object): boolean;
-        add(handler: SignalHandler<Args>, context?: object): this;
-        once(handler: SignalHandler<Args>, context?: object): this;
-        remove(handler: SignalHandler<Args>, context?: object): this;
-        clearByContext(context?: object): this;
-        clear(): this;
-        dispatch(...params: Args): this;
-        destroy(): void;
-    }
-}
-declare module "utils/audio-context" {
-    import { Signal } from "core/Signal";
-    class AudioContextReadySignal extends Signal<[AudioContext]> {
-        add(handler: (audioContext: AudioContext) => void | boolean, context?: object): this;
-        once(handler: (audioContext: AudioContext) => void | boolean, context?: object): this;
-    }
-    export const onAudioContextReady: AudioContextReadySignal;
-    export const getAudioContext: () => AudioContext;
-    export const isAudioContextReady: () => boolean;
-    export const getOfflineAudioContext: () => OfflineAudioContext;
-    export const decodeAudioData: (arrayBuffer: ArrayBuffer) => Promise<AudioBuffer>;
-}
-declare module "utils/index" {
-    export * from "utils/core";
-    export * from "utils/geometry";
-    export * from "utils/math";
-    export * from "utils/rendering";
-    export * from "utils/resources";
-    export * from "utils/collision-detection";
-    export * from "utils/audio-context";
-}
-declare module "types/input" {
-    export enum ChannelSize {
-        container = 768,
-        category = 256,
-        gamepad = 64
-    }
-    export const enum ChannelOffset {
-        keyboard = 0,
-        pointers = 256,
-        gamepads = 512
-    }
-    export enum Keyboard {
-        backspace = 8,
-        tab = 9,
-        clear = 12,
-        enter = 13,
-        shift = 16,
-        control = 17,
-        alt = 18,
-        pause = 19,
-        capsLock = 20,
-        escape = 27,
-        space = 32,
-        pageUp = 33,
-        pageDown = 34,
-        end = 35,
-        home = 36,
-        left = 37,
-        up = 38,
-        right = 39,
-        down = 40,
-        insert = 45,
-        delete = 46,
-        help = 47,
-        zero = 48,
-        one = 49,
-        two = 50,
-        three = 51,
-        four = 52,
-        five = 53,
-        six = 54,
-        seven = 55,
-        eight = 56,
-        nine = 57,
-        a = 65,
-        b = 66,
-        c = 67,
-        d = 68,
-        e = 69,
-        f = 70,
-        g = 71,
-        h = 72,
-        i = 73,
-        j = 74,
-        k = 75,
-        l = 76,
-        m = 77,
-        n = 78,
-        o = 79,
-        p = 80,
-        q = 81,
-        r = 82,
-        s = 83,
-        t = 84,
-        u = 85,
-        v = 86,
-        w = 87,
-        x = 88,
-        y = 89,
-        z = 90,
-        numPad0 = 96,
-        numPad1 = 97,
-        numPad2 = 98,
-        numPad3 = 99,
-        numPad4 = 100,
-        numPad5 = 101,
-        numPad6 = 102,
-        numPad7 = 103,
-        numPad8 = 104,
-        numPad9 = 105,
-        numPadMultiply = 106,
-        numPadAdd = 107,
-        numPadEnter = 108,
-        numPadSubtract = 109,
-        numPadDecimal = 110,
-        numPadDivide = 111,
-        f1 = 112,
-        f2 = 113,
-        f3 = 114,
-        f4 = 115,
-        f5 = 116,
-        f6 = 117,
-        f7 = 118,
-        f8 = 119,
-        f9 = 120,
-        f10 = 121,
-        f11 = 122,
-        f12 = 123,
-        numLock = 144,
-        scrollLock = 145,
-        colon = 186,
-        equals = 187,
-        comma = 188,
-        dash = 189,
-        period = 190,
-        questionMark = 191,
-        tilde = 192,
-        openBracket = 219,
-        backwardSlash = 220,
-        closedBracket = 221,
-        quotes = 222
-    }
-}
-declare module "types/Media" {
-    import type { PlaybackOptions } from "types/types";
+declare module "audio/Media" {
+    import type { PlaybackOptions } from "core/types";
     export interface Media {
         readonly duration: number;
         readonly progress: number;
@@ -1712,10 +1395,10 @@ declare module "types/Media" {
         destroy(): void;
     }
 }
-declare module "types/AbstractMedia" {
-    import type { Media } from "types/Media";
+declare module "audio/AbstractMedia" {
+    import type { Media } from "audio/Media";
     import { Signal } from "core/Signal";
-    import type { PlaybackOptions } from "types/types";
+    import type { PlaybackOptions } from "core/types";
     export interface AbstractMediaInitialState extends Omit<PlaybackOptions, 'time'> {
         duration: number;
     }
@@ -1759,63 +1442,21 @@ declare module "types/AbstractMedia" {
         destroy(): void;
     }
 }
-declare module "types/Database" {
-    export interface Database {
-        readonly name: string;
-        readonly version: number;
-        readonly connected: boolean;
-        connect(): Promise<boolean>;
-        disconnect(): Promise<boolean>;
-        load<T = unknown>(type: string, name: string): Promise<T | null>;
-        save(type: string, name: string, data: unknown): Promise<void>;
-        delete(type: string, name: string): Promise<boolean>;
-        clearStorage(type: string): Promise<boolean>;
-        deleteStorage(): Promise<boolean>;
-        destroy(): void;
+declare module "audio/audio-context" {
+    import { Signal } from "core/Signal";
+    class AudioContextReadySignal extends Signal<[AudioContext]> {
+        add(handler: (audioContext: AudioContext) => void | boolean, context?: object): this;
+        once(handler: (audioContext: AudioContext) => void | boolean, context?: object): this;
     }
-}
-declare module "types/ResourceFactory" {
-    import type { StorageNames } from "types/types";
-    export interface ResourceFactory<SourceValue = unknown, TargetValue = unknown, Options = unknown> {
-        readonly storageName: StorageNames;
-        process(response: Response): Promise<SourceValue>;
-        create(source: SourceValue, options?: Options): Promise<TargetValue>;
-        destroy(): void;
-    }
-}
-declare module "types/index" {
-    export * from "types/Collision";
-    export * from "types/input";
-    export * from "types/rendering";
-    export * from "types/types";
-    export * from "types/AbstractMedia";
-    export * from "types/Database";
-    export * from "types/Media";
-    export * from "types/ResourceFactory";
-}
-declare module "core/Clock" {
-    import { Time } from "core/Time";
-    export class Clock {
-        private _startTime;
-        private _elapsedTime;
-        private _running;
-        constructor(startTime?: Time, autoStart?: boolean);
-        get running(): boolean;
-        get elapsedTime(): Time;
-        get elapsedMilliseconds(): number;
-        get elapsedSeconds(): number;
-        get elapsedMinutes(): number;
-        get elapsedHours(): number;
-        start(): this;
-        stop(): this;
-        reset(): this;
-        restart(): this;
-        destroy(): void;
-    }
+    export const onAudioContextReady: AudioContextReadySignal;
+    export const getAudioContext: () => AudioContext;
+    export const isAudioContextReady: () => boolean;
+    export const getOfflineAudioContext: () => OfflineAudioContext;
+    export const decodeAudioData: (arrayBuffer: ArrayBuffer) => Promise<AudioBuffer>;
 }
 declare module "audio/Music" {
-    import type { PlaybackOptions } from "types/types";
-    import { AbstractMedia } from "types/AbstractMedia";
+    import type { PlaybackOptions } from "core/types";
+    import { AbstractMedia } from "audio/AbstractMedia";
     export class Music extends AbstractMedia {
         private readonly _audioElement;
         private _audioSetup;
@@ -1836,8 +1477,8 @@ declare module "audio/Music" {
     }
 }
 declare module "audio/Sound" {
-    import type { PlaybackOptions } from "types/types";
-    import { AbstractMedia } from "types/AbstractMedia";
+    import type { PlaybackOptions } from "core/types";
+    import { AbstractMedia } from "audio/AbstractMedia";
     export class Sound extends AbstractMedia {
         private readonly _audioBuffer;
         private _audioSetup;
@@ -1862,110 +1503,51 @@ declare module "audio/Sound" {
         private setupWithAudioContext;
     }
 }
-declare module "rendering/shader/ShaderBlock" {
-    import { ShaderUniform } from "rendering/shader/ShaderUniform";
-    export class ShaderBlock {
-        readonly index: number;
-        readonly name: string;
-        readonly binding: number;
-        readonly dataSize: number;
-        private readonly _context;
-        private readonly _program;
-        private readonly _blockData;
-        private readonly _uniformBuffer;
-        private readonly _uniforms;
-        constructor(gl: WebGL2RenderingContext, program: WebGLProgram, index: number);
-        getUniform(name: string): ShaderUniform;
-        upload(): void;
+declare module "rendering/texture/RenderTexture" {
+    import { RenderTarget } from "rendering/RenderTarget";
+    import { ScaleModes, WrapModes } from "rendering/types";
+    import type { SamplerOptions } from "rendering/texture/Sampler";
+    export class RenderTexture extends RenderTarget {
+        static defaultSamplerOptions: SamplerOptions;
+        private _source;
+        private _textureVersion;
+        private _scaleMode;
+        private _wrapMode;
+        private _premultiplyAlpha;
+        private _generateMipMap;
+        private _flipY;
+        constructor(width: number, height: number, options?: Partial<SamplerOptions>);
+        get source(): DataView | null;
+        set source(source: DataView | null);
+        get scaleMode(): ScaleModes;
+        set scaleMode(scaleMode: ScaleModes);
+        get wrapMode(): WrapModes;
+        set wrapMode(wrapMode: WrapModes);
+        get premultiplyAlpha(): boolean;
+        set premultiplyAlpha(premultiplyAlpha: boolean);
+        get generateMipMap(): boolean;
+        set generateMipMap(generateMipMap: boolean);
+        get flipY(): boolean;
+        set flipY(flipY: boolean);
+        get powerOfTwo(): boolean;
+        get textureVersion(): number;
+        setScaleMode(scaleMode: ScaleModes): this;
+        setWrapMode(wrapMode: WrapModes): this;
+        setPremultiplyAlpha(premultiplyAlpha: boolean): this;
+        setSource(source: DataView | null): this;
+        updateSource(): this;
+        setSize(width: number, height: number): this;
         destroy(): void;
-        private _extractUniforms;
-    }
-}
-declare module "rendering/shader/WebGL2ShaderRuntime" {
-    import type { ShaderRuntime } from "rendering/shader/Shader";
-    export function createWebGlShaderRuntime(gl: WebGL2RenderingContext): ShaderRuntime;
-}
-declare module "rendering/WebGl2RenderBackend" {
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export interface WebGl2RenderBackend extends RenderBackend {
-        readonly context: WebGL2RenderingContext;
-    }
-}
-declare module "rendering/AbstractRenderer" {
-    import type { Renderer } from "rendering/Renderer";
-    import { Shader } from "rendering/shader/Shader";
-    import type { VertexArrayObject, VertexArrayObjectRuntime } from "rendering/VertexArrayObject";
-    import { RenderBuffer, type RenderBufferRuntime } from "rendering/RenderBuffer";
-    import type { Texture } from "rendering/texture/Texture";
-    import type { BlendModes } from "types/rendering";
-    import type { View } from "rendering/View";
-    import type { WebGl2RenderBackend } from "rendering/WebGl2RenderBackend";
-    import type { RenderTexture } from "rendering/texture/RenderTexture";
-    import type { Drawable } from "rendering/Drawable";
-    interface IManagedBufferState {
-        readonly handle: WebGLBuffer;
-        dataByteLength: number;
-    }
-    interface RendererConnection {
-        readonly gl: WebGL2RenderingContext;
-        readonly buffers: Map<RenderBuffer, IManagedBufferState>;
-        readonly vaoHandle: WebGLVertexArrayObject;
-    }
-    export abstract class AbstractRenderer implements Renderer {
-        protected readonly attributeCount: number;
-        protected readonly batchSize: number;
-        protected readonly indexData: Uint16Array;
-        protected readonly vertexData: ArrayBuffer;
-        protected readonly float32View: Float32Array;
-        protected readonly uint32View: Uint32Array;
-        protected readonly shader: Shader;
-        protected batchIndex: number;
-        protected renderManager: WebGl2RenderBackend | null;
-        protected gl: WebGL2RenderingContext | null;
-        protected currentTexture: Texture | RenderTexture | null;
-        protected currentBlendMode: BlendModes | null;
-        protected currentView: View | null;
-        protected currentViewId: number;
-        protected vao: VertexArrayObject | null;
-        protected indexBuffer: RenderBuffer | null;
-        protected vertexBuffer: RenderBuffer | null;
-        protected connection: RendererConnection | null;
-        protected constructor(batchSize: number, attributeCount: number, vertexSource: string, fragmentSource: string);
-        connect(renderManager: WebGl2RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        flush(): this;
-        destroy(): void;
-        abstract render(drawable: Drawable): this;
-        protected abstract createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
-        protected abstract updateView(view: View): this;
-        protected createConnection(gl: WebGL2RenderingContext): RendererConnection;
-        protected createBufferRuntime(connection: RendererConnection): RenderBufferRuntime;
-        protected createVaoRuntime(connection: RendererConnection): VertexArrayObjectRuntime;
-    }
-}
-declare module "rendering/sprite/SpriteRenderer" {
-    import { VertexArrayObject } from "rendering/VertexArrayObject";
-    import type { RenderBuffer } from "rendering/RenderBuffer";
-    import type { Sprite } from "rendering/sprite/Sprite";
-    import { AbstractRenderer } from "rendering/AbstractRenderer";
-    import type { View } from "rendering/View";
-    export class SpriteRenderer extends AbstractRenderer {
-        constructor(batchSize: number);
-        render(sprite: Sprite): this;
-        protected createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
-        protected updateView(view: View): this;
+        private _touchTexture;
     }
 }
 declare module "rendering/sprite/Sprite" {
-    import { Container } from "rendering/Container";
+    import { Drawable } from "rendering/Drawable";
     import { Rectangle } from "math/Rectangle";
     import { Vector } from "math/Vector";
     import { Interval } from "math/Interval";
     import type { Texture } from "rendering/texture/Texture";
     import type { RenderTexture } from "rendering/texture/RenderTexture";
-    import type { RenderBackend } from "rendering/RenderBackend";
     export enum SpriteFlags {
         None = 0,
         Translation = 1,
@@ -1978,7 +1560,7 @@ declare module "rendering/sprite/Sprite" {
         TextureCoords = 64,
         VertexTint = 128
     }
-    export class Sprite extends Container {
+    export class Sprite extends Drawable {
         private _texture;
         private _textureFrame;
         private _vertices;
@@ -1998,20 +1580,19 @@ declare module "rendering/sprite/Sprite" {
         updateTexture(): this;
         setTextureFrame(frame: Rectangle, resetSize?: boolean): this;
         resetTextureFrame(): this;
-        render(renderManager: RenderBackend): this;
         getNormals(): Array<Vector>;
         project(axis: Vector, result?: Interval): Interval;
         contains(x: number, y: number): boolean;
         destroy(): void;
     }
 }
-declare module "rendering/Video" {
+declare module "rendering/video/Video" {
     import { Sprite } from "rendering/sprite/Sprite";
     import { Signal } from "core/Signal";
-    import type { PlaybackOptions } from "types/types";
-    import type { RenderBackend } from "rendering/RenderBackend";
+    import type { PlaybackOptions } from "core/types";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import type { Media } from "types/Media";
+    import type { Media } from "audio/Media";
     export class Video extends Sprite implements Media {
         readonly onStart: Signal<[]>;
         readonly onStop: Signal<[]>;
@@ -2022,6 +1603,12 @@ declare module "rendering/Video" {
         private _loop;
         private _muted;
         private _audioSetup;
+        private _textureDirty;
+        private _lastVideoTime;
+        private _videoFrameCallbackHandle;
+        private readonly _onMetadataHandler;
+        private readonly _onResizeHandler;
+        private readonly _onVideoFrameHandler;
         constructor(videoElement: HTMLVideoElement, playbackOptions?: Partial<PlaybackOptions>, samplerOptions?: Partial<SamplerOptions>);
         get videoElement(): HTMLVideoElement;
         get duration(): number;
@@ -2052,9 +1639,14 @@ declare module "rendering/Video" {
         getTime(): number;
         setTime(time: number): this;
         setMuted(muted: boolean): this;
-        render(renderManager: RenderBackend): this;
+        render(renderManager: SceneRenderRuntime): this;
         updateTexture(): this;
         destroy(): void;
+        private _onVideoMetadataUpdated;
+        private _onVideoFrame;
+        private _markTextureDirtyIfPlaybackAdvanced;
+        private _requestVideoFrameCallback;
+        private _cancelVideoFrameCallback;
         private setupWithAudioContext;
     }
 }
@@ -2062,18 +1654,18 @@ declare module "resources/ResourceContainer" {
     import type { Texture } from "rendering/texture/Texture";
     import type { Music } from "audio/Music";
     import type { Sound } from "audio/Sound";
-    import type { Video } from "rendering/Video";
-    import type { ResourceTypes } from "types/types";
+    import type { Video } from "rendering/video/Video";
+    import type { ResourceTypes } from "core/types";
     export interface ResourceTypeMap {
-        [ResourceTypes.font]: FontFace;
-        [ResourceTypes.image]: HTMLImageElement;
-        [ResourceTypes.texture]: Texture;
-        [ResourceTypes.json]: Record<string, unknown>;
-        [ResourceTypes.music]: Music;
-        [ResourceTypes.sound]: Sound;
-        [ResourceTypes.video]: Video;
-        [ResourceTypes.text]: string;
-        [ResourceTypes.svg]: HTMLImageElement;
+        [ResourceTypes.Font]: FontFace;
+        [ResourceTypes.Image]: HTMLImageElement;
+        [ResourceTypes.Texture]: Texture;
+        [ResourceTypes.Json]: Record<string, unknown>;
+        [ResourceTypes.Music]: Music;
+        [ResourceTypes.Sound]: Sound;
+        [ResourceTypes.Video]: Video;
+        [ResourceTypes.Text]: string;
+        [ResourceTypes.Svg]: HTMLImageElement;
     }
     type ResourceMap = Map<string, unknown>;
     export class ResourceContainer {
@@ -2090,9 +1682,18 @@ declare module "resources/ResourceContainer" {
         destroy(): void;
     }
 }
+declare module "resources/ResourceFactory" {
+    import type { StorageNames } from "core/types";
+    export interface ResourceFactory<SourceValue = unknown, TargetValue = unknown, Options = unknown> {
+        readonly storageName: StorageNames;
+        process(response: Response): Promise<SourceValue>;
+        create(source: SourceValue, options?: Options): Promise<TargetValue>;
+        destroy(): void;
+    }
+}
 declare module "resources/factories/AbstractResourceFactory" {
-    import type { ResourceFactory } from "types/ResourceFactory";
-    import type { StorageNames } from "types/types";
+    import type { ResourceFactory } from "resources/ResourceFactory";
+    import type { StorageNames } from "core/types";
     export abstract class AbstractResourceFactory<SourceValue = unknown, TargetValue = unknown, Options = unknown> implements ResourceFactory<SourceValue, TargetValue, Options> {
         readonly objectUrls: Array<string>;
         abstract readonly storageName: StorageNames;
@@ -2105,7 +1706,7 @@ declare module "resources/factories/AbstractResourceFactory" {
 declare module "resources/factories/FontFactory" {
     import type { FontFaceDescriptors } from 'css-font-loading-module';
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
+    import { StorageNames } from "core/types";
     export interface FontFactoryOptions {
         family: string;
         descriptors?: FontFaceDescriptors;
@@ -2117,21 +1718,24 @@ declare module "resources/factories/FontFactory" {
         create(source: ArrayBuffer, options?: FontFactoryOptions): Promise<FontFace>;
     }
 }
+declare module "resources/utils" {
+    export const determineMimeType: (arrayBuffer: ArrayBuffer) => string;
+}
 declare module "resources/factories/ImageFactory" {
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
-    interface IImageFactoryOptions {
+    import { StorageNames } from "core/types";
+    interface ImageFactoryOptions {
         mimeType?: string;
     }
-    export class ImageFactory extends AbstractResourceFactory<ArrayBuffer, HTMLImageElement, IImageFactoryOptions> {
+    export class ImageFactory extends AbstractResourceFactory<ArrayBuffer, HTMLImageElement, ImageFactoryOptions> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<ArrayBuffer>;
-        create(source: ArrayBuffer, options?: IImageFactoryOptions): Promise<HTMLImageElement>;
+        create(source: ArrayBuffer, options?: ImageFactoryOptions): Promise<HTMLImageElement>;
     }
 }
 declare module "resources/factories/JsonFactory" {
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
+    import { StorageNames } from "core/types";
     export class JsonFactory extends AbstractResourceFactory<Record<string, unknown>, Record<string, unknown>> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<Record<string, unknown>>;
@@ -2139,38 +1743,38 @@ declare module "resources/factories/JsonFactory" {
     }
 }
 declare module "resources/factories/MusicFactory" {
-    import type { PlaybackOptions } from "types/types";
+    import type { PlaybackOptions } from "core/types";
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
+    import { StorageNames } from "core/types";
     import { Music } from "audio/Music";
-    interface IMusicFactoryOptions {
+    interface MusicFactoryOptions {
         mimeType?: string;
         loadEvent?: string;
         playbackOptions?: Partial<PlaybackOptions>;
     }
-    export class MusicFactory extends AbstractResourceFactory<ArrayBuffer, Music, IMusicFactoryOptions> {
+    export class MusicFactory extends AbstractResourceFactory<ArrayBuffer, Music, MusicFactoryOptions> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<ArrayBuffer>;
-        create(source: ArrayBuffer, options?: IMusicFactoryOptions): Promise<Music>;
+        create(source: ArrayBuffer, options?: MusicFactoryOptions): Promise<Music>;
     }
 }
 declare module "resources/factories/SoundFactory" {
-    import { StorageNames } from "types/types";
-    import type { PlaybackOptions } from "types/types";
+    import { StorageNames } from "core/types";
+    import type { PlaybackOptions } from "core/types";
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
     import { Sound } from "audio/Sound";
-    interface ISoundFactoryOptions {
+    interface SoundFactoryOptions {
         playbackOptions?: Partial<PlaybackOptions>;
     }
-    export class SoundFactory extends AbstractResourceFactory<ArrayBuffer, Sound, ISoundFactoryOptions> {
+    export class SoundFactory extends AbstractResourceFactory<ArrayBuffer, Sound, SoundFactoryOptions> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<ArrayBuffer>;
-        create(source: ArrayBuffer, options?: ISoundFactoryOptions): Promise<Sound>;
+        create(source: ArrayBuffer, options?: SoundFactoryOptions): Promise<Sound>;
     }
 }
 declare module "resources/factories/TextFactory" {
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
+    import { StorageNames } from "core/types";
     export class TextFactory extends AbstractResourceFactory<string, string> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<string>;
@@ -2181,50 +1785,65 @@ declare module "resources/factories/TextureFactory" {
     import { Texture } from "rendering/texture/Texture";
     import type { SamplerOptions } from "rendering/texture/Sampler";
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
-    interface ITextureFactoryOptions {
+    import { StorageNames } from "core/types";
+    interface TextureFactoryOptions {
         mimeType?: string;
         samplerOptions?: SamplerOptions;
     }
-    export class TextureFactory extends AbstractResourceFactory<ArrayBuffer, Texture, ITextureFactoryOptions> {
+    export class TextureFactory extends AbstractResourceFactory<ArrayBuffer, Texture, TextureFactoryOptions> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<ArrayBuffer>;
-        create(source: ArrayBuffer, options?: ITextureFactoryOptions): Promise<Texture>;
+        create(source: ArrayBuffer, options?: TextureFactoryOptions): Promise<Texture>;
     }
 }
 declare module "resources/factories/VideoFactory" {
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import type { PlaybackOptions } from "types/types";
-    import { StorageNames } from "types/types";
-    import { Video } from "rendering/Video";
-    interface IVideoFactoryOptions {
+    import type { PlaybackOptions } from "core/types";
+    import { StorageNames } from "core/types";
+    import { Video } from "rendering/video/Video";
+    interface VideoFactoryOptions {
         mimeType?: string;
         loadEvent?: string;
         playbackOptions?: Partial<PlaybackOptions>;
         samplerOptions?: Partial<SamplerOptions>;
     }
-    export class VideoFactory extends AbstractResourceFactory<ArrayBuffer, Video, IVideoFactoryOptions> {
+    export class VideoFactory extends AbstractResourceFactory<ArrayBuffer, Video, VideoFactoryOptions> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<ArrayBuffer>;
-        create(source: ArrayBuffer, options?: IVideoFactoryOptions): Promise<Video>;
+        create(source: ArrayBuffer, options?: VideoFactoryOptions): Promise<Video>;
     }
 }
 declare module "resources/factories/SvgFactory" {
     import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "types/types";
+    import { StorageNames } from "core/types";
     export class SvgFactory extends AbstractResourceFactory<string, HTMLImageElement> {
         readonly storageName: StorageNames;
         process(response: Response): Promise<string>;
         create(source: string): Promise<HTMLImageElement>;
     }
 }
+declare module "resources/Database" {
+    export interface Database {
+        readonly name: string;
+        readonly version: number;
+        readonly connected: boolean;
+        connect(): Promise<boolean>;
+        disconnect(): Promise<boolean>;
+        load<T = unknown>(type: string, name: string): Promise<T | null>;
+        save(type: string, name: string, data: unknown): Promise<void>;
+        delete(type: string, name: string): Promise<boolean>;
+        clearStorage(type: string): Promise<boolean>;
+        deleteStorage(): Promise<boolean>;
+        destroy(): void;
+    }
+}
 declare module "resources/Loader" {
     import { Signal } from "core/Signal";
     import { ResourceContainer } from "resources/ResourceContainer";
-    import type { Database } from "types/Database";
-    import type { ResourceFactory } from "types/ResourceFactory";
-    import { ResourceTypes } from "types/types";
+    import type { Database } from "resources/Database";
+    import type { ResourceFactory } from "resources/ResourceFactory";
+    import { ResourceTypes } from "core/types";
     export interface LoaderOptions {
         resourcePath: string;
         requestOptions?: RequestInit;
@@ -2275,26 +1894,58 @@ declare module "core/Scene" {
     import type { Time } from "core/Time";
     import type { Loader } from "resources/Loader";
     import type { ResourceContainer } from "resources/ResourceContainer";
-    import type { RenderBackend } from "rendering/RenderBackend";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    import { Container } from "rendering/Container";
+    import type { SceneNode } from "core/SceneNode";
     import type { Application } from "core/Application";
     export interface SceneData {
-        load?: (loader: Loader) => Promise<void>;
-        init?: (resources: ResourceContainer) => void;
+        load?: (loader: Loader) => Promise<void> | void;
+        init?: (loader: Loader) => Promise<void> | void;
         update?: (delta: Time) => void;
-        draw?: (renderManager: RenderBackend) => void;
-        unload?: () => void;
-        destroy?: () => void;
+        draw?: (renderManager: SceneRenderRuntime) => void;
+        unload?: (loader: Loader) => Promise<void> | void;
     }
+    /**
+     * The intersection of a Scene instance with the definition object T.
+     * Returned by {@link Scene.create} so both Scene members and user-defined
+     * methods/properties are accessible with proper types.
+     */
+    export type SceneInstance<T extends SceneData = SceneData> = Scene & T;
     export class Scene {
         private _app;
-        constructor(definition: SceneData);
+        private readonly _root;
+        /**
+         * Preferred factory for the object-literal style.
+         *
+         * Inside callback methods, `this` is untyped (`any`) so user-defined fields
+         * (`this._sprite`, etc.) can be freely assigned and used without casts.
+         * Scene members (`app`, `root`, `addChild`, …) are accessible but untyped
+         * inside the callbacks; they are fully typed on the returned `SceneInstance`.
+         * - Arrow functions ignore `ThisType` — use method shorthand (`init() {}`)
+         *   rather than arrow functions (`init: () => {}`) so `this` binds correctly.
+         *
+         * `destroy` is intentionally excluded from the definition: the base `destroy`
+         * disposes the root container and clears the app reference. To run cleanup
+         * on scene teardown, override `destroy()` in a subclass instead.
+         *
+         * @example
+         * const scene = Scene.create({
+         *     init(resources) { this._sprite = new Sprite(...); },
+         *     update(delta)   { (this._sprite as Sprite).rotate(delta.seconds * 360); },
+         * });
+         */
+        static create<T extends SceneData>(definition: T & ThisType<any>): SceneInstance<T>;
+        constructor();
         get app(): Application | null;
         set app(app: Application | null);
-        load(loader: Loader): Promise<void>;
-        init(resources: ResourceContainer): void;
+        get root(): Container;
+        addChild(child: SceneNode): this;
+        removeChild(child: SceneNode): this;
+        load(loader: Loader): Promise<void> | void;
+        init(loader: Loader): Promise<void> | void;
         update(delta: Time): void;
-        draw(renderManager: RenderBackend): void;
-        unload(): void;
+        draw(renderManager: SceneRenderRuntime): void;
+        unload(loader: Loader): Promise<void> | void;
         destroy(): void;
     }
 }
@@ -2319,82 +1970,302 @@ declare module "core/SceneManager" {
         private _unloadScene;
     }
 }
-declare module "vendor/webgl-debug" {
-    export default WebGLDebugUtils;
-    namespace WebGLDebugUtils {
-        export { init };
-        export { mightBeEnum };
-        export { glEnumToString };
-        export { glFunctionArgToString };
-        export { glFunctionArgsToString };
-        export { makeDebugContext };
-        export { makeLostContextSimulatingCanvas };
-        export { resetToInitialState };
+declare module "rendering/webgl2/ShaderMappings" {
+    export const primitiveByteSizeMapping: Record<number, number>;
+    export const primitiveArrayConstructors: Record<number, Float32ArrayConstructor | Int32ArrayConstructor | Uint8ArrayConstructor>;
+    export const primitiveTypeNames: Record<number, string>;
+}
+declare module "rendering/shader/ShaderAttribute" {
+    export class ShaderAttribute {
+        readonly index: number;
+        readonly name: string;
+        readonly type: number;
+        readonly size: number;
+        location: number;
+        constructor(index: number, name: string, type: number);
+        destroy(): void;
+    }
+}
+declare module "rendering/webgl2/RenderBuffer" {
+    import type { BufferTypes, BufferUsage } from "rendering/types";
+    import type { TypedArray } from "core/types";
+    type DataContainer = ArrayBuffer | SharedArrayBuffer | ArrayBufferView | TypedArray;
+    export interface RenderBufferRuntime {
+        bind(buffer: RenderBuffer): void;
+        upload(buffer: RenderBuffer, offset: number): void;
+        destroy(buffer: RenderBuffer): void;
+    }
+    export class RenderBuffer {
+        private readonly _type;
+        private readonly _usage;
+        private _runtime;
+        private _data;
+        private _version;
+        constructor(type: BufferTypes, data: DataContainer, usage: BufferUsage);
+        get type(): number;
+        get usage(): BufferUsage;
+        get data(): DataContainer;
+        get version(): number;
+        connect(runtime: RenderBufferRuntime): this;
+        disconnect(): this;
+        upload(data: DataContainer, offset?: number): void;
+        bind(): void;
+        destroy(): void;
+    }
+}
+declare module "rendering/webgl2/VertexArrayObject" {
+    import { RenderingPrimitives } from "rendering/types";
+    import type { ShaderAttribute } from "rendering/shader/ShaderAttribute";
+    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
+    interface VaoAttribute {
+        readonly buffer: RenderBuffer;
+        readonly location: number;
+        readonly size: number;
+        readonly type: number;
+        readonly normalized: boolean;
+        readonly stride: number;
+        readonly start: number;
+    }
+    export interface VertexArrayObjectRuntime {
+        bind(vao: VertexArrayObject): void;
+        unbind(vao: VertexArrayObject): void;
+        draw(vao: VertexArrayObject, size: number, start: number, type: RenderingPrimitives): void;
+        destroy(vao: VertexArrayObject): void;
+    }
+    export class VertexArrayObject {
+        private readonly _attributes;
+        private _indexBuffer;
+        private _drawMode;
+        private _runtime;
+        private _version;
+        constructor(drawMode?: RenderingPrimitives);
+        get attributes(): Array<VaoAttribute>;
+        get indexBuffer(): RenderBuffer | null;
+        get drawMode(): RenderingPrimitives;
+        get version(): number;
+        connect(runtime: VertexArrayObjectRuntime): this;
+        disconnect(): this;
+        bind(): this;
+        unbind(): this;
+        addAttribute(buffer: RenderBuffer, attribute: ShaderAttribute, type?: number, normalized?: boolean, stride?: number, start?: number): this;
+        addIndex(buffer: RenderBuffer): this;
+        clear(): this;
+        draw(size: number, start: number, type?: RenderingPrimitives): this;
+        destroy(): void;
+    }
+}
+declare module "rendering/Renderer" {
+    import type { RenderBackendType } from "rendering/RenderBackendType";
+    import type { Drawable } from "rendering/Drawable";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    export interface Renderer<Runtime extends SceneRenderRuntime = SceneRenderRuntime, Target extends Drawable = Drawable> {
+        readonly backendType: RenderBackendType;
+        connect(runtime: Runtime): void;
+        disconnect(): void;
+        render(drawable: Target): void;
+        flush(): void;
     }
     /**
-     * Initializes this module. Safe to call more than once.
-     * @param {!WebGLRenderingContext} ctx A WebGL context. If
-     *    you have more than one context it doesn't matter which one
-     *    you pass in, it is only used to pull out constants.
+     * Constructor type used as a registry key for drawable-to-renderer mapping.
+     * Supports both concrete and abstract drawable classes.
      */
-    function init(ctx: WebGLRenderingContext): void;
+    export type DrawableConstructor<Target extends Drawable = Drawable> = abstract new (...args: Array<never>) => Target;
+}
+declare module "rendering/shader/ShaderUniform" {
+    import type { TypedArray } from "core/types";
+    export class ShaderUniform {
+        readonly index: number;
+        readonly type: number;
+        readonly size: number;
+        readonly name: string;
+        private readonly _value;
+        private _dirty;
+        constructor(index: number, type: number, size: number, name: string, data: TypedArray);
+        get propName(): string;
+        get value(): TypedArray;
+        get dirty(): boolean;
+        setValue(value: TypedArray): this;
+        markClean(): void;
+        destroy(): void;
+    }
+}
+declare module "rendering/shader/Shader" {
+    import type { ShaderAttribute } from "rendering/shader/ShaderAttribute";
+    import type { ShaderUniform } from "rendering/shader/ShaderUniform";
+    export interface ShaderRuntime {
+        initialize(shader: Shader): void;
+        bind(shader: Shader): void;
+        unbind(shader: Shader): void;
+        sync(shader: Shader): void;
+        destroy(shader: Shader): void;
+    }
+    export class Shader {
+        readonly attributes: Map<string, ShaderAttribute>;
+        readonly uniforms: Map<string, ShaderUniform>;
+        private readonly _vertexSource;
+        private readonly _fragmentSource;
+        private _runtime;
+        constructor(vertexSource: string, fragmentSource: string);
+        get vertexSource(): string;
+        get fragmentSource(): string;
+        connect(runtime: ShaderRuntime): this;
+        disconnect(): this;
+        bind(): this;
+        unbind(): this;
+        sync(): this;
+        getAttribute(name: string): ShaderAttribute;
+        getUniform(name: string): ShaderUniform;
+        destroy(): void;
+    }
+}
+declare module "rendering/webgl2/WebGl2RendererRuntime" {
+    import type { BlendModes } from "rendering/types";
+    import type { RenderBackendType } from "rendering/RenderBackendType";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    import type { Shader } from "rendering/shader/Shader";
+    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { Texture } from "rendering/texture/Texture";
+    import type { RenderTexture } from "rendering/texture/RenderTexture";
+    export interface WebGl2RendererRuntime extends SceneRenderRuntime {
+        readonly backendType: RenderBackendType.WebGl2;
+        readonly context: WebGL2RenderingContext;
+        bindShader(shader: Shader | null): this;
+        bindVertexArrayObject(vao: VertexArrayObject | null): this;
+        bindTexture(texture: Texture | RenderTexture | null, unit?: number): this;
+        setBlendMode(blendMode: BlendModes | null): this;
+    }
+}
+declare module "rendering/webgl2/AbstractWebGl2Renderer" {
+    import { RenderBackendType } from "rendering/RenderBackendType";
+    import type { Drawable } from "rendering/Drawable";
+    import type { Renderer } from "rendering/Renderer";
+    import type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
     /**
-     * Returns true or false if value matches any WebGL enum
-     * @param {*} value Value to check if it might be an enum.
-     * @return {boolean} True if value matches one of the WebGL defined enums
-     */
-    function mightBeEnum(value: any): boolean;
-    /**
-     * Gets an string version of an WebGL enum.
+     * Base class for WebGL2 renderers.
      *
-     * Example:
-     *   var str = WebGLDebugUtil.glEnumToString(ctx.getError());
+     * Manages the connect/disconnect lifecycle and provides a safe
+     * `getRuntime()` accessor that throws if the renderer is not connected.
      *
-     * @param {number} value Value to return an enum for
-     * @return {string} The string version of the enum.
+     * Subclasses must implement:
+     * - onConnect(runtime): set up GL resources
+     * - onDisconnect(): tear down GL resources
+     * - render(drawable): batch or immediately draw the given drawable
+     * - flush(): submit any batched draw calls to the GPU
      */
-    function glEnumToString(value: number): string;
-    /**
-     * Returns the string version of a WebGL argument.
-     * Attempts to convert enum arguments to strings.
-     * @param {string} functionName the name of the WebGL function.
-     * @param {number} numArgs the number of arguments passed to the function.
-     * @param {number} argumentIndx the index of the argument.
-     * @param {*} value The value of the argument.
-     * @return {string} The value as a string.
-     */
-    function glFunctionArgToString(functionName: string, numArgs: number, argumentIndex: any, value: any): string;
-    /**
-     * Converts the arguments of a WebGL function to a string.
-     * Attempts to convert enum arguments to strings.
-     *
-     * @param {string} functionName the name of the WebGL function.
-     * @param {Array<*>} args The arguments.
-     * @return {string} The arguments as a string.
-     */
-    function glFunctionArgsToString(functionName: string, args: Array<any>): string;
-    /**
-     * Given a WebGL context returns a wrapped context that calls
-     * gl.getError after every command and calls a function if the
-     * result is not gl.NO_ERROR.
-     *
-     * @param {!WebGLRenderingContext} ctx The webgl context to
-     *        wrap.
-     * @param {!function(err, funcName, args): void} opt_onErrorFunc
-     *        The function to call when gl.getError returns an
-     *        error. If not specified the default function calls
-     *        console.log with a message.
-     * @param {!function(funcName, args): void} opt_onFunc The
-     *        function to call when each webgl function is called.
-     *        You can use this to log all calls for example.
-     * @param {!WebGLRenderingContext} opt_err_ctx The webgl context
-     *        to call getError on if different than ctx.
-     */
-    function makeDebugContext(ctx: WebGLRenderingContext, opt_onErrorFunc: (arg0: err, arg1: funcName, arg2: args) => void, opt_onFunc: (arg0: funcName, arg1: args) => void, opt_err_ctx: WebGLRenderingContext): {
-        getError(): string | 0;
-    };
-    function makeLostContextSimulatingCanvas(canvas: any): any;
-    function resetToInitialState(ctx: any): void;
+    export abstract class AbstractWebGl2Renderer<Target extends Drawable> implements Renderer<WebGl2RendererRuntime, Target> {
+        readonly backendType = RenderBackendType.WebGl2;
+        private _runtime;
+        connect(runtime: WebGl2RendererRuntime): void;
+        disconnect(): void;
+        abstract render(drawable: Target): void;
+        abstract flush(): void;
+        /**
+         * Called once when the renderer is first connected to a runtime.
+         * Subclasses create GL resources here.
+         */
+        protected abstract onConnect(runtime: WebGl2RendererRuntime): void;
+        /**
+         * Called when the renderer is disconnected from its runtime.
+         * Subclasses tear down GL resources here.
+         */
+        protected abstract onDisconnect(): void;
+        /**
+         * Safe accessor for the connected runtime.
+         * @throws Error if the renderer is not connected.
+         */
+        protected getRuntime(): WebGl2RendererRuntime;
+        /**
+         * Returns the connected runtime, or null if not connected.
+         * Use this for conditional checks where disconnected state is expected.
+         */
+        protected getRuntimeOrNull(): WebGl2RendererRuntime | null;
+    }
+}
+declare module "rendering/webgl2/ShaderBlock" {
+    import { ShaderUniform } from "rendering/shader/ShaderUniform";
+    export class ShaderBlock {
+        readonly index: number;
+        readonly name: string;
+        readonly binding: number;
+        readonly dataSize: number;
+        private readonly _context;
+        private readonly _program;
+        private readonly _blockData;
+        private readonly _uniformBuffer;
+        private readonly _uniforms;
+        constructor(gl: WebGL2RenderingContext, program: WebGLProgram, index: number);
+        getUniform(name: string): ShaderUniform;
+        upload(): void;
+        destroy(): void;
+        private _extractUniforms;
+    }
+}
+declare module "rendering/webgl2/WebGl2ShaderRuntime" {
+    import type { ShaderRuntime } from "rendering/shader/Shader";
+    export function createWebGlShaderRuntime(gl: WebGL2RenderingContext): ShaderRuntime;
+}
+declare module "rendering/webgl2/AbstractWebGl2BatchedRenderer" {
+    import { AbstractWebGl2Renderer } from "rendering/webgl2/AbstractWebGl2Renderer";
+    import { Shader } from "rendering/shader/Shader";
+    import type { VertexArrayObject, VertexArrayObjectRuntime } from "rendering/webgl2/VertexArrayObject";
+    import { RenderBuffer, type RenderBufferRuntime } from "rendering/webgl2/RenderBuffer";
+    import type { Texture } from "rendering/texture/Texture";
+    import type { BlendModes } from "rendering/types";
+    import type { View } from "rendering/View";
+    import type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
+    import type { RenderTexture } from "rendering/texture/RenderTexture";
+    import type { Drawable } from "rendering/Drawable";
+    interface ManagedBufferState {
+        readonly handle: WebGLBuffer;
+        dataByteLength: number;
+    }
+    interface RendererConnection {
+        readonly gl: WebGL2RenderingContext;
+        readonly buffers: Map<RenderBuffer, ManagedBufferState>;
+        readonly vaoHandle: WebGLVertexArrayObject;
+    }
+    export abstract class AbstractWebGl2BatchedRenderer extends AbstractWebGl2Renderer<Drawable> {
+        protected readonly attributeCount: number;
+        protected readonly batchSize: number;
+        protected readonly indexData: Uint16Array;
+        protected readonly vertexData: ArrayBuffer;
+        protected readonly float32View: Float32Array;
+        protected readonly uint32View: Uint32Array;
+        protected readonly shader: Shader;
+        protected batchIndex: number;
+        protected currentTexture: Texture | RenderTexture | null;
+        protected currentBlendMode: BlendModes | null;
+        protected currentView: View | null;
+        protected currentViewId: number;
+        protected vao: VertexArrayObject | null;
+        protected indexBuffer: RenderBuffer | null;
+        protected vertexBuffer: RenderBuffer | null;
+        protected connection: RendererConnection | null;
+        protected constructor(batchSize: number, attributeCount: number, vertexSource: string, fragmentSource: string);
+        flush(): void;
+        destroy(): void;
+        protected onConnect(runtime: WebGl2RendererRuntime): void;
+        protected onDisconnect(): void;
+        abstract render(drawable: Drawable): void;
+        protected abstract createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
+        protected abstract updateView(view: View): void;
+        protected createConnection(gl: WebGL2RenderingContext): RendererConnection;
+        protected createBufferRuntime(connection: RendererConnection): RenderBufferRuntime;
+        protected createVaoRuntime(connection: RendererConnection): VertexArrayObjectRuntime;
+    }
+}
+declare module "rendering/webgl2/WebGl2SpriteRenderer" {
+    import { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
+    import type { Sprite } from "rendering/sprite/Sprite";
+    import { AbstractWebGl2BatchedRenderer } from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
+    import type { View } from "rendering/View";
+    export class WebGl2SpriteRenderer extends AbstractWebGl2BatchedRenderer {
+        constructor(batchSize: number);
+        render(sprite: Sprite): this;
+        protected createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
+        protected updateView(view: View): this;
+    }
 }
 declare module "particles/ParticleProperties" {
     import type { Time } from "core/Time";
@@ -2511,12 +2382,11 @@ declare module "particles/ParticleSystem" {
     import { Particle } from "particles/Particle";
     import { Rectangle } from "math/Rectangle";
     import type { Time } from "core/Time";
-    import { Container } from "rendering/Container";
+    import { Drawable } from "rendering/Drawable";
     import type { Texture } from "rendering/texture/Texture";
     import type { ParticleEmitter } from "particles/emitters/ParticleEmitter";
     import type { ParticleAffector } from "particles/affectors/ParticleAffector";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export class ParticleSystem extends Container {
+    export class ParticleSystem extends Drawable {
         private _emitters;
         private _affectors;
         private _particles;
@@ -2550,43 +2420,54 @@ declare module "particles/ParticleSystem" {
         updateParticle(particle: Particle, delta: Time): this;
         clearParticles(): this;
         update(delta: Time): this;
-        render(renderManager: RenderBackend): this;
         destroy(): void;
     }
 }
-declare module "particles/ParticleRenderer" {
-    import type { RenderBuffer } from "rendering/RenderBuffer";
-    import { VertexArrayObject } from "rendering/VertexArrayObject";
+declare module "rendering/webgl2/WebGl2ParticleRenderer" {
+    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
+    import { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
     import type { ParticleSystem } from "particles/ParticleSystem";
-    import { AbstractRenderer } from "rendering/AbstractRenderer";
+    import { AbstractWebGl2BatchedRenderer } from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
     import type { View } from "rendering/View";
-    export class ParticleRenderer extends AbstractRenderer {
+    export class WebGl2ParticleRenderer extends AbstractWebGl2BatchedRenderer {
         constructor(batchSize: number);
         render(system: ParticleSystem): this;
         protected createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
         protected updateView(view: View): this;
     }
 }
+declare module "rendering/primitives/Geometry" {
+    interface GeometryOptions {
+        vertices?: Array<number>;
+        indices?: Array<number>;
+        points?: Array<number>;
+    }
+    export class Geometry {
+        readonly vertices: Float32Array;
+        readonly indices: Uint16Array;
+        readonly points: Array<number>;
+        constructor({ vertices, indices, points, }?: GeometryOptions);
+        destroy(): void;
+    }
+}
 declare module "rendering/primitives/DrawableShape" {
-    import { RenderingPrimitives } from "types/rendering";
+    import { RenderingPrimitives } from "rendering/types";
     import type { Geometry } from "rendering/primitives/Geometry";
     import type { Color } from "core/Color";
-    import { Container } from "rendering/Container";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    export class DrawableShape extends Container {
+    import { Drawable } from "rendering/Drawable";
+    export class DrawableShape extends Drawable {
         readonly geometry: Geometry;
         readonly drawMode: RenderingPrimitives;
         readonly color: Color;
         constructor(geometry: Geometry, color: Color, drawMode?: RenderingPrimitives);
-        render(renderManager: RenderBackend): this;
         destroy(): void;
     }
 }
-declare module "rendering/primitives/PrimitiveRenderer" {
-    import type { Renderer } from "rendering/Renderer";
-    import type { WebGl2RenderBackend } from "rendering/WebGl2RenderBackend";
-    import type { Drawable } from "rendering/Drawable";
-    export class PrimitiveRenderer implements Renderer {
+declare module "rendering/webgl2/WebGl2PrimitiveRenderer" {
+    import { AbstractWebGl2Renderer } from "rendering/webgl2/AbstractWebGl2Renderer";
+    import type { DrawableShape } from "rendering/primitives/DrawableShape";
+    import type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
+    export class WebGl2PrimitiveRenderer extends AbstractWebGl2Renderer<DrawableShape> {
         private _vertexCapacity;
         private _indexCapacity;
         private _vertexData;
@@ -2599,55 +2480,84 @@ declare module "rendering/primitives/PrimitiveRenderer" {
         private _currentView;
         private _viewId;
         constructor(batchSize: number);
-        connect(renderManager: WebGl2RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        render(drawable: Drawable): this;
-        flush(): this;
+        render(shape: DrawableShape): void;
+        flush(): void;
         destroy(): void;
+        protected onConnect(runtime: WebGl2RendererRuntime): void;
+        protected onDisconnect(): void;
         private _ensureVertexCapacity;
         private _ensureIndexCapacity;
         private _createBufferRuntime;
         private _createVaoRuntime;
     }
 }
-declare module "rendering/RenderRuntime" {
-    import type { Color } from "core/Color";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    import type { RenderTarget } from "rendering/RenderTarget";
-    import type { View } from "rendering/View";
-    export interface RenderRuntime extends RenderBackend {
-        readonly renderTarget: RenderTarget;
-        initialize(): Promise<this>;
-        clear(color?: Color): this;
-        resize(width: number, height: number): this;
-        setView(view: View | null): this;
-        setRenderTarget(target: RenderTarget | null): this;
-        display(): this;
+declare module "rendering/RendererRegistry" {
+    import type { Drawable } from "rendering/Drawable";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    import type { Renderer, DrawableConstructor } from "rendering/Renderer";
+    /**
+     * Instance-based renderer registry.
+     *
+     * Maps drawable constructors to renderer instances. Each drawable type
+     * has exactly one renderer. The registry manages connect/disconnect
+     * lifecycle for all registered renderers.
+     *
+     * Resolution walks the prototype chain so sprite-backed subclasses such
+     * as Text and Video can intentionally reuse the Sprite renderer.
+     *
+     * Used internally by backend managers. Exposed publicly for advanced
+     * custom renderer registration.
+     */
+    export class RendererRegistry<Runtime extends SceneRenderRuntime> {
+        private readonly _renderers;
+        private _runtime;
+        /**
+         * Register a renderer for a specific drawable type.
+         *
+         * If the registry is already connected to a runtime, the renderer
+         * is connected immediately. Registration must happen before the
+         * first draw call for the given drawable type.
+         *
+         * @throws Error if a renderer is already registered for this drawable type.
+         */
+        registerRenderer<Target extends Drawable>(drawableType: DrawableConstructor<Target>, renderer: Renderer<Runtime, Target>): void;
+        resolve(drawable: Drawable): Renderer<Runtime, Drawable>;
+        /**
+         * Connect all registered renderers to the given runtime.
+         */
+        connect(runtime: Runtime): void;
+        /**
+         * Disconnect all registered renderers from the current runtime.
+         */
+        disconnect(): void;
+        /**
+         * Disconnect all registered renderers and clear the registry.
+         */
         destroy(): void;
     }
 }
-declare module "rendering/RenderManager" {
-    import { BlendModes } from "types/rendering";
+declare module "rendering/webgl2/WebGl2RenderManager" {
+    import { BlendModes } from "rendering/types";
     import { RenderTarget } from "rendering/RenderTarget";
     import { Color } from "core/Color";
     import { Texture } from "rendering/texture/Texture";
     import { RenderTexture } from "rendering/texture/RenderTexture";
-    import type { Renderer } from "rendering/Renderer";
-    import { RendererType } from "rendering/Renderer";
-    import type { WebGl2RenderBackend } from "rendering/WebGl2RenderBackend";
+    import { RenderBackendType } from "rendering/RenderBackendType";
+    import { RendererRegistry } from "rendering/RendererRegistry";
+    import type { RenderPass } from "rendering/RenderPass";
+    import type { Drawable } from "rendering/Drawable";
+    import type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
     import type { Shader } from "rendering/shader/Shader";
-    import type { VertexArrayObject } from "rendering/VertexArrayObject";
+    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
     import type { View } from "rendering/View";
     import type { Application } from "core/Application";
-    import type { RenderRuntime } from "rendering/RenderRuntime";
-    export class RenderManager implements WebGl2RenderBackend, RenderRuntime {
+    export class WebGl2RenderManager implements WebGl2RendererRuntime {
+        readonly backendType = RenderBackendType.WebGl2;
+        readonly rendererRegistry: RendererRegistry<WebGl2RendererRuntime>;
         private readonly _context;
         private readonly _rootRenderTarget;
         private readonly _onContextLostHandler;
         private readonly _onContextRestoredHandler;
-        private readonly _renderers;
         private readonly _textureStates;
         private readonly _renderTargetStates;
         private readonly _textureDestroyHandlers;
@@ -2668,37 +2578,23 @@ declare module "rendering/RenderManager" {
         get context(): WebGL2RenderingContext;
         get renderTarget(): RenderTarget;
         get view(): View;
-        get texture(): Texture | RenderTexture | null;
-        get vao(): VertexArrayObject | null;
-        set vao(vao: VertexArrayObject | null);
-        get renderer(): Renderer | null;
-        set renderer(renderer: Renderer | null);
-        get shader(): Shader | null;
-        set shader(shader: Shader | null);
-        get blendMode(): BlendModes | null;
-        set blendMode(blendMode: BlendModes | null);
-        get textureUnit(): number;
-        set textureUnit(textureUnit: number);
         get clearColor(): Color;
-        set clearColor(color: Color);
         get cursor(): string;
-        set cursor(cursor: string);
         initialize(): Promise<this>;
+        draw(drawable: Drawable): this;
+        execute(pass: RenderPass): this;
         setRenderTarget(target: RenderTarget | null): this;
         setView(view: View | null): this;
-        setVao(vao: VertexArrayObject | null): this;
-        setRenderer(renderer: Renderer | null): this;
-        setShader(shader: Shader | null): this;
-        setTexture(texture: Texture | RenderTexture | null, unit?: number): this;
+        bindVertexArrayObject(vao: VertexArrayObject | null): this;
+        bindShader(shader: Shader | null): this;
+        bindTexture(texture: Texture | RenderTexture | null, unit?: number): this;
         setBlendMode(blendMode: BlendModes | null): this;
-        setTextureUnit(unit: number): this;
+        private _setTextureUnit;
         setClearColor(color: Color): this;
         setCursor(cursor: string | Texture | HTMLImageElement | HTMLCanvasElement): this;
-        addRenderer(name: RendererType, renderer: Renderer): this;
-        getRenderer(name: RendererType): Renderer;
         clear(color?: Color): this;
         resize(width: number, height: number): this;
-        display(): this;
+        flush(): this;
         destroy(): void;
         private _createContext;
         private _restoreContext;
@@ -2717,22 +2613,65 @@ declare module "rendering/RenderManager" {
         private _evictRenderTarget;
         private _evictTexture;
         private _bindRenderTarget;
+        private _setActiveRenderer;
+        private _flushActiveRenderer;
         private _prepareRenderTarget;
         private _syncTexture;
     }
 }
-declare module "rendering/WebGpuRenderAccess" {
-    export interface WebGpuRenderAccess {
+declare module "rendering/webgpu/WebGpuRendererRuntime" {
+    import type { RenderBackendType } from "rendering/RenderBackendType";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
+    export interface WebGpuRendererRuntime extends SceneRenderRuntime {
+        readonly backendType: RenderBackendType.WebGpu;
         readonly device: GPUDevice;
         readonly context: GPUCanvasContext;
         readonly format: GPUTextureFormat;
     }
 }
-declare module "rendering/webgpu/WebGpuPrimitiveRenderer" {
+declare module "rendering/webgpu/AbstractWebGpuRenderer" {
+    import { RenderBackendType } from "rendering/RenderBackendType";
     import type { Drawable } from "rendering/Drawable";
-    import type { RenderBackend } from "rendering/RenderBackend";
     import type { Renderer } from "rendering/Renderer";
-    export class WebGpuPrimitiveRenderer implements Renderer {
+    import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
+    /**
+     * Base class for WebGPU renderers.
+     *
+     * Manages the connect/disconnect lifecycle and provides a safe
+     * `getRuntime()` accessor that throws if the renderer is not connected.
+     *
+     * Subclasses must implement:
+     * - onConnect(runtime): set up GPU resources (shader modules, pipelines, buffers)
+     * - onDisconnect(): tear down GPU resources
+     * - render(drawable): collect draw call data for the given drawable
+     * - flush(): encode and submit command buffers for all collected draw calls
+     */
+    export abstract class AbstractWebGpuRenderer<Target extends Drawable> implements Renderer<WebGpuRendererRuntime, Target> {
+        readonly backendType = RenderBackendType.WebGpu;
+        private _runtime;
+        connect(runtime: WebGpuRendererRuntime): void;
+        disconnect(): void;
+        abstract render(drawable: Target): void;
+        abstract flush(): void;
+        protected abstract onConnect(runtime: WebGpuRendererRuntime): void;
+        protected abstract onDisconnect(): void;
+        protected getRuntime(): WebGpuRendererRuntime;
+        protected getRuntimeOrNull(): WebGpuRendererRuntime | null;
+    }
+}
+declare module "rendering/webgpu/webgpuBlendState" {
+    import { BlendModes } from "rendering/types";
+    /**
+     * Returns the GPUBlendState for a given ExoJS blend mode.
+     * Shared by all WebGPU renderers to avoid duplication.
+     */
+    export function getWebGpuBlendState(blendMode: BlendModes): GPUBlendState;
+}
+declare module "rendering/webgpu/WebGpuPrimitiveRenderer" {
+    import { AbstractWebGpuRenderer } from "rendering/webgpu/AbstractWebGpuRenderer";
+    import type { DrawableShape } from "rendering/primitives/DrawableShape";
+    import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
+    export class WebGpuPrimitiveRenderer extends AbstractWebGpuRenderer<DrawableShape> {
         private readonly _combinedTransform;
         private readonly _drawCalls;
         private readonly _pipelines;
@@ -2750,29 +2689,25 @@ declare module "rendering/webgpu/WebGpuPrimitiveRenderer" {
         private _vertexData;
         private _float32View;
         private _uint32View;
-        connect(renderManager: RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        render(drawable: Drawable): this;
-        flush(): this;
+        render(shape: DrawableShape): void;
+        flush(): void;
         destroy(): void;
+        protected onConnect(runtime: WebGpuRendererRuntime): void;
+        protected onDisconnect(): void;
         private _createTransformData;
         private _writeVertexData;
         private _ensureVertexCapacity;
         private _ensureIndexCapacity;
         private _getPipeline;
-        private _getBlendState;
         private _getTopology;
         private _destroyBuffers;
-        private _destroyPipelines;
     }
 }
 declare module "rendering/webgpu/WebGpuSpriteRenderer" {
-    import type { Drawable } from "rendering/Drawable";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    import type { Renderer } from "rendering/Renderer";
-    export class WebGpuSpriteRenderer implements Renderer {
+    import { AbstractWebGpuRenderer } from "rendering/webgpu/AbstractWebGpuRenderer";
+    import type { Sprite } from "rendering/sprite/Sprite";
+    import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
+    export class WebGpuSpriteRenderer extends AbstractWebGpuRenderer<Sprite> {
         private readonly _drawCalls;
         private readonly _projectionData;
         private _renderManager;
@@ -2790,25 +2725,22 @@ declare module "rendering/webgpu/WebGpuSpriteRenderer" {
         private _float32View;
         private _uint32View;
         private readonly _pipelines;
-        connect(renderManager: RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        render(drawable: Drawable): this;
-        flush(): this;
+        protected onConnect(runtime: WebGpuRendererRuntime): void;
+        protected onDisconnect(): void;
+        render(sprite: Sprite): void;
+        flush(): void;
         destroy(): void;
         private _ensureBatchCapacity;
         private _writeVertexData;
         private _getBatchRange;
         private _getPipeline;
-        private _getBlendState;
     }
 }
 declare module "rendering/webgpu/WebGpuParticleRenderer" {
-    import type { Drawable } from "rendering/Drawable";
-    import type { RenderBackend } from "rendering/RenderBackend";
-    import type { Renderer } from "rendering/Renderer";
-    export class WebGpuParticleRenderer implements Renderer {
+    import { AbstractWebGpuRenderer } from "rendering/webgpu/AbstractWebGpuRenderer";
+    import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
+    import type { ParticleSystem } from "particles/ParticleSystem";
+    export class WebGpuParticleRenderer extends AbstractWebGpuRenderer<ParticleSystem> {
         private readonly _drawCalls;
         private readonly _uniformData;
         private _renderManager;
@@ -2827,38 +2759,38 @@ declare module "rendering/webgpu/WebGpuParticleRenderer" {
         private _float32View;
         private _uint32View;
         private readonly _pipelines;
-        connect(renderManager: RenderBackend): this;
-        disconnect(): this;
-        bind(): this;
-        unbind(): this;
-        render(drawable: Drawable): this;
-        flush(): this;
+        render(system: ParticleSystem): void;
+        flush(): void;
         destroy(): void;
+        protected onConnect(runtime: WebGpuRendererRuntime): void;
+        protected onDisconnect(): void;
         private _ensureCapacity;
         private _writeUniformData;
         private _writeInstanceData;
         private _getPipeline;
-        private _getBlendState;
     }
 }
-declare module "rendering/WebGpuRenderManager" {
+declare module "rendering/webgpu/WebGpuRenderManager" {
     import { Color } from "core/Color";
     import type { Application } from "core/Application";
-    import { BlendModes } from "types/rendering";
-    import { RendererType, type Renderer } from "rendering/Renderer";
+    import { BlendModes } from "rendering/types";
+    import { RenderBackendType } from "rendering/RenderBackendType";
+    import { RendererRegistry } from "rendering/RendererRegistry";
+    import type { Drawable } from "rendering/Drawable";
+    import type { RenderPass } from "rendering/RenderPass";
     import type { Shader } from "rendering/shader/Shader";
     import type { Texture } from "rendering/texture/Texture";
-    import type { VertexArrayObject } from "rendering/VertexArrayObject";
+    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
     import type { View } from "rendering/View";
-    import type { RenderRuntime } from "rendering/RenderRuntime";
-    import type { WebGpuRenderAccess } from "rendering/WebGpuRenderAccess";
+    import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
     import { RenderTarget } from "rendering/RenderTarget";
     import { RenderTexture } from "rendering/texture/RenderTexture";
-    export class WebGpuRenderManager implements RenderRuntime, WebGpuRenderAccess {
+    export class WebGpuRenderManager implements WebGpuRendererRuntime {
+        readonly backendType = RenderBackendType.WebGpu;
+        readonly rendererRegistry: RendererRegistry<WebGpuRendererRuntime>;
         private readonly _canvas;
         private readonly _rootRenderTarget;
         private readonly _clearColor;
-        private readonly _renderers;
         private readonly _textureStates;
         private readonly _textureDestroyHandlers;
         private readonly _renderTargetDestroyHandlers;
@@ -2886,8 +2818,8 @@ declare module "rendering/WebGpuRenderManager" {
         get renderTargetFormat(): GPUTextureFormat;
         get clearRequested(): boolean;
         initialize(): Promise<this>;
-        getRenderer(_name: RendererType): Renderer;
-        setRenderer(renderer: Renderer | null): this;
+        draw(drawable: Drawable): this;
+        execute(pass: RenderPass): this;
         setShader(shader: Shader | null): this;
         setTexture(texture: Texture | RenderTexture | null, _unit?: number): this;
         setBlendMode(blendMode: BlendModes | null): this;
@@ -2896,9 +2828,8 @@ declare module "rendering/WebGpuRenderManager" {
         setView(view: View | null): this;
         clear(color?: Color): this;
         resize(width: number, height: number): this;
-        display(): this;
+        flush(): this;
         destroy(): void;
-        addRenderer(name: RendererType, renderer: Renderer): this;
         createColorAttachment(): GPURenderPassColorAttachment;
         submit(commandBuffer: GPUCommandBuffer): void;
         getTextureBinding(texture: Texture | RenderTexture): {
@@ -2906,6 +2837,8 @@ declare module "rendering/WebGpuRenderManager" {
             readonly sampler: GPUSampler;
         };
         shouldPremultiplyTextureSample(texture: Texture | RenderTexture): boolean;
+        private _setActiveRenderer;
+        private _flushActiveRenderer;
         private _initialize;
         private _getGpuNavigator;
         private _destroyManagedTextures;
@@ -2922,6 +2855,119 @@ declare module "rendering/WebGpuRenderManager" {
         private _getMipLevelCount;
         private _generateMipmaps;
         private _getMipmapResources;
+    }
+}
+declare module "input/types" {
+    export enum ChannelSize {
+        Container = 768,
+        Category = 256,
+        Gamepad = 64
+    }
+    export const enum ChannelOffset {
+        Keyboard = 0,
+        Pointers = 256,
+        Gamepads = 512
+    }
+    export enum Keyboard {
+        Backspace = 8,
+        Tab = 9,
+        Clear = 12,
+        Enter = 13,
+        Shift = 16,
+        Control = 17,
+        Alt = 18,
+        Pause = 19,
+        CapsLock = 20,
+        Escape = 27,
+        Space = 32,
+        PageUp = 33,
+        PageDown = 34,
+        End = 35,
+        Home = 36,
+        Left = 37,
+        Up = 38,
+        Right = 39,
+        Down = 40,
+        Insert = 45,
+        Delete = 46,
+        Help = 47,
+        Zero = 48,
+        One = 49,
+        Two = 50,
+        Three = 51,
+        Four = 52,
+        Five = 53,
+        Six = 54,
+        Seven = 55,
+        Eight = 56,
+        Nine = 57,
+        A = 65,
+        B = 66,
+        C = 67,
+        D = 68,
+        E = 69,
+        F = 70,
+        G = 71,
+        H = 72,
+        I = 73,
+        J = 74,
+        K = 75,
+        L = 76,
+        M = 77,
+        N = 78,
+        O = 79,
+        P = 80,
+        Q = 81,
+        R = 82,
+        S = 83,
+        T = 84,
+        U = 85,
+        V = 86,
+        W = 87,
+        X = 88,
+        Y = 89,
+        Z = 90,
+        NumPad0 = 96,
+        NumPad1 = 97,
+        NumPad2 = 98,
+        NumPad3 = 99,
+        NumPad4 = 100,
+        NumPad5 = 101,
+        NumPad6 = 102,
+        NumPad7 = 103,
+        NumPad8 = 104,
+        NumPad9 = 105,
+        NumPadMultiply = 106,
+        NumPadAdd = 107,
+        NumPadEnter = 108,
+        NumPadSubtract = 109,
+        NumPadDecimal = 110,
+        NumPadDivide = 111,
+        F1 = 112,
+        F2 = 113,
+        F3 = 114,
+        F4 = 115,
+        F5 = 116,
+        F6 = 117,
+        F7 = 118,
+        F8 = 119,
+        F9 = 120,
+        F10 = 121,
+        F11 = 122,
+        F12 = 123,
+        NumLock = 144,
+        ScrollLock = 145,
+        Colon = 186,
+        Equals = 187,
+        Comma = 188,
+        Dash = 189,
+        Period = 190,
+        QuestionMark = 191,
+        Tilde = 192,
+        OpenBracket = 219,
+        BackwardSlash = 220,
+        ClosedBracket = 221,
+        Quotes = 222
     }
 }
 declare module "input/GamepadChannels" {
@@ -3155,22 +3201,22 @@ declare module "input/Pointer" {
     import { Size } from "math/Size";
     import { Flags } from "math/Flags";
     export enum PointerStateFlag {
-        none = 0,
-        over = 1,
-        leave = 2,
-        down = 4,
-        move = 8,
-        up = 16,
-        cancel = 32
+        None = 0,
+        Over = 1,
+        Leave = 2,
+        Down = 4,
+        Move = 8,
+        Up = 16,
+        Cancel = 32
     }
     export enum PointerState {
-        unknown = 0,
-        insideCanvas = 1,
-        outsideCanvas = 2,
-        pressed = 3,
-        moving = 4,
-        released = 5,
-        cancelled = 6
+        Unknown = 0,
+        InsideCanvas = 1,
+        OutsideCanvas = 2,
+        Pressed = 3,
+        Moving = 4,
+        Released = 5,
+        Cancelled = 6
     }
     export class Pointer {
         readonly id: number;
@@ -3220,7 +3266,7 @@ declare module "core/Timer" {
 }
 declare module "input/Input" {
     import { Signal } from "core/Signal";
-    import type { Keyboard } from "types/input";
+    import type { Keyboard } from "input/types";
     import type { GamepadChannel } from "input/GamepadChannels";
     interface InputOptions {
         onStart?: () => void;
@@ -3333,8 +3379,8 @@ declare module "core/Application" {
     import { Color } from "core/Color";
     import type { Time } from "core/Time";
     import type { Scene } from "core/Scene";
-    import type { Database } from "types/Database";
-    import type { RenderRuntime } from "rendering/RenderRuntime";
+    import type { Database } from "resources/Database";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     import type { GamepadDefinition } from "input/GamepadDefinitions";
     export enum ApplicationStatus {
         Loading = 1,
@@ -3391,7 +3437,7 @@ declare module "core/Application" {
         get activeTime(): Time;
         get frameTime(): Time;
         get frameCount(): number;
-        get renderManager(): RenderRuntime;
+        get renderManager(): SceneRenderRuntime;
         start(scene: Scene): Promise<this>;
         update(): this;
         stop(): this;
@@ -3406,7 +3452,7 @@ declare module "core/Application" {
 declare module "core/Quadtree" {
     import { Rectangle } from "math/Rectangle";
     import type { SceneNode } from "core/SceneNode";
-    import type { Destroyable, HasBoundingBox } from "types/types";
+    import type { Destroyable, HasBoundingBox } from "core/types";
     export class Quadtree implements HasBoundingBox, Destroyable {
         static maxSceneNodes: number;
         static maxLevel: number;
@@ -3426,6 +3472,8 @@ declare module "core/Quadtree" {
     }
 }
 declare module "core/index" {
+    export * from "core/types";
+    export * from "core/utils";
     export * from "core/Application";
     export * from "core/Bounds";
     export * from "core/Clock";
@@ -3439,7 +3487,7 @@ declare module "core/index" {
     export * from "core/Timer";
 }
 declare module "audio/AudioAnalyser" {
-    import type { Media } from "types/Media";
+    import type { Media } from "audio/Media";
     export interface AudioAnalyserOptions {
         fftSize: number;
         minDecibels: number;
@@ -3471,6 +3519,9 @@ declare module "audio/AudioAnalyser" {
     }
 }
 declare module "audio/index" {
+    export * from "audio/AbstractMedia";
+    export * from "audio/Media";
+    export * from "audio/audio-context";
     export * from "audio/AudioAnalyser";
     export * from "audio/Music";
     export * from "audio/Sound";
@@ -3487,6 +3538,7 @@ declare module "input/GamepadPromptLayouts" {
     }
 }
 declare module "input/index" {
+    export * from "input/types";
     export * from "input/GamepadChannels";
     export * from "input/GamepadControl";
     export * from "input/GamepadMapping";
@@ -3506,9 +3558,58 @@ declare module "input/index" {
     export * from "input/InputManager";
     export * from "input/Pointer";
 }
+declare module "math/RectangleLike" {
+    export interface RectangleLike {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+}
+declare module "math/CircleLike" {
+    export interface CircleLike {
+        x: number;
+        y: number;
+        radius: number;
+    }
+}
+declare module "math/EllipseLike" {
+    export interface EllipseLike {
+        x: number;
+        y: number;
+        rx: number;
+        ry: number;
+    }
+}
+declare module "math/LineLike" {
+    export interface LineLike {
+        fromX: number;
+        fromY: number;
+        toX: number;
+        toY: number;
+    }
+}
+declare module "math/PolygonLike" {
+    import type { PointLike } from "math/PointLike";
+    export interface PolygonLike {
+        x: number;
+        y: number;
+        points: Array<PointLike>;
+    }
+}
+declare module "math/geometry" {
+    import { Geometry } from "rendering/primitives/Geometry";
+    export const buildLine: (startX: number, startY: number, endX: number, endY: number, width: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildPath: (points: Array<number>, width: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildCircle: (centerX: number, centerY: number, radius: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildEllipse: (centerX: number, centerY: number, radiusX: number, radiusY: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildPolygon: (points: Array<number>, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildRectangle: (x: number, y: number, width: number, height: number, vertices?: Array<number>, indices?: Array<number>) => Geometry;
+    export const buildStar: (centerX: number, centerY: number, points: number, radius: number, innerRadius?: number, rotation?: number) => Geometry;
+}
 declare module "math/Segment" {
     import { Vector } from "math/Vector";
-    import type { Cloneable } from "types/types";
+    import type { Cloneable } from "core/types";
     export class Segment implements Cloneable {
         private readonly _startPoint;
         private readonly _endPoint;
@@ -3544,6 +3645,16 @@ declare module "math/PolarVector" {
     }
 }
 declare module "math/index" {
+    export * from "math/Collision";
+    export * from "math/PointLike";
+    export * from "math/RectangleLike";
+    export * from "math/CircleLike";
+    export * from "math/EllipseLike";
+    export * from "math/LineLike";
+    export * from "math/PolygonLike";
+    export * from "math/utils";
+    export * from "math/geometry";
+    export * from "math/collision-detection";
     export * from "math/Vector";
     export * from "math/Line";
     export * from "math/Rectangle";
@@ -3667,6 +3778,8 @@ declare module "rendering/primitives/Graphics" {
     import { Color } from "core/Color";
     import { Container } from "rendering/Container";
     import { Vector } from "math/Vector";
+    import type { SceneNode } from "core/SceneNode";
+    import { DrawableShape } from "rendering/primitives/DrawableShape";
     export class Graphics extends Container {
         private _lineWidth;
         private _lineColor;
@@ -3679,6 +3792,9 @@ declare module "rendering/primitives/Graphics" {
         get fillColor(): Color;
         set fillColor(fillColor: Color);
         get currentPoint(): Vector;
+        getChildAt(index: number): DrawableShape;
+        addChild(child: SceneNode): this;
+        addChildAt(child: SceneNode, index: number): this;
         moveTo(x: number, y: number): this;
         lineTo(toX: number, toY: number): this;
         quadraticCurveTo(cpX: number, cpY: number, toX: number, toY: number): this;
@@ -3696,7 +3812,7 @@ declare module "rendering/primitives/Graphics" {
         destroy(): void;
     }
 }
-declare module "rendering/Spritesheet" {
+declare module "rendering/sprite/Spritesheet" {
     import type { Texture } from "rendering/texture/Texture";
     import { Rectangle } from "math/Rectangle";
     import { Sprite } from "rendering/sprite/Sprite";
@@ -3725,7 +3841,7 @@ declare module "rendering/Spritesheet" {
         destroy(): void;
     }
 }
-declare module "rendering/TextStyle" {
+declare module "rendering/text/TextStyle" {
     export type TextStyleColor = string | CanvasGradient | CanvasPattern;
     export interface TextStyleOptions {
         align?: string;
@@ -3792,12 +3908,12 @@ declare module "rendering/TextStyle" {
         clone(): TextStyle;
     }
 }
-declare module "rendering/Text" {
+declare module "rendering/text/Text" {
     import { Sprite } from "rendering/sprite/Sprite";
-    import type { TextStyleOptions } from "rendering/TextStyle";
-    import { TextStyle } from "rendering/TextStyle";
+    import type { TextStyleOptions } from "rendering/text/TextStyle";
+    import { TextStyle } from "rendering/text/TextStyle";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import type { RenderBackend } from "rendering/RenderBackend";
+    import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     export class Text extends Sprite {
         private _text;
         private _style;
@@ -3816,7 +3932,7 @@ declare module "rendering/Text" {
         setCanvas(canvas: HTMLCanvasElement): this;
         updateTexture(): this;
         getWordWrappedText(): string;
-        render(renderManager: RenderBackend): this;
+        render(renderManager: SceneRenderRuntime): this;
         private _getContext;
     }
 }
@@ -3829,52 +3945,54 @@ declare module "rendering/index" {
     export * from "rendering/shader/ShaderAttribute";
     export * from "rendering/shader/ShaderUniform";
     export * from "rendering/sprite/Sprite";
+    export * from "rendering/sprite/Spritesheet";
+    export * from "rendering/text/Text";
+    export * from "rendering/text/TextStyle";
     export * from "rendering/texture/RenderTexture";
+    export * from "rendering/texture/Sampler";
     export * from "rendering/texture/Texture";
-    export type { SamplerOptions } from "rendering/texture/Sampler";
-    export * from "rendering/RenderBuffer";
+    export * from "rendering/video/Video";
+    export * from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
+    export * from "rendering/webgl2/AbstractWebGl2Renderer";
+    export * from "rendering/webgl2/RenderBuffer";
+    export * from "rendering/webgl2/ShaderBlock";
+    export * from "rendering/webgl2/ShaderMappings";
+    export * from "rendering/webgl2/VertexArrayObject";
+    export * from "rendering/webgl2/WebGl2ParticleRenderer";
+    export * from "rendering/webgl2/WebGl2PrimitiveRenderer";
+    export type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
+    export * from "rendering/webgl2/WebGl2RenderManager";
+    export * from "rendering/webgl2/WebGl2ShaderRuntime";
+    export * from "rendering/webgl2/WebGl2SpriteRenderer";
+    export * from "rendering/webgpu/AbstractWebGpuRenderer";
+    export * from "rendering/webgpu/webgpuBlendState";
+    export * from "rendering/webgpu/WebGpuParticleRenderer";
+    export * from "rendering/webgpu/WebGpuPrimitiveRenderer";
+    export type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
+    export * from "rendering/webgpu/WebGpuRenderManager";
+    export * from "rendering/webgpu/WebGpuSpriteRenderer";
+    export * from "rendering/types";
     export * from "rendering/Container";
     export * from "rendering/Drawable";
-    export * from "rendering/RenderBackend";
-    export * from "rendering/RenderRuntime";
-    export * from "rendering/Renderer";
+    export * from "rendering/RenderBackendType";
+    export * from "rendering/RenderPass";
     export * from "rendering/RenderTarget";
-    export * from "rendering/Spritesheet";
-    export * from "rendering/Text";
-    export * from "rendering/TextStyle";
-    export * from "rendering/VertexArrayObject";
-    export * from "rendering/Video";
+    export * from "rendering/Renderer";
+    export * from "rendering/RendererRegistry";
+    export * from "rendering/SceneRenderRuntime";
     export * from "rendering/View";
 }
-declare module "webgl2" {
-    export { AbstractRenderer } from "rendering/AbstractRenderer";
-    export type { WebGl2RenderBackend } from "rendering/WebGl2RenderBackend";
-    export { ParticleRenderer } from "particles/ParticleRenderer";
-    export { PrimitiveRenderer } from "rendering/primitives/PrimitiveRenderer";
-    export { RenderManager } from "rendering/RenderManager";
-    export { createWebGlShaderRuntime } from "rendering/shader/WebGL2ShaderRuntime";
-    export { ShaderBlock } from "rendering/shader/ShaderBlock";
-    export { SpriteRenderer } from "rendering/sprite/SpriteRenderer";
-    export { Sampler, type SamplerOptions } from "rendering/texture/Sampler";
-}
 declare module "index" {
-    export * from "utils/index";
-    export * from "types/index";
     export * from "core/index";
     export * from "audio/index";
     export * from "input/index";
     export * from "math/index";
     export * from "particles/index";
     export * from "rendering/index";
-    export * from "webgl2";
-}
-declare module "webgpu" {
-    export type { WebGpuRenderAccess } from "rendering/WebGpuRenderAccess";
-    export { WebGpuRenderManager } from "rendering/WebGpuRenderManager";
 }
 declare module "resources/IndexedDbDatabase" {
-    import type { Database } from "types/Database";
-    import { ResourceTypes } from "types/types";
+    import type { Database } from "resources/Database";
+    import { ResourceTypes } from "core/types";
     export class IndexedDbDatabase implements Database {
         readonly name: string;
         readonly version: number;
@@ -3895,6 +4013,9 @@ declare module "resources/IndexedDbDatabase" {
     }
 }
 declare module "resources/index" {
+    export * from "resources/Database";
+    export * from "resources/ResourceFactory";
+    export * from "resources/utils";
     export * from "resources/factories/AbstractResourceFactory";
     export * from "resources/factories/FontFactory";
     export * from "resources/factories/ImageFactory";
@@ -3908,43 +4029,4 @@ declare module "resources/index" {
     export * from "resources/IndexedDbDatabase";
     export * from "resources/Loader";
     export * from "resources/ResourceContainer";
-}
-declare module "types/primitives/CircleLike" {
-    export interface CircleLike {
-        x: number;
-        y: number;
-        radius: number;
-    }
-}
-declare module "types/primitives/EllipseLike" {
-    export interface EllipseLike {
-        x: number;
-        y: number;
-        rx: number;
-        ry: number;
-    }
-}
-declare module "types/primitives/LineLike" {
-    export interface LineLike {
-        fromX: number;
-        fromY: number;
-        toX: number;
-        toY: number;
-    }
-}
-declare module "types/primitives/PolygonLike" {
-    import type { PointLike } from "types/primitives/PointLike";
-    export interface PolygonLike {
-        x: number;
-        y: number;
-        points: Array<PointLike>;
-    }
-}
-declare module "types/primitives/RectangleLike" {
-    export interface RectangleLike {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
 }

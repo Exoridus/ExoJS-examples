@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Spritesheet } from 'exojs';
+import { Application, Color, Scene, Spritesheet, Texture, Json } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,17 +9,17 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { explosion: 'image/explosion.png' });
-        loader.add('json', { explosion: 'json/explosion.json' });
+    async load(loader) {
+        await loader.load(Texture, { explosion: 'image/explosion.png' });
+        await loader.load(Json, { explosion: 'json/explosion.json' });
     },
-
-    init(resources) {
-        const { width, height } = this.app.canvas,
-            texture = resources.get('texture', 'explosion'),
-            data = resources.get('json', 'explosion');
+    init(loader) {
+        const { width, height } = this.app.canvas;
+        const texture = loader.get(Texture, 'explosion');
+        /** @type {import('exojs').SpritesheetData} */
+        const data = loader.get(Json, 'explosion');
 
         this._spritesheet = new Spritesheet(texture, data);
         this._sprite = this._spritesheet.getFrameSprite('explosion-0');

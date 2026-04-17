@@ -8,7 +8,7 @@ The app is built so it can be hosted from a subfolder, and the published `dist/`
 
 ## What This Project Includes
 
-- A small example explorer UI built with Lit and MobX
+- A small example explorer UI built with Lit components and Astro
 - A live code editor and preview for each example
 - Local vendored browser assets for `exojs`, Monaco, and `stats.min.js`
 - Smoke tests that verify the built `dist/` app opens correctly and loads the preview without runtime errors
@@ -36,7 +36,7 @@ npm run build
 Preview the built `dist/` output locally:
 
 ```bash
-npm run preview:dist
+npm run preview
 ```
 
 Run the smoke tests against the built site:
@@ -66,27 +66,14 @@ https://exoridus.github.io/ExoJS-examples/#category/example-name.js
 - [Sprite](https://exoridus.github.io/ExoJS-examples/#rendering/sprite.js)
 - [Spritesheet](https://exoridus.github.io/ExoJS-examples/#rendering/spritesheet.js)
 - [Container](https://exoridus.github.io/ExoJS-examples/#rendering/container.js)
-- [Blendmodes](https://exoridus.github.io/ExoJS-examples/#rendering/blendmodes.js)
+- [Blend Modes](https://exoridus.github.io/ExoJS-examples/#rendering/blendmodes.js)
 - [Tinted Sprites](https://exoridus.github.io/ExoJS-examples/#rendering/tinted-sprites.js)
 - [View Handling](https://exoridus.github.io/ExoJS-examples/#rendering/view-handling.js)
-- [Render To Texture](https://exoridus.github.io/ExoJS-examples/#rendering/render-to-texture.js)
+- [Render to Texture](https://exoridus.github.io/ExoJS-examples/#rendering/render-to-texture.js)
 - [Display Text](https://exoridus.github.io/ExoJS-examples/#rendering/display-text.js)
 - [Display Video](https://exoridus.github.io/ExoJS-examples/#rendering/display-video.js)
 - [Display SVG](https://exoridus.github.io/ExoJS-examples/#rendering/display-svg.js)
 
-### WebGPU
-
-- [Additive Particles](https://exoridus.github.io/ExoJS-examples/#webgpu/additive-particles.js)
-- [Multi-Texture Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/multi-texture-sprite-stress.js)
-- [Particle Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-stress.js)
-- [Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-stress.js)
-- [Video Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/video-basics.js)
-- [RenderTexture Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/rendertexture-basics.js)
-- [Graphics Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/graphics-basics.js)
-- [Particle Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-basics.js)
-- [Sprite Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-basics.js)
-- [Text Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/text-basics.js)
-- [Custom Triangle Renderer](https://exoridus.github.io/ExoJS-examples/#webgpu/custom-triangle-renderer.js)
 
 ### Input
 
@@ -103,8 +90,23 @@ https://exoridus.github.io/ExoJS-examples/#category/example-name.js
 
 ### Extras
 
-- [Audio Visualisation](https://exoridus.github.io/ExoJS-examples/#extras/audio-visualisation.js)
+- [Audio Visualization](https://exoridus.github.io/ExoJS-examples/#extras/audio-visualisation.js)
 - [Benchmark](https://exoridus.github.io/ExoJS-examples/#extras/benchmark.js)
+
+
+### WebGPU
+
+- [Additive Particles](https://exoridus.github.io/ExoJS-examples/#webgpu/additive-particles.js)
+- [Multi-Texture Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/multi-texture-sprite-stress.js)
+- [Particle Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-stress.js)
+- [Sprite Stress](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-stress.js)
+- [Video Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/video-basics.js)
+- [RenderTexture Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/rendertexture-basics.js)
+- [Graphics Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/graphics-basics.js)
+- [Particle Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/particle-basics.js)
+- [Sprite Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/sprite-basics.js)
+- [Text Basics](https://exoridus.github.io/ExoJS-examples/#webgpu/text-basics.js)
+- [Custom Triangle Renderer](https://exoridus.github.io/ExoJS-examples/#webgpu/custom-triangle-renderer.js)
 
 ## Repository Structure
 

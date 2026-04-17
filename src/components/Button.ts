@@ -1,25 +1,34 @@
-import styles, { css } from './Button.module.scss';
+import { LitElement, html, unsafeCSS } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import componentStyles from './Button.scss?inline';
 
-import { CSSResult, customElement, html, LitElement, property, TemplateResult, unsafeCSS } from 'lit-element';
-import { classMap } from 'lit-html/directives/class-map';
+@customElement('exo-button')
+export class ExoButton extends LitElement {
+  static styles = unsafeCSS(componentStyles);
 
-@customElement('my-button')
-export default class Button extends LitElement {
-    public static styles: CSSResult = unsafeCSS(css);
+  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public flat = false;
+  @property({ type: String }) public variant: 'default' | 'danger' = 'default';
 
-    @property({ type: Boolean }) public disabled = false;
-    @property({ type: Boolean }) public flat = false;
+  public render(): ReturnType<LitElement['render']> {
+    return html`
+      <button
+        ?disabled=${this.disabled}
+        class=${classMap({
+          button: true,
+          flat: this.flat,
+          danger: this.variant === 'danger',
+        })}
+      >
+        <slot></slot>
+      </button>
+    `;
+  }
+}
 
-    public render(): TemplateResult {
-        const buttonClass = classMap({
-            [styles.button]: true,
-            [styles.flat]: this.flat,
-        });
-
-        return html`
-            <button ?disabled=${this.disabled} class=${buttonClass}>
-                <slot></slot>
-            </button>
-        `;
-    }
+declare global {
+  interface HTMLElementTagNameMap {
+    'exo-button': ExoButton;
+  }
 }

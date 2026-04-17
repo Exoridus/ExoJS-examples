@@ -1,4 +1,4 @@
-import { Application, Color, Scene, ScaleModes, Sprite, BlendModes, Text } from 'exojs';
+import { Application, Color, Scene, ScaleModes, Sprite, BlendModes, Text, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,29 +9,28 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', {
+    async load(loader) {
+        await loader.load(Texture, {
             background: 'image/uv.png',
             bunny: 'image/bunny.png',
         }, {
-            scaleMode: ScaleModes.nearest,
+            scaleMode: ScaleModes.Nearest,
         });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._background = new Sprite(resources.get('texture', 'background'));
+        this._background = new Sprite(loader.get(Texture, 'background'));
         this._background.setPosition(width / 2, height / 2);
         this._background.setAnchor(0.5, 0.5);
 
-        this._leftBunny = new Sprite(resources.get('texture', 'bunny'));
+        this._leftBunny = new Sprite(loader.get(Texture, 'bunny'));
         this._leftBunny.setAnchor(0.5, 0.5);
         this._leftBunny.setScale(5);
 
-        this._rightBunny = new Sprite(resources.get('texture', 'bunny'));
+        this._rightBunny = new Sprite(loader.get(Texture, 'bunny'));
         this._rightBunny.setAnchor(0.5, 0.5);
         this._rightBunny.setScale(5);
 

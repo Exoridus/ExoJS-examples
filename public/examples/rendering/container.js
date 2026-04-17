@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Sprite, Container } from 'exojs';
+import { Application, Color, Scene, Sprite, Container, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,25 +9,24 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', {
+    async load(loader) {
+        await loader.load(Texture, {
             bunny: 'image/bunny.png',
             rainbow: 'image/rainbow.png',
         });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._rainbow = new Sprite(resources.get('texture', 'rainbow'));
+        this._rainbow = new Sprite(loader.get(Texture, 'rainbow'));
 
         this._bunnies = new Container();
         this._bunnies.setPosition(width / 2 | 0, height / 2 | 0);
 
         for (let i = 0; i < 25; i++) {
-            const bunny = new Sprite(resources.get('texture', 'bunny'));
+            const bunny = new Sprite(loader.get(Texture, 'bunny'));
 
             bunny.setPosition((i % 5) * (bunny.width + 15), (i / 5 | 0) * (bunny.height + 10));
 

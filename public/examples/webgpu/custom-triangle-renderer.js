@@ -1,6 +1,4 @@
-import { Application, Color, Scene } from 'exojs';
-import { WebGpuRenderManager } from 'exojs/webgpu';
-import { createInfoElement, formatErrorMessage, getExampleMeta, showInfo, supportsWebGpu } from '@examples/runtime';
+import { Application, Color, Scene, WebGpuRenderManager } from 'exojs';
 
 const TRIANGLE_VERTICES = new Float32Array([
     0.0, 0.72, 1.0, 0.38, 0.23,
@@ -131,50 +129,40 @@ class CustomTriangleRenderer {
     }
 }
 
-const exampleMeta = getExampleMeta();
-const infoElement = createInfoElement('420px');
-
-if (!supportsWebGpu()) {
-    showInfo(infoElement, 'WebGPU Unavailable', exampleMeta.unsupportedNote || '', true);
-} else {
-    const app = new Application({
-        width: 800,
-        height: 600,
-        clearColor: Color.black,
-        backend: { type: 'webgpu' },
-    });
-
-    document.body.append(app.canvas, infoElement);
-    showInfo(infoElement, exampleMeta.title || 'Custom Triangle Renderer', exampleMeta.description || '');
-
-    app.start(new Scene({
-
-        init() {
-            this._triangleRenderer = new CustomTriangleRenderer(this.app.renderManager);
-        },
-
-        draw() {
-            this._triangleRenderer.draw();
-        },
-
-        unload() {
-            this._triangleRenderer?.destroy();
-            this._triangleRenderer = null;
-        },
-
-        destroy() {
-            this._triangleRenderer?.destroy();
-            this._triangleRenderer = null;
-        },
-    })).catch((error) => {
-        app.canvas.remove();
-        app.destroy();
-
-        showInfo(
-            infoElement,
-            'WebGPU Setup Failed',
-            `${exampleMeta.unsupportedNote || ''} ${formatErrorMessage(error)}`.trim(),
-            true
-        );
-    });
+if (!('gpu' in navigator)) {
+    throw new Error('WebGPU is not supported in this browser.');
 }
+const app = new Application({
+    width: 800,
+    height: 600,
+    clearColor: Color.black,
+    backend: { type: 'webgpu' },
+});
+
+document.body.append(app.canvas);
+
+app.start(Scene.create({
+
+    init() {
+        this._triangleRenderer = new CustomTriangleRenderer(this.app.renderManager);
+    },
+
+    draw() {
+        this._triangleRenderer.draw();
+    },
+
+    unload() {
+        this._triangleRenderer?.destroy();
+        this._triangleRenderer = null;
+    },
+
+    destroy() {
+        this._triangleRenderer?.destroy();
+        this._triangleRenderer = null;
+    },
+})).catch((error) => {
+    app.canvas.remove();
+    app.destroy();
+
+    throw error;
+});

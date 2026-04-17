@@ -1,20 +1,55 @@
-import './NavigationTitle';
+import { LitElement, html, unsafeCSS } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import componentStyles from './NavigationSection.scss?inline';
 
-import { css } from './NavigationSection.module.scss';
+@customElement('exo-nav-section')
+export class NavigationSection extends LitElement {
+  static styles = unsafeCSS(componentStyles);
 
-import { CSSResult, customElement, LitElement, property, unsafeCSS } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+  @property({ type: String }) public headline = '';
+  @property({ type: Boolean }) public expanded = true;
+  @property({ type: Number }) public unavailableCount = 0;
 
-@customElement('my-navigation-section')
-export default class NavigationSection extends LitElement {
-    public static styles: CSSResult = unsafeCSS(css);
+  public render(): ReturnType<LitElement['render']> {
+    return html`
+      <section>
+        <button
+          class="toggle"
+          type="button"
+          aria-expanded=${String(this.expanded)}
+          @click=${this._onToggle}
+        >
+          <span class="title">${this.headline}</span>
+          <span class="meta">
+            ${this.unavailableCount > 0
+              ? html`<span
+                    class="count"
+                    title="${this.unavailableCount} unavailable example${this.unavailableCount === 1 ? '' : 's'}"
+                >${this.unavailableCount}</span>`
+              : ''}
+            <span class="chevron" ?data-expanded=${this.expanded}></span>
+          </span>
+        </button>
+        ${this.expanded
+          ? html`<div class="content"><slot></slot></div>`
+          : ''}
+      </section>
+    `;
+  }
 
-    @property({ type: String }) public headline?: string;
+  private _onToggle(): void {
+    this.dispatchEvent(
+      new CustomEvent('toggle-section', {
+        detail: { headline: this.headline },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+}
 
-    public render(): TemplateResult {
-        return html`
-            <my-navigation-title>${this.headline}</my-navigation-title>
-            <slot></slot>
-        `;
-    }
+declare global {
+  interface HTMLElementTagNameMap {
+    'exo-nav-section': NavigationSection;
+  }
 }

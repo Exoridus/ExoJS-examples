@@ -1,4 +1,4 @@
-import { Application, Color, Scene, View, Sprite, Text, Input, Keyboard } from 'exojs';
+import { Application, Color, Scene, View, Sprite, Text, Input, Keyboard, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,13 +9,12 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { example: 'image/uv.png' });
+    async load(loader) {
+        await loader.load(Texture, { example: 'image/uv.png' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
         this._moveSpeed = 3;
@@ -24,7 +23,7 @@ app.start(new Scene({
 
         this._camera = new View(0, 0, width, height);
 
-        this._sprite = new Sprite(resources.get('texture', 'example'));
+        this._sprite = new Sprite(loader.get(Texture, 'example'));
         this._sprite.setAnchor(0.5, 0.5);
 
         this._info = new Text([
@@ -43,65 +42,47 @@ app.start(new Scene({
 
             // Move Up
             new Input(Keyboard.W, {
-                onActive: (value) => {
-                    this._camera.move(0, value * -this._moveSpeed);
-                },
+                onActive: value => this._camera.move(0, value * -this._moveSpeed),
             }),
 
             // Move Down
             new Input(Keyboard.S, {
-                onActive: (value) => {
-                    this._camera.move(0, value * this._moveSpeed);
-                },
+                onActive: value => this._camera.move(0, value * this._moveSpeed),
             }),
 
             // Move Left
             new Input(Keyboard.A, {
-                onActive: (value) => {
-                    this._camera.move(value * -this._moveSpeed, 0);
-                },
+                onActive: value => this._camera.move(value * -this._moveSpeed, 0),
             }),
 
             // Move Right
             new Input(Keyboard.D, {
-                onActive: (value) => {
-                    this._camera.move(value * this._moveSpeed, 0);
-                },
+                onActive: value => this._camera.move(value * this._moveSpeed, 0),
             }),
 
             // Zoom In
             new Input(Keyboard.Up, {
-                onActive: (value) => {
-                    this._camera.zoom(1 + (value * -this._zoomSpeed));
-                },
+                onActive: value => this._camera.zoom(1 + (value * -this._zoomSpeed)),
             }),
 
             // Zoom Out
             new Input(Keyboard.Down, {
-                onActive: (value) => {
-                    this._camera.zoom(1 + (value * this._zoomSpeed));
-                },
+                onActive: value => this._camera.zoom(1 + (value * this._zoomSpeed)),
             }),
 
             // Rotate Left
             new Input(Keyboard.Left, {
-                onActive: (value) => {
-                    this._camera.rotate(value * -this._rotationSpeed);
-                },
+                onActive: value => this._camera.rotate(value * -this._rotationSpeed),
             }),
 
             // Rotate Right
             new Input(Keyboard.Right, {
-                onActive: (value) => {
-                    this._camera.rotate(value * this._rotationSpeed);
-                },
+                onActive: value => this._camera.rotate(value * this._rotationSpeed),
             }),
 
             // Reset
             new Input(Keyboard.R, {
-                onTrigger: () => {
-                    this._camera.reset(0, 0, width, height);
-                },
+                onTrigger: () => this._camera.reset(0, 0, width, height),
             })
         ]);
     },
@@ -109,10 +90,10 @@ app.start(new Scene({
     draw(renderManager) {
         renderManager.clear();
 
-        renderManager.renderTarget.setView(this._camera);
+        renderManager.setView(this._camera);
         this._sprite.render(renderManager);
 
-        renderManager.renderTarget.setView(null);
+        renderManager.setView(null);
         this._info.render(renderManager);
     },
 }));

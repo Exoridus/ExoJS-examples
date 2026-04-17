@@ -11,180 +11,164 @@ import {
     Vector,
     seconds,
 } from 'exojs';
-import { createInfoElement, formatErrorMessage, getExampleMeta, showInfo, supportsWebGpu } from '@examples/runtime';
 
-const exampleMeta = getExampleMeta();
-const infoElement = createInfoElement('440px');
-
-if (!supportsWebGpu()) {
-    showInfo(infoElement, 'WebGPU Unavailable', exampleMeta.unsupportedNote || '', true);
-} else {
-    const app = new Application({
-        width: 800,
-        height: 600,
-        clearColor: new Color(0.02, 0.02, 0.045, 1),
-        backend: { type: 'webgpu' },
-    });
-
-    document.body.append(app.canvas, infoElement);
-    showInfo(
-        infoElement,
-        exampleMeta.title || 'Particle Stress',
-        `${exampleMeta.description || ''} 3 particle systems are active.`.trim()
-    );
-
-    app.start(new Scene({
-
-        init() {
-            const { width, height } = this.app.canvas;
-
-            this._sharedTexture = createParticleTexture();
-            this._particleSystems = [];
-
-            this._particleSystems.push(createStressSystem({
-                texture: this._sharedTexture,
-                x: width * 0.24,
-                y: height * 0.78,
-                rate: 240,
-                baseVelocity: new Vector(0, -250),
-                force: new Vector(10, 120),
-                scaleDrift: -0.28,
-                palette: [
-                    Color.orange,
-                    Color.tomato,
-                    Color.gold,
-                    Color.mistyRose,
-                ],
-                positionRangeX: 28,
-                positionRangeY: 12,
-                velocityRangeX: 90,
-                velocityMinY: -330,
-                velocityMaxY: -170,
-                scaleMin: 0.42,
-                scaleMax: 0.94,
-                rotationMax: 260,
-                lifetimeMin: 0.95,
-                lifetimeMax: 1.6,
-            }));
-
-            this._particleSystems.push(createStressSystem({
-                texture: this._sharedTexture,
-                x: width * 0.5,
-                y: height * 0.82,
-                rate: 320,
-                baseVelocity: new Vector(0, -220),
-                force: new Vector(0, 150),
-                scaleDrift: -0.22,
-                palette: [
-                    Color.skyBlue,
-                    Color.deepSkyBlue,
-                    Color.mediumTurquoise,
-                    Color.white,
-                ],
-                positionRangeX: 38,
-                positionRangeY: 16,
-                velocityRangeX: 130,
-                velocityMinY: -305,
-                velocityMaxY: -155,
-                scaleMin: 0.36,
-                scaleMax: 0.88,
-                rotationMax: 320,
-                lifetimeMin: 0.8,
-                lifetimeMax: 1.45,
-            }));
-
-            this._particleSystems.push(createStressSystem({
-                texture: this._sharedTexture,
-                x: width * 0.76,
-                y: height * 0.76,
-                rate: 240,
-                baseVelocity: new Vector(0, -240),
-                force: new Vector(-12, 118),
-                scaleDrift: -0.3,
-                palette: [
-                    Color.violet,
-                    Color.hotPink,
-                    Color.deepPink,
-                    Color.plum,
-                ],
-                positionRangeX: 26,
-                positionRangeY: 10,
-                velocityRangeX: 95,
-                velocityMinY: -320,
-                velocityMaxY: -165,
-                scaleMin: 0.4,
-                scaleMax: 0.92,
-                rotationMax: 280,
-                lifetimeMin: 0.9,
-                lifetimeMax: 1.55,
-            }));
-        },
-
-        update(delta) {
-            const time = this.app.activeTime.seconds;
-
-            for (let i = 0; i < this._particleSystems.length; i++) {
-                const system = this._particleSystems[i];
-                const wave = time + (i * 1.2);
-
-                system.options.totalLifetime = seconds(randomRange(system.lifetimeMin, system.lifetimeMax));
-                system.options.position.set(
-                    randomRange(-system.positionRangeX, system.positionRangeX),
-                    randomRange(-system.positionRangeY, system.positionRangeY)
-                );
-                system.options.velocity.set(
-                    randomRange(-system.velocityRangeX, system.velocityRangeX) + Math.sin(wave * 1.8) * 24,
-                    randomRange(system.velocityMinY, system.velocityMaxY)
-                );
-                system.options.scale.set(
-                    randomRange(system.scaleMin, system.scaleMax),
-                    randomRange(system.scaleMin, system.scaleMax)
-                );
-                system.options.rotationSpeed = randomRange(-system.rotationMax, system.rotationMax);
-                system.options.tint = system.palette[randomInt(0, system.palette.length - 1)];
-
-                system.instance.setPosition(
-                    system.baseX + (Math.sin(wave * 1.4) * 18),
-                    system.baseY + (Math.cos(wave * 1.7) * 10)
-                );
-                system.instance.rotation = Math.sin(wave * 0.9) * 5;
-                system.instance.update(delta);
-            }
-        },
-
-        draw(renderManager) {
-            renderManager.clear();
-
-            for (const system of this._particleSystems) {
-                system.instance.render(renderManager);
-            }
-
-
-        },
-
-        unload() {
-            destroySystems(this._particleSystems);
-            this._particleSystems = null;
-            this._sharedTexture = null;
-        },
-
-        destroy() {
-            destroySystems(this._particleSystems);
-            this._particleSystems = null;
-            this._sharedTexture = null;
-        },
-    })).catch((error) => {
-        app.canvas.remove();
-        app.destroy();
-
-        showInfo(
-            infoElement,
-            'WebGPU Setup Failed',
-            `${exampleMeta.unsupportedNote || ''} ${formatErrorMessage(error)}`.trim(),
-            true
-        );
-    });
+if (!('gpu' in navigator)) {
+    throw new Error('WebGPU is not supported in this browser.');
 }
+const app = new Application({
+    width: 800,
+    height: 600,
+    clearColor: new Color(0.02, 0.02, 0.045, 1),
+    backend: { type: 'webgpu' },
+});
+
+document.body.append(app.canvas);
+
+app.start(Scene.create({
+
+    init() {
+        const { width, height } = this.app.canvas;
+
+        this._sharedTexture = createParticleTexture();
+        this._particleSystems = [];
+
+        this._particleSystems.push(createStressSystem({
+            texture: this._sharedTexture,
+            x: width * 0.24,
+            y: height * 0.78,
+            rate: 240,
+            baseVelocity: new Vector(0, -250),
+            force: new Vector(10, 120),
+            scaleDrift: -0.28,
+            palette: [
+                Color.orange,
+                Color.tomato,
+                Color.gold,
+                Color.mistyRose,
+            ],
+            positionRangeX: 28,
+            positionRangeY: 12,
+            velocityRangeX: 90,
+            velocityMinY: -330,
+            velocityMaxY: -170,
+            scaleMin: 0.42,
+            scaleMax: 0.94,
+            rotationMax: 260,
+            lifetimeMin: 0.95,
+            lifetimeMax: 1.6,
+        }));
+
+        this._particleSystems.push(createStressSystem({
+            texture: this._sharedTexture,
+            x: width * 0.5,
+            y: height * 0.82,
+            rate: 320,
+            baseVelocity: new Vector(0, -220),
+            force: new Vector(0, 150),
+            scaleDrift: -0.22,
+            palette: [
+                Color.skyBlue,
+                Color.deepSkyBlue,
+                Color.mediumTurquoise,
+                Color.white,
+            ],
+            positionRangeX: 38,
+            positionRangeY: 16,
+            velocityRangeX: 130,
+            velocityMinY: -305,
+            velocityMaxY: -155,
+            scaleMin: 0.36,
+            scaleMax: 0.88,
+            rotationMax: 320,
+            lifetimeMin: 0.8,
+            lifetimeMax: 1.45,
+        }));
+
+        this._particleSystems.push(createStressSystem({
+            texture: this._sharedTexture,
+            x: width * 0.76,
+            y: height * 0.76,
+            rate: 240,
+            baseVelocity: new Vector(0, -240),
+            force: new Vector(-12, 118),
+            scaleDrift: -0.3,
+            palette: [
+                Color.violet,
+                Color.hotPink,
+                Color.deepPink,
+                Color.plum,
+            ],
+            positionRangeX: 26,
+            positionRangeY: 10,
+            velocityRangeX: 95,
+            velocityMinY: -320,
+            velocityMaxY: -165,
+            scaleMin: 0.4,
+            scaleMax: 0.92,
+            rotationMax: 280,
+            lifetimeMin: 0.9,
+            lifetimeMax: 1.55,
+        }));
+    },
+
+    update(delta) {
+        const time = this.app.activeTime.seconds;
+
+        for (let i = 0; i < this._particleSystems.length; i++) {
+            const system = this._particleSystems[i];
+            const wave = time + (i * 1.2);
+
+            system.options.totalLifetime = seconds(randomRange(system.lifetimeMin, system.lifetimeMax));
+            system.options.position.set(
+                randomRange(-system.positionRangeX, system.positionRangeX),
+                randomRange(-system.positionRangeY, system.positionRangeY)
+            );
+            system.options.velocity.set(
+                randomRange(-system.velocityRangeX, system.velocityRangeX) + Math.sin(wave * 1.8) * 24,
+                randomRange(system.velocityMinY, system.velocityMaxY)
+            );
+            system.options.scale.set(
+                randomRange(system.scaleMin, system.scaleMax),
+                randomRange(system.scaleMin, system.scaleMax)
+            );
+            system.options.rotationSpeed = randomRange(-system.rotationMax, system.rotationMax);
+            system.options.tint = system.palette[randomInt(0, system.palette.length - 1)];
+
+            system.instance.setPosition(
+                system.baseX + (Math.sin(wave * 1.4) * 18),
+                system.baseY + (Math.cos(wave * 1.7) * 10)
+            );
+            system.instance.rotation = Math.sin(wave * 0.9) * 5;
+            system.instance.update(delta);
+        }
+    },
+
+    draw(renderManager) {
+        renderManager.clear();
+
+        for (const system of this._particleSystems) {
+            system.instance.render(renderManager);
+        }
+
+    },
+
+    unload() {
+        destroySystems(this._particleSystems);
+        this._particleSystems = null;
+        this._sharedTexture = null;
+    },
+
+    destroy() {
+        destroySystems(this._particleSystems);
+        this._particleSystems = null;
+        this._sharedTexture = null;
+    },
+})).catch((error) => {
+    app.canvas.remove();
+    app.destroy();
+
+    throw error;
+});
 
 class AlphaFadeAffector {
 

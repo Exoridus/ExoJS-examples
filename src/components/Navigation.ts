@@ -1,149 +1,184 @@
+import { LitElement, html, nothing, unsafeCSS } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import type { Example, ExamplesMap } from '../lib/types';
+import { getExampleAvailability } from '../lib/runtime-support';
+import componentStyles from './Navigation.scss?inline';
 import './NavigationLink';
 import './NavigationSection';
 import './LoadingSpinner';
 
-import styles, { css } from './Navigation.module.scss';
+@customElement('exo-navigation')
+export class Navigation extends LitElement {
+  static styles = unsafeCSS(componentStyles);
 
-import { CSSResult, customElement, html, internalProperty, TemplateResult, unsafeCSS } from 'lit-element';
-import { autorun, IReactionDisposer } from 'mobx';
-import { Example, ExampleService } from '../services/ExampleService';
-import { globalDependencies } from '../classes/globalDependencies';
-import { MobxLitElement } from '@adobe/lit-mobx';
+  @property({ attribute: false }) public examples: ExamplesMap = new Map();
+  @property({ attribute: false }) public activeExample: Example | null = null;
+  @property({ attribute: false }) public availableTags: Array<string> = [];
+  @property({ type: String }) public loadError: string | null = null;
+  @property({ type: Boolean }) public loaded = false;
 
-@customElement('my-navigation')
-export default class Navigation extends MobxLitElement {
-    public static styles: CSSResult = unsafeCSS(css);
+  @state() private _tagInputValue = '';
+  @state() private _activeTagFilter: string | null = null;
+  @state() private _overriddenSections: Map<string, boolean> = new Map();
 
-    private exampleService: ExampleService = globalDependencies.get('exampleService');
-    private filterSyncDisposer: IReactionDisposer | null = null;
-    @internalProperty() private tagInputValue = '';
+  protected override willUpdate(changedProperties: Map<PropertyKey, unknown>): void {
+    if (changedProperties.has('activeExample') && this._overriddenSections.size > 0) {
+      this._overriddenSections = new Map();
+    }
+  }
 
-    public connectedCallback(): void {
-        super.connectedCallback();
+  public render(): ReturnType<LitElement['render']> {
+    return html`
+      <header class="header">
+        <h1 class="heading">ExoJS Examples</h1>
+      </header>
+      <section class="filter-bar">
+        <label class="filter-label" for="tag-filter">Filter by tag</label>
+        <div class="filter-controls">
+          <input
+            id="tag-filter"
+            class="filter-input"
+            list="tag-filter-options"
+            .value=${this._tagInputValue}
+            placeholder="Pick a tag"
+            @input=${this._onTagInput}
+            @change=${this._onTagChange}
+            @keydown=${this._onTagKeyDown}
+          />
+          <datalist id="tag-filter-options">
+            ${this.availableTags.map(tag => html`<option value=${tag}></option>`)}
+          </datalist>
+          ${this._activeTagFilter
+            ? html`<button class="clear-button" @click=${this._onClearFilter}>Clear</button>`
+            : nothing}
+        </div>
+      </section>
+      <nav>${this._renderContent()}</nav>
+    `;
+  }
 
-        this.filterSyncDisposer = autorun(() => {
-            this.tagInputValue = this.exampleService.activeTagFilter || '';
-        });
+  private _renderContent(): ReturnType<LitElement['render']> {
+    if (this.loadError) {
+      return html`<p class="error">${this.loadError}</p>`;
     }
 
-    public disconnectedCallback(): void {
-        this.filterSyncDisposer?.();
-        this.filterSyncDisposer = null;
-        super.disconnectedCallback();
+    if (!this.loaded) {
+      return html`<exo-spinner centered></exo-spinner>`;
     }
 
-    public render(): TemplateResult {
-        const activeTagFilter = this.exampleService.activeTagFilter;
+    const filtered = this._getFilteredExamples();
+    return html`${Array.from(filtered.entries()).map(
+      ([category, entries]) => this._renderCategory(category, entries)
+    )}`;
+  }
 
-        return html`
-            <header>
-                <h1 class=${styles.title}>ExoJs Examples</h1>
-            </header>
-            <section class=${styles.filterBar}>
-                <label class=${styles.filterLabel} for="tag-filter">Filter by tag</label>
-                <div class=${styles.filterControls}>
-                    <input
-                        id="tag-filter"
-                        class=${styles.filterInput}
-                        list="tag-filter-options"
-                        .value=${this.tagInputValue}
-                        placeholder="Pick a tag"
-                        @input=${this.onTagInput}
-                        @change=${this.onTagChange}
-                        @keydown=${this.onTagKeyDown}
-                    >
-                    <datalist id="tag-filter-options">
-                        ${this.exampleService.availableTags.map((tag) => html`<option value=${tag}></option>`)}
-                    </datalist>
-                    ${activeTagFilter
-                        ? html`<button class=${styles.clearButton} @click=${this.onClearFilter}>Clear</button>`
-                        : ''}
-                </div>
-            </section>
-            <nav>
-                ${this.renderContent()}
-            </nav>
-        `;
+  private _getFilteredExamples(): ExamplesMap {
+    if (!this._activeTagFilter) {
+      return this.examples;
     }
 
-    private renderContent(): TemplateResult {
-        const { hasExamples, filteredNestedExamples, loadError } = this.exampleService;
+    const filtered = Array.from(this.examples.entries())
+      .map(([section, examples]) => [
+        section,
+        examples.filter(ex => (ex.tags ?? []).includes(this._activeTagFilter!)),
+      ] as [string, Array<Example>])
+      .filter(([, examples]) => examples.length > 0);
 
-        if (loadError) {
-            return html`<p class=${styles.error}>${loadError}</p>`;
-        }
+    return new Map(filtered);
+  }
 
-        if (!hasExamples) {
-            return html`<my-loading-spinner centered />`;
-        }
-
-        const categories = Array.from(filteredNestedExamples.entries());
-
-        return html`${categories.map(([category, entries]) => this.renderCategory(category, entries))}`;
+  private _isSectionExpanded(headline: string, entries: Array<Example>): boolean {
+    if (this._overriddenSections.has(headline)) {
+      return this._overriddenSections.get(headline)!;
     }
 
-    private renderCategory(headline: string, entries: Array<Example>): TemplateResult {
-        return html`
-            <my-navigation-section headline=${headline}>
-                ${entries.map((entry) => this.renderLink(entry))}
-            </my-navigation-section>
-        `;
+    return entries.some(entry => entry.path === this.activeExample?.path);
+  }
+
+  private _renderCategory(headline: string, entries: Array<Example>): ReturnType<LitElement['render']> {
+    const expanded = this._isSectionExpanded(headline, entries);
+    const unavailableCount = entries.filter(
+      entry => !getExampleAvailability(entry).available
+    ).length;
+
+    return html`
+      <exo-nav-section
+        headline=${headline}
+        .expanded=${expanded}
+        .unavailableCount=${unavailableCount}
+        @toggle-section=${this._onToggleSection}
+      >
+        ${entries.map(entry => this._renderLink(entry))}
+      </exo-nav-section>
+    `;
+  }
+
+  private _renderLink(example: Example): ReturnType<LitElement['render']> {
+    const availability = getExampleAvailability(example);
+
+    return html`
+      <exo-nav-link
+        href="#${example.path}"
+        title=${example.title}
+        description=${example.description}
+        ?active=${this.activeExample?.path === example.path}
+        ?unavailable=${!availability.available}
+        unavailableReason=${availability.reason ?? ''}
+      ></exo-nav-link>
+    `;
+  }
+
+  private _onTagInput(event: Event): void {
+    this._tagInputValue = (event.currentTarget as HTMLInputElement).value;
+  }
+
+  private _onTagChange(event: Event): void {
+    this._applyTagFilter((event.currentTarget as HTMLInputElement).value);
+  }
+
+  private _onTagKeyDown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    this._applyTagFilter((event.currentTarget as HTMLInputElement).value);
+  }
+
+  private _onClearFilter(): void {
+    this._tagInputValue = '';
+    this._activeTagFilter = null;
+  }
+
+  private _applyTagFilter(value: string): void {
+    const normalized = value.trim();
+
+    if (normalized === '') {
+      this._tagInputValue = '';
+      this._activeTagFilter = null;
+      return;
     }
 
-    private renderLink(example: Example): TemplateResult {
-        return html`
-            <my-navigation-link
-                href="#${example.path}"
-                title=${example.title}
-                description=${example.description}
-                ?active=${this.exampleService.activeExample?.path === example.path}
-            ></my-navigation-link>
-        `;
+    const matched = this.availableTags.find(tag => tag === normalized);
+
+    if (!matched) {
+      this._tagInputValue = this._activeTagFilter ?? '';
+      return;
     }
 
-    private onTagInput(event: Event): void {
-        const input = event.currentTarget as HTMLInputElement;
+    this._tagInputValue = matched;
+    this._activeTagFilter = matched;
+  }
 
-        this.tagInputValue = input.value;
-    }
+  private _onToggleSection(event: CustomEvent<{ headline: string }>): void {
+    const headline = event.detail.headline;
+    const entries = this.examples.get(headline) ?? [];
+    const current = this._isSectionExpanded(headline, entries);
+    const next = new Map(this._overriddenSections);
+    next.set(headline, !current);
+    this._overriddenSections = next;
+  }
+}
 
-    private onTagChange(event: Event): void {
-        const input = event.currentTarget as HTMLInputElement;
-
-        this.applyTagFilter(input.value);
-    }
-
-    private onTagKeyDown(event: KeyboardEvent): void {
-        if (event.key !== 'Enter') {
-            return;
-        }
-
-        event.preventDefault();
-        this.applyTagFilter((event.currentTarget as HTMLInputElement).value);
-    }
-
-    private onClearFilter(): void {
-        this.tagInputValue = '';
-        this.exampleService.setActiveTagFilter(null);
-    }
-
-    private applyTagFilter(value: string): void {
-        const normalizedValue = value.trim();
-
-        if (normalizedValue === '') {
-            this.tagInputValue = '';
-            this.exampleService.setActiveTagFilter(null);
-            return;
-        }
-
-        const matchedTag = this.exampleService.availableTags.find((tag) => tag === normalizedValue);
-
-        if (!matchedTag) {
-            this.tagInputValue = this.exampleService.activeTagFilter || '';
-            return;
-        }
-
-        this.tagInputValue = matchedTag;
-        this.exampleService.setActiveTagFilter(matchedTag);
-    }
+declare global {
+  interface HTMLElementTagNameMap {
+    'exo-navigation': Navigation;
+  }
 }

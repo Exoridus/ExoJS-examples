@@ -1,17 +1,23 @@
-import styles, { css } from './Toolbar.module.scss';
+import { LitElement, html, unsafeCSS } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import componentStyles from './Toolbar.scss?inline';
 
-import { CSSResult, customElement, html, LitElement, property, TemplateResult, unsafeCSS } from 'lit-element';
+@customElement('exo-toolbar')
+export class ExoToolbar extends LitElement {
+  static styles = unsafeCSS(componentStyles);
 
-@customElement('my-toolbar')
-export default class Toolbar extends LitElement {
-    public static styles: CSSResult = unsafeCSS(css);
+  @property({ type: String }) public override title = '';
 
-    @property({ type: String }) public title = '';
+  public render(): ReturnType<LitElement['render']> {
+    return html`
+      <div class="title">${this.title}</div>
+      <slot></slot>
+    `;
+  }
+}
 
-    public render(): TemplateResult {
-        return html`
-            <div class=${styles.title}>${this.title}</div>
-            <slot></slot>
-        `;
-    }
+declare global {
+  interface HTMLElementTagNameMap {
+    'exo-toolbar': ExoToolbar;
+  }
 }

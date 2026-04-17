@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Sprite, Container, RenderTexture } from 'exojs';
+import { Application, Color, Scene, Sprite, Container, RenderTexture, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,16 +9,15 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { bunny: 'image/bunny.png' });
+    async load(loader) {
+        await loader.load(Texture, { bunny: 'image/bunny.png' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._container = this.createBunnyContainer(resources.get('texture', 'bunny'));
+        this._container = this.createBunnyContainer(loader.get(Texture, 'bunny'));
 
         this._renderTexture = this.createRenderTexture(this._container);
 

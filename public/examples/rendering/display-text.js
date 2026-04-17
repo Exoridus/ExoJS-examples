@@ -9,10 +9,10 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('font', { example: 'font/AndyBold.woff2' }, { family: 'AndyBold' });
+    async load(loader) {
+        await loader.load(FontFace, { example: 'font/AndyBold.woff2' }, { family: 'AndyBold' });
     },
 
     init() {

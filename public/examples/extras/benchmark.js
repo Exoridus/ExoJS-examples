@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Container, Sprite } from 'exojs';
+import { Application, Color, Scene, Container, Sprite, Texture } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,17 +9,17 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { bunny: 'image/bunny.png' });
+    async load(loader) {
+        await loader.load(Texture, { bunny: 'image/bunny.png' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._bunnyTexture = resources.get('texture', 'bunny');
+        this._bunnyTexture = loader.get(Texture, 'bunny');
         this._bunnies = new Container();
+        this._velocityByBunny = new WeakMap();
         this._startAmount = 10;
         this._addAmount = 50;
         this._maxX = width;
@@ -42,8 +42,10 @@ app.start(new Scene({
         for (let i = 0; i < amount; i++) {
             const bunny = new Sprite(this._bunnyTexture);
 
-            bunny._speedX = Math.random() * 10;
-            bunny._speedY = Math.random() * 10;
+            this._velocityByBunny.set(bunny, {
+                x: Math.random() * 10,
+                y: Math.random() * 10,
+            });
 
             this._bunnies.addChild(bunny);
         }
@@ -69,26 +71,31 @@ app.start(new Scene({
         }
 
         for (const bunny of this._bunnies.children) {
-            bunny._speedY += 0.75;
-            bunny.move(bunny._speedX, bunny._speedY);
+            const velocity = this._velocityByBunny.get(bunny);
+            if (!velocity) {
+                continue;
+            }
+
+            velocity.y += 0.75;
+            bunny.move(velocity.x, velocity.y);
 
             if (bunny.x + bunny.width > this._maxX) {
-                bunny._speedX *= -1;
+                velocity.x *= -1;
                 bunny.x = this._maxX - bunny.width;
             } else if (bunny.x < 0) {
-                bunny._speedX *= -1;
+                velocity.x *= -1;
                 bunny.x = 0;
             }
 
             if (bunny.y + bunny.height > this._maxY) {
-                bunny._speedY *= -0.85;
+                velocity.y *= -0.85;
                 bunny.y = this._maxY - bunny.height;
 
                 if (Math.random() > 0.5) {
-                    bunny._speedY -= Math.random() * 6;
+                    velocity.y -= Math.random() * 6;
                 }
             } else if (bunny.y < 0) {
-                bunny._speedY *= -1;
+                velocity.y *= -1;
                 bunny.y = 0;
             }
         }

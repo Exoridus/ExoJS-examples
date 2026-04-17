@@ -1,4 +1,4 @@
-import { Application, Color, Scene, Spritesheet, lerp, Container, Gamepad, Vector } from 'exojs';
+import { Application, Color, Scene, Spritesheet, lerp, Container, GamepadChannel, Vector, Texture, Json } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,18 +9,17 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('texture', { buttons: 'image/buttons.png' });
-        loader.add('json', { buttons: 'json/buttons.json' });
+    async load(loader) {
+        await loader.load(Texture, { buttons: 'image/buttons.png' });
+        await loader.load(Json, { buttons: 'json/buttons.json' });
     },
-
-    init(resources) {
+    init(loader) {
         this._gamepad = null;
         this._buttons = new Spritesheet(
-            resources.get('texture', 'buttons'),
-            resources.get('json', 'buttons')
+            loader.get(Texture, 'buttons'),
+            loader.get(Json, 'buttons')
         );
         this._buttonColor = new Color(255, 255, 255, 0.25);
         this._mappingButtons = new Map();
@@ -141,10 +140,10 @@ app.start(new Scene({
         const dPadLeft = this._buttons.getFrameSprite('DPadLeft');
         const dPadRight = this._buttons.getFrameSprite('DPadRight');
 
-        mappedButtons.set(Gamepad.dPadUp, dPadUp);
-        mappedButtons.set(Gamepad.dPadDown, dPadDown);
-        mappedButtons.set(Gamepad.dPadLeft, dPadLeft);
-        mappedButtons.set(Gamepad.dPadRight, dPadRight);
+        mappedButtons.set(GamepadChannel.DPadUp, dPadUp);
+        mappedButtons.set(GamepadChannel.DPadDown, dPadDown);
+        mappedButtons.set(GamepadChannel.DPadLeft, dPadLeft);
+        mappedButtons.set(GamepadChannel.DPadRight, dPadRight);
 
         dPad.setTint(this._buttonColor);
 
@@ -175,10 +174,10 @@ app.start(new Scene({
         const buttonRight = this._buttons.getFrameSprite('FaceRight');
         const buttonBottom = this._buttons.getFrameSprite('FaceBottom');
 
-        mappedButtons.set(Gamepad.faceTop, buttonTop);
-        mappedButtons.set(Gamepad.faceLeft, buttonLeft);
-        mappedButtons.set(Gamepad.faceRight, buttonRight);
-        mappedButtons.set(Gamepad.faceBottom, buttonBottom);
+        mappedButtons.set(GamepadChannel.ButtonNorth, buttonTop);
+        mappedButtons.set(GamepadChannel.ButtonWest, buttonLeft);
+        mappedButtons.set(GamepadChannel.ButtonEast, buttonRight);
+        mappedButtons.set(GamepadChannel.ButtonSouth, buttonBottom);
 
         buttonTop.setScale(0.75);
         buttonTop.setPosition(50, 0);
@@ -212,10 +211,10 @@ app.start(new Scene({
         const leftTrigger = this._buttons.getFrameSprite('ShoulderLeftTop');
         const rightTrigger = this._buttons.getFrameSprite('ShoulderRightTop');
 
-        mappedButtons.set(Gamepad.shoulderLeftBottom, leftButton);
-        mappedButtons.set(Gamepad.shoulderRightBottom, rightButton);
-        mappedButtons.set(Gamepad.shoulderLeftTop, leftTrigger);
-        mappedButtons.set(Gamepad.shoulderRightTop, rightTrigger);
+        mappedButtons.set(GamepadChannel.LeftShoulder, leftButton);
+        mappedButtons.set(GamepadChannel.RightShoulder, rightButton);
+        mappedButtons.set(GamepadChannel.LeftTrigger, leftTrigger);
+        mappedButtons.set(GamepadChannel.RightTrigger, rightTrigger);
 
         leftButton.setPosition(0, 75);
 
@@ -243,8 +242,8 @@ app.start(new Scene({
         const selectButton = this._buttons.getFrameSprite('Select');
         const startButton = this._buttons.getFrameSprite('Start');
 
-        mappedButtons.set(Gamepad.select, selectButton);
-        mappedButtons.set(Gamepad.start, startButton);
+        mappedButtons.set(GamepadChannel.Select, selectButton);
+        mappedButtons.set(GamepadChannel.Start, startButton);
 
         startButton.setAnchor(1, 0);
         startButton.setPosition(width * 0.3, 0);
@@ -269,17 +268,17 @@ app.start(new Scene({
         const startRight = new Vector(width * 0.3, 0);
         const range = 35;
 
-        mappedButtons.set(Gamepad.leftStick, leftStick);
-        mappedButtons.set(Gamepad.rightStick, rightStick);
+        mappedButtons.set(GamepadChannel.LeftStick, leftStick);
+        mappedButtons.set(GamepadChannel.RightStick, rightStick);
 
-        mappingFunctions.set(Gamepad.leftStickLeft, (value) => (leftStick.x = lerp(startLeft.x, startLeft.x - range, value)));
-        mappingFunctions.set(Gamepad.leftStickRight, (value) => (leftStick.x = lerp(startLeft.x, startLeft.x + range, value)));
-        mappingFunctions.set(Gamepad.leftStickUp, (value) => (leftStick.y = lerp(startLeft.y, startLeft.y - range, value)));
-        mappingFunctions.set(Gamepad.leftStickDown, (value) => (leftStick.y = lerp(startLeft.y, startLeft.y + range, value)));
-        mappingFunctions.set(Gamepad.rightStickLeft, (value) => (rightStick.x = lerp(startRight.x, startRight.x - range, value)));
-        mappingFunctions.set(Gamepad.rightStickRight, (value) => (rightStick.x = lerp(startRight.x, startRight.x + range, value)));
-        mappingFunctions.set(Gamepad.rightStickUp, (value) => (rightStick.y = lerp(startRight.y, startRight.y - range, value)));
-        mappingFunctions.set(Gamepad.rightStickDown, (value) => (rightStick.y = lerp(startRight.y, startRight.y + range, value)));
+        mappingFunctions.set(GamepadChannel.LeftStickLeft, (value) => (leftStick.x = lerp(startLeft.x, startLeft.x - range, value)));
+        mappingFunctions.set(GamepadChannel.LeftStickRight, (value) => (leftStick.x = lerp(startLeft.x, startLeft.x + range, value)));
+        mappingFunctions.set(GamepadChannel.LeftStickUp, (value) => (leftStick.y = lerp(startLeft.y, startLeft.y - range, value)));
+        mappingFunctions.set(GamepadChannel.LeftStickDown, (value) => (leftStick.y = lerp(startLeft.y, startLeft.y + range, value)));
+        mappingFunctions.set(GamepadChannel.RightStickLeft, (value) => (rightStick.x = lerp(startRight.x, startRight.x - range, value)));
+        mappingFunctions.set(GamepadChannel.RightStickRight, (value) => (rightStick.x = lerp(startRight.x, startRight.x + range, value)));
+        mappingFunctions.set(GamepadChannel.RightStickUp, (value) => (rightStick.y = lerp(startRight.y, startRight.y - range, value)));
+        mappingFunctions.set(GamepadChannel.RightStickDown, (value) => (rightStick.y = lerp(startRight.y, startRight.y + range, value)));
 
         this._resetFunctions.push(() => {
             leftStick.setPosition(startLeft.x, startLeft.y);

@@ -1,204 +1,156 @@
+import { LitElement, html, nothing, unsafeCSS } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import type { Example, PreviewErrorEntry } from '../lib/types';
+import { getExampleAvailability } from '../lib/runtime-support';
+import { loadExampleSource } from '../lib/example-store';
+import type { UpdateCodeEvent, ResetCodeEvent } from './EditorCode';
+import componentStyles from './Editor.scss?inline';
 import './EditorPreview';
-import './EditorCode';
 
-import styles, { css } from './Editor.module.scss';
+@customElement('exo-editor')
+export class Editor extends LitElement {
+  static styles = unsafeCSS(componentStyles);
 
-import { autorun } from 'mobx';
-import { MobxLitElement } from '@adobe/lit-mobx';
-import { CSSResult, customElement, html, internalProperty, TemplateResult, unsafeCSS } from 'lit-element';
-import { Example, ExampleService } from '../services/ExampleService';
-import { globalDependencies } from '../classes/globalDependencies';
-import type { ResetCodeEvent, UpdateCodeEvent } from './EditorCode';
-import type { PreviewErrorEntry, PreviewErrorsEvent } from './EditorPreview';
+  @property({ attribute: false }) public activeExample: Example | null = null;
+  @property({ type: String }) public catalogLoadError: string | null = null;
 
-@customElement('my-editor')
-export default class Editor extends MobxLitElement {
-    public static styles: CSSResult = unsafeCSS(css);
+  @state() private _sourceCode: string | null = null;
+  @state() private _originalSourceCode: string | null = null;
+  @state() private _sourceLoadError: PreviewErrorEntry | null = null;
+  @state() private _previewErrors: Array<PreviewErrorEntry> = [];
 
-    private exampleService: ExampleService = globalDependencies.get('exampleService');
+  private _lastLoadedPath: string | null = null;
 
-    @internalProperty() private sourceCode: string | null = null;
-    @internalProperty() private originalSourceCode: string | null = null;
-    @internalProperty() private sourceLoadError: PreviewErrorEntry | null = null;
-    @internalProperty() private previewErrors: Array<PreviewErrorEntry> = [];
-    @internalProperty() private previewExecutionMode: 'defer-media' | 'immediate' = 'defer-media';
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    // EditorCode owns all of monaco-editor (~4 MB). Kick off the async chunk here so
+    // Monaco starts loading while the shell renders, but is not on the critical path.
+    // The exo-code-editor element upgrades automatically once the chunk resolves; Lit
+    // replays any property values that were set before the class was registered.
+    void import('./EditorCode');
+  }
 
-    private hasCompletedInitialExampleLoad = false;
+  protected override willUpdate(changedProperties: Map<PropertyKey, unknown>): void {
+    if (changedProperties.has('activeExample')) {
+      const newPath = this.activeExample?.path ?? null;
 
-    public connectedCallback(): void {
-        super.connectedCallback();
+      if (newPath !== this._lastLoadedPath) {
+        this._lastLoadedPath = newPath;
+        void this._loadSourceCode(this.activeExample);
+      }
+    }
+  }
 
-        autorun(() => {
-            this.loadSourceCode(this.exampleService.activeExample);
-        });
+  private async _loadSourceCode(example: Example | null): Promise<void> {
+    this._sourceCode = null;
+    this._originalSourceCode = null;
+    this._sourceLoadError = null;
+    this._previewErrors = [];
+
+    if (example === null) return;
+
+    try {
+      const sourceCode = await loadExampleSource(example.path);
+      this._sourceCode = sourceCode;
+      this._originalSourceCode = sourceCode;
+    } catch (error) {
+      this._sourceLoadError = {
+        summary: 'Failed to load example source',
+        details: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  public render(): ReturnType<LitElement['render']> {
+    const activeExample = this.activeExample;
+    const combinedErrors = this._getCombinedErrors();
+
+    if (activeExample === null && combinedErrors.length > 0) {
+      return html`${this._renderErrors(combinedErrors)}`;
     }
 
-    private async loadSourceCode(example: Example | null): Promise<void> {
-        if (example === null) {
-            this.sourceCode = null;
-            this.originalSourceCode = null;
-            this.sourceLoadError = null;
-            this.previewErrors = [];
-            return;
-        }
+    const availability = getExampleAvailability(activeExample);
 
-        this.sourceCode = null;
-        this.originalSourceCode = null;
-        this.sourceLoadError = null;
-        this.previewErrors = [];
-        this.previewExecutionMode = this.hasCompletedInitialExampleLoad ? 'immediate' : 'defer-media';
+    return html`
+      <div class="preview-wrapper">
+        <exo-preview
+          .sourceCode=${this._sourceCode}
+          .exampleMeta=${activeExample}
+          @preview-errors=${this._onPreviewErrors}
+        ></exo-preview>
+        ${!availability.available ? html`
+          <div class="unavailable-overlay">
+            <svg class="unavailable-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2L2 20h20L12 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="12" cy="17.5" r="0.8" fill="currentColor"/>
+            </svg>
+            <p class="unavailable-message">${availability.reason ?? 'This example is not available in the current browser.'}</p>
+          </div>
+        ` : nothing}
+      </div>
+      ${this._renderErrors(combinedErrors)}
+      <exo-code-editor
+        .sourceCode=${this._sourceCode}
+        .sourcePath=${activeExample?.path ?? null}
+        .canReset=${!!this._originalSourceCode && this._sourceCode !== this._originalSourceCode}
+        .exampleTitle=${activeExample?.title ?? 'Loading...'}
+        @update-code=${this._onUpdateCode}
+        @reset-code=${this._onResetCode}
+      ></exo-code-editor>
+    `;
+  }
 
-        try {
-            const sourceCode = await this.exampleService.loadExampleSource(example.path);
+  private _onUpdateCode(event: CustomEvent<UpdateCodeEvent>): void {
+    this._sourceCode = event.detail.code;
+  }
 
-            this.sourceCode = sourceCode;
-            this.originalSourceCode = sourceCode;
-            this.sourceLoadError = null;
-            this.hasCompletedInitialExampleLoad = true;
-        } catch (error) {
-            this.sourceCode = null;
-            this.originalSourceCode = null;
-            this.sourceLoadError = {
-                summary: 'Failed to load example source',
-                details: error instanceof Error ? error.message : String(error),
-            };
-            this.hasCompletedInitialExampleLoad = true;
-        }
-    }
+  private _onResetCode(_event: CustomEvent<ResetCodeEvent>): void {
+    if (this._originalSourceCode === null) return;
+    this._previewErrors = [];
+    this._sourceCode = this._originalSourceCode;
+  }
 
-    public render(): TemplateResult {
-        const activeExample = this.exampleService.activeExample;
-        const combinedErrors = this.getCombinedErrors();
+  private _onPreviewErrors(event: CustomEvent<{ errors: Array<PreviewErrorEntry> }>): void {
+    this._previewErrors = event.detail.errors;
+  }
 
-        if (activeExample === null && combinedErrors.length > 0) {
-            return html`${this.renderErrors(combinedErrors)}`;
-        }
+  private _renderErrors(errors: Array<PreviewErrorEntry>): ReturnType<LitElement['render']> {
+    if (errors.length === 0) return nothing;
 
-        return html`
-            ${this.renderExampleHeader(activeExample)}
-            <section class=${styles.previewCard}>
-                <my-editor-preview
-                    .sourceCode=${this.sourceCode}
-                    .exampleMeta=${activeExample}
-                    .executionMode=${this.previewExecutionMode}
-                    @preview-errors=${this.onPreviewErrors}
-                ></my-editor-preview>
-                ${this.renderErrors(combinedErrors)}
-            </section>
-            ${this.renderExampleNotes(activeExample)}
-            <my-editor-code
-                .sourceCode=${this.sourceCode}
-                .sourcePath=${activeExample?.path || null}
-                .canReset=${!!this.originalSourceCode && this.sourceCode !== this.originalSourceCode}
-                @update-code=${this.onUpdateCode}
-                @reset-code=${this.onResetCode}
-            ></my-editor-code>
-        `;
-    }
+    return html`
+      <details class="error-panel">
+        <summary class="error-summary">
+          <span class="error-summary-label">Errors</span>
+          <span class="error-summary-count">${errors.length}</span>
+        </summary>
+        <div class="error-body">
+          ${errors.map(error => html`
+            <article class="error-item">
+              <h3 class="error-item-title">${error.summary}</h3>
+              ${error.details && error.details !== error.summary
+                ? html`<pre class="error-details">${error.details}</pre>`
+                : nothing}
+            </article>
+          `)}
+        </div>
+      </details>
+    `;
+  }
 
-    private onUpdateCode(event: CustomEvent<UpdateCodeEvent>): void {
-        this.previewExecutionMode = 'immediate';
-        this.sourceCode = event.detail.code;
-    }
+  private _getCombinedErrors(): Array<PreviewErrorEntry> {
+    return [
+      ...(this.catalogLoadError
+        ? [{ summary: 'Failed to load examples catalog', details: this.catalogLoadError }]
+        : []),
+      ...(this._sourceLoadError ? [this._sourceLoadError] : []),
+      ...this._previewErrors,
+    ];
+  }
+}
 
-    private onResetCode(_event: CustomEvent<ResetCodeEvent>): void {
-        if (this.originalSourceCode === null) {
-            return;
-        }
-
-        this.previewExecutionMode = 'immediate';
-        this.previewErrors = [];
-        this.sourceCode = this.originalSourceCode;
-    }
-
-    private onPreviewErrors(event: CustomEvent<PreviewErrorsEvent>): void {
-        this.previewErrors = event.detail.errors;
-    }
-
-    private renderExampleHeader(example: Example | null): TemplateResult {
-        if (example === null) {
-            return html``;
-        }
-
-        return html`
-            <section class=${styles.metaHeader}>
-                <h2 class=${styles.title} data-role="example-title">${example.title}</h2>
-                <p class=${styles.description} data-role="example-description">${example.description}</p>
-                ${(example.tags || []).length > 0 ? html`
-                    <div class=${styles.tagList} data-role="example-tags">
-                        ${(example.tags || []).map((tag) => html`
-                            <button
-                                class=${styles.tag}
-                                data-role="example-tag"
-                                @click=${() => this.onTagClick(tag)}
-                            >${tag}</button>
-                        `)}
-                    </div>
-                ` : ''}
-            </section>
-        `;
-    }
-
-    private renderErrors(errors: Array<PreviewErrorEntry>): TemplateResult {
-        if (errors.length === 0) {
-            return html``;
-        }
-
-        return html`
-            <details class=${styles.errorPanel} data-role="error-panel">
-                <summary class=${styles.errorSummary}>
-                    <span class=${styles.errorSummaryLabel}>Errors</span>
-                    <span class=${styles.errorSummaryCount}>${errors.length}</span>
-                </summary>
-                <div class=${styles.errorBody}>
-                    ${errors.map((error) => html`
-                        <article class=${styles.errorItem} data-role="error-item">
-                            <h3 class=${styles.errorItemTitle}>${error.summary}</h3>
-                            ${error.details && error.details !== error.summary
-                                ? html`<pre class=${styles.errorDetails}>${error.details}</pre>`
-                                : ''}
-                        </article>
-                    `)}
-                </div>
-            </details>
-        `;
-    }
-
-    private renderExampleNotes(example: Example | null): TemplateResult {
-        if (example === null) {
-            return html``;
-        }
-
-        const notes = example.notes || [];
-
-        if (notes.length === 0) {
-            return html``;
-        }
-
-        return html`
-            <section class=${styles.notesPanel}>
-                <div class=${styles.metaBlock}>
-                    <h3 class=${styles.metaHeading}>Notes</h3>
-                    <ul class=${styles.notesList} data-role="example-notes">
-                        ${notes.map((note) => html`<li>${note}</li>`)}
-                    </ul>
-                </div>
-            </section>
-        `;
-    }
-
-    private getCombinedErrors(): Array<PreviewErrorEntry> {
-        return [
-            ...(this.exampleService.loadError ? [{
-                summary: 'Failed to load examples catalog',
-                details: this.exampleService.loadError,
-            }] : []),
-            ...(this.sourceLoadError ? [this.sourceLoadError] : []),
-            ...this.previewErrors,
-        ];
-    }
-
-    private onTagClick(tag: string): void {
-        this.exampleService.setActiveTagFilter(tag);
-    }
+declare global {
+  interface HTMLElementTagNameMap {
+    'exo-editor': Editor;
+  }
 }

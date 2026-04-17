@@ -1,4 +1,4 @@
-import { Application, Color, Scene } from 'exojs';
+import { Application, Color, Scene, Video } from 'exojs';
 
 const app = new Application({
     width: 800,
@@ -9,28 +9,20 @@ const app = new Application({
 
 document.body.append(app.canvas);
 
-app.start(new Scene({
+app.start(Scene.create({
 
-    load(loader) {
-        loader.add('video', { example: 'video/example.webm' });
+    async load(loader) {
+        await loader.load(Video, { example: 'video/example.webm' });
     },
-
-    init(resources) {
+    init(loader) {
         const { width, height } = this.app.canvas;
 
-        this._video = resources.get('video', 'example');
+        this._video = loader.get(Video, 'example');
         this._video.width = width;
         this._video.height = height;
-        window.__EXAMPLE_PREVIEW_AUTOPLAY__ = () => this._video.play({ loop: true, muted: false, volume: 0.5 });
+        this._video.applyOptions({ loop: true, muted: false, volume: 0.5 });
 
-        this.app.inputManager.onPointerTap.add(() => {
-            if (this._video.paused) {
-                window.__EXAMPLE_PREVIEW_AUTOPLAY__?.();
-                return;
-            }
-
-            this._video.toggle();
-        });
+        this.app.inputManager.onPointerTap.add(() => this._video.toggle());
     },
 
     draw(renderManager) {
