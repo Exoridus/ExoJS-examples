@@ -1212,26 +1212,7 @@ declare module "core/types" {
     export interface HasBoundingBox {
         getBounds(): Rectangle;
     }
-    export enum ResourceTypes {
-        Font = "font",
-        Video = "video",
-        Music = "music",
-        Sound = "sound",
-        Image = "image",
-        Texture = "texture",
-        Text = "text",
-        Json = "json",
-        Svg = "svg"
-    }
-    export enum StorageNames {
-        Font = "font",
-        Video = "video",
-        Music = "music",
-        Sound = "sound",
-        Image = "image",
-        Text = "text",
-        Json = "json"
-    }
+    export type StreamingLoadEvent = 'loadedmetadata' | 'loadeddata' | 'canplay' | 'canplaythrough';
 }
 declare module "core/Clock" {
     import { Time } from "core/Time";
@@ -1650,133 +1631,140 @@ declare module "rendering/video/Video" {
         private setupWithAudioContext;
     }
 }
-declare module "resources/ResourceContainer" {
-    import type { Texture } from "rendering/texture/Texture";
-    import type { Music } from "audio/Music";
-    import type { Sound } from "audio/Sound";
-    import type { Video } from "rendering/video/Video";
-    import type { ResourceTypes } from "core/types";
-    export interface ResourceTypeMap {
-        [ResourceTypes.Font]: FontFace;
-        [ResourceTypes.Image]: HTMLImageElement;
-        [ResourceTypes.Texture]: Texture;
-        [ResourceTypes.Json]: Record<string, unknown>;
-        [ResourceTypes.Music]: Music;
-        [ResourceTypes.Sound]: Sound;
-        [ResourceTypes.Video]: Video;
-        [ResourceTypes.Text]: string;
-        [ResourceTypes.Svg]: HTMLImageElement;
+declare module "resources/tokens" {
+    /**
+     * Dispatch token for generic JSON loading.
+     *
+     * `loader.load(Json, 'config.json')` returns `Promise<unknown>`.
+     * Narrow via generic: `loader.load<Config>(Json, 'config.json')`.
+     * Handles all JSON shapes — objects, arrays, scalars.
+     */
+    export abstract class Json {
     }
-    type ResourceMap = Map<string, unknown>;
-    export class ResourceContainer {
-        private _resources;
-        get resources(): ReadonlyMap<ResourceTypes, ReadonlyMap<string, unknown>>;
-        get types(): Array<ResourceTypes>;
-        addType(type: ResourceTypes): this;
-        getResources(type: ResourceTypes): ResourceMap;
-        has(type: ResourceTypes, name: string): boolean;
-        get<K extends ResourceTypes>(type: K, name: string): ResourceTypeMap[K];
-        set<K extends ResourceTypes>(type: K, name: string, resource: ResourceTypeMap[K]): this;
-        remove(type: ResourceTypes, name: string): this;
-        clear(): this;
+    /**
+     * Dispatch token for plain text loading.
+     *
+     * `loader.load(TextAsset, 'greeting.txt')` returns `Promise<string>`.
+     */
+    export abstract class TextAsset {
+    }
+    /**
+     * Dispatch token for SVG loading.
+     *
+     * `loader.load(SvgAsset, 'icon.svg')` returns `Promise<HTMLImageElement>`.
+     */
+    export abstract class SvgAsset {
+    }
+    /**
+     * Dispatch token for WebVTT subtitle loading.
+     *
+     * `loader.load(VttAsset, 'subs.vtt')` returns `Promise<Array<VTTCue>>`.
+     */
+    export abstract class VttAsset {
+    }
+}
+declare module "resources/AssetFactory" {
+    export interface AssetFactory<T = unknown> {
+        readonly storageName: string;
+        process(response: Response): Promise<unknown>;
+        create(source: unknown, options?: unknown): Promise<T>;
         destroy(): void;
     }
 }
-declare module "resources/ResourceFactory" {
-    import type { StorageNames } from "core/types";
-    export interface ResourceFactory<SourceValue = unknown, TargetValue = unknown, Options = unknown> {
-        readonly storageName: StorageNames;
-        process(response: Response): Promise<SourceValue>;
-        create(source: SourceValue, options?: Options): Promise<TargetValue>;
+declare module "resources/FactoryRegistry" {
+    import type { AssetFactory } from "resources/AssetFactory";
+    export type AssetConstructor<T = unknown> = abstract new (...args: Array<any>) => T;
+    export class FactoryRegistry {
+        private readonly _factories;
+        register<T>(type: AssetConstructor<T>, factory: AssetFactory<T>): void;
+        resolve<T>(type: AssetConstructor<T>): AssetFactory<T>;
+        has(type: AssetConstructor): boolean;
         destroy(): void;
     }
 }
-declare module "resources/factories/AbstractResourceFactory" {
-    import type { ResourceFactory } from "resources/ResourceFactory";
-    import type { StorageNames } from "core/types";
-    export abstract class AbstractResourceFactory<SourceValue = unknown, TargetValue = unknown, Options = unknown> implements ResourceFactory<SourceValue, TargetValue, Options> {
-        readonly objectUrls: Array<string>;
-        abstract readonly storageName: StorageNames;
-        abstract process(response: Response): Promise<SourceValue>;
-        abstract create(source: SourceValue, options?: Options): Promise<TargetValue>;
+declare module "resources/AbstractAssetFactory" {
+    import type { AssetFactory } from "resources/AssetFactory";
+    export abstract class AbstractAssetFactory<T = unknown> implements AssetFactory<T> {
+        protected readonly _objectUrls: Array<string>;
+        abstract readonly storageName: string;
+        abstract process(response: Response): Promise<unknown>;
+        abstract create(source: unknown, options?: unknown): Promise<T>;
         createObjectUrl(blob: Blob): string;
+        protected revokeObjectUrl(objectUrl: string): void;
         destroy(): void;
     }
 }
 declare module "resources/factories/FontFactory" {
-    import type { FontFaceDescriptors } from 'css-font-loading-module';
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     export interface FontFactoryOptions {
         family: string;
         descriptors?: FontFaceDescriptors;
         addToDocument?: boolean;
     }
-    export class FontFactory extends AbstractResourceFactory<ArrayBuffer, FontFace, FontFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class FontFactory extends AbstractAssetFactory<FontFace> {
+        readonly storageName = "font";
+        private readonly _addedFontFaces;
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: FontFactoryOptions): Promise<FontFace>;
+        destroy(): void;
     }
 }
 declare module "resources/utils" {
     export const determineMimeType: (arrayBuffer: ArrayBuffer) => string;
 }
 declare module "resources/factories/ImageFactory" {
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     interface ImageFactoryOptions {
         mimeType?: string;
     }
-    export class ImageFactory extends AbstractResourceFactory<ArrayBuffer, HTMLImageElement, ImageFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class ImageFactory extends AbstractAssetFactory<HTMLImageElement> {
+        readonly storageName = "image";
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: ImageFactoryOptions): Promise<HTMLImageElement>;
     }
 }
 declare module "resources/factories/JsonFactory" {
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
-    export class JsonFactory extends AbstractResourceFactory<Record<string, unknown>, Record<string, unknown>> {
-        readonly storageName: StorageNames;
-        process(response: Response): Promise<Record<string, unknown>>;
-        create(source: Record<string, unknown>): Promise<Record<string, unknown>>;
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class JsonFactory extends AbstractAssetFactory<unknown> {
+        readonly storageName = "json";
+        process(response: Response): Promise<unknown>;
+        create(source: unknown): Promise<unknown>;
     }
 }
 declare module "resources/factories/MusicFactory" {
-    import type { PlaybackOptions } from "core/types";
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
+    import type { PlaybackOptions, StreamingLoadEvent } from "core/types";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     import { Music } from "audio/Music";
     interface MusicFactoryOptions {
         mimeType?: string;
-        loadEvent?: string;
+        loadEvent?: StreamingLoadEvent;
         playbackOptions?: Partial<PlaybackOptions>;
     }
-    export class MusicFactory extends AbstractResourceFactory<ArrayBuffer, Music, MusicFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class MusicFactory extends AbstractAssetFactory<Music> {
+        readonly storageName = "music";
+        private readonly _audioElements;
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: MusicFactoryOptions): Promise<Music>;
+        destroy(): void;
     }
 }
 declare module "resources/factories/SoundFactory" {
-    import { StorageNames } from "core/types";
     import type { PlaybackOptions } from "core/types";
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     import { Sound } from "audio/Sound";
     interface SoundFactoryOptions {
         playbackOptions?: Partial<PlaybackOptions>;
     }
-    export class SoundFactory extends AbstractResourceFactory<ArrayBuffer, Sound, SoundFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class SoundFactory extends AbstractAssetFactory<Sound> {
+        readonly storageName = "sound";
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: SoundFactoryOptions): Promise<Sound>;
     }
 }
 declare module "resources/factories/TextFactory" {
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
-    export class TextFactory extends AbstractResourceFactory<string, string> {
-        readonly storageName: StorageNames;
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class TextFactory extends AbstractAssetFactory<string> {
+        readonly storageName = "text";
         process(response: Response): Promise<string>;
         create(source: string): Promise<string>;
     }
@@ -1784,116 +1772,156 @@ declare module "resources/factories/TextFactory" {
 declare module "resources/factories/TextureFactory" {
     import { Texture } from "rendering/texture/Texture";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     interface TextureFactoryOptions {
         mimeType?: string;
         samplerOptions?: SamplerOptions;
     }
-    export class TextureFactory extends AbstractResourceFactory<ArrayBuffer, Texture, TextureFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class TextureFactory extends AbstractAssetFactory<Texture> {
+        readonly storageName = "texture";
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: TextureFactoryOptions): Promise<Texture>;
     }
 }
 declare module "resources/factories/VideoFactory" {
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
     import type { SamplerOptions } from "rendering/texture/Sampler";
-    import type { PlaybackOptions } from "core/types";
-    import { StorageNames } from "core/types";
+    import type { PlaybackOptions, StreamingLoadEvent } from "core/types";
     import { Video } from "rendering/video/Video";
     interface VideoFactoryOptions {
         mimeType?: string;
-        loadEvent?: string;
+        loadEvent?: StreamingLoadEvent;
         playbackOptions?: Partial<PlaybackOptions>;
         samplerOptions?: Partial<SamplerOptions>;
     }
-    export class VideoFactory extends AbstractResourceFactory<ArrayBuffer, Video, VideoFactoryOptions> {
-        readonly storageName: StorageNames;
+    export class VideoFactory extends AbstractAssetFactory<Video> {
+        readonly storageName = "video";
+        private readonly _videoElements;
         process(response: Response): Promise<ArrayBuffer>;
         create(source: ArrayBuffer, options?: VideoFactoryOptions): Promise<Video>;
+        destroy(): void;
     }
 }
 declare module "resources/factories/SvgFactory" {
-    import { AbstractResourceFactory } from "resources/factories/AbstractResourceFactory";
-    import { StorageNames } from "core/types";
-    export class SvgFactory extends AbstractResourceFactory<string, HTMLImageElement> {
-        readonly storageName: StorageNames;
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class SvgFactory extends AbstractAssetFactory<HTMLImageElement> {
+        readonly storageName = "svg";
         process(response: Response): Promise<string>;
         create(source: string): Promise<HTMLImageElement>;
     }
 }
-declare module "resources/Database" {
-    export interface Database {
-        readonly name: string;
-        readonly version: number;
-        readonly connected: boolean;
-        connect(): Promise<boolean>;
-        disconnect(): Promise<boolean>;
-        load<T = unknown>(type: string, name: string): Promise<T | null>;
-        save(type: string, name: string, data: unknown): Promise<void>;
-        delete(type: string, name: string): Promise<boolean>;
-        clearStorage(type: string): Promise<boolean>;
-        deleteStorage(): Promise<boolean>;
+declare module "resources/factories/BinaryFactory" {
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class BinaryFactory extends AbstractAssetFactory<ArrayBuffer> {
+        readonly storageName = "binary";
+        process(response: Response): Promise<ArrayBuffer>;
+        create(source: ArrayBuffer): Promise<ArrayBuffer>;
+    }
+}
+declare module "resources/factories/WasmFactory" {
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class WasmFactory extends AbstractAssetFactory<WebAssembly.Module> {
+        readonly storageName = "wasm";
+        process(response: Response): Promise<ArrayBuffer>;
+        create(source: ArrayBuffer): Promise<WebAssembly.Module>;
+    }
+}
+declare module "resources/factories/VttFactory" {
+    import { AbstractAssetFactory } from "resources/AbstractAssetFactory";
+    export class VttFactory extends AbstractAssetFactory<Array<VTTCue>> {
+        readonly storageName = "vtt";
+        process(response: Response): Promise<string>;
+        create(source: string): Promise<Array<VTTCue>>;
+    }
+}
+declare module "resources/CacheStore" {
+    export interface CacheStore {
+        load(storageName: string, key: string): Promise<unknown | null>;
+        save(storageName: string, key: string, data: unknown): Promise<void>;
+        delete(storageName: string, key: string): Promise<boolean>;
+        clear(storageName: string): Promise<boolean>;
         destroy(): void;
     }
 }
 declare module "resources/Loader" {
     import { Signal } from "core/Signal";
-    import { ResourceContainer } from "resources/ResourceContainer";
-    import type { Database } from "resources/Database";
-    import type { ResourceFactory } from "resources/ResourceFactory";
-    import { ResourceTypes } from "core/types";
+    import { Json, TextAsset, SvgAsset, VttAsset } from "resources/tokens";
+    import type { AssetFactory } from "resources/AssetFactory";
+    import type { AssetConstructor } from "resources/FactoryRegistry";
+    import type { CacheStore } from "resources/CacheStore";
+    export type Loadable = abstract new (...args: Array<any>) => any;
+    export type LoadReturn<T> = T extends typeof Json ? unknown : T extends typeof TextAsset ? string : T extends typeof SvgAsset ? HTMLImageElement : T extends typeof VttAsset ? Array<VTTCue> : T extends abstract new (...args: Array<any>) => infer R ? R : never;
     export interface LoaderOptions {
-        resourcePath: string;
+        resourcePath?: string;
         requestOptions?: RequestInit;
-        database?: Database;
-    }
-    export interface ResourceQueueItem {
-        type: ResourceTypes;
-        name: string;
-        path: string;
-        options?: unknown;
+        cache?: CacheStore | ReadonlyArray<CacheStore>;
+        concurrency?: number;
     }
     export class Loader {
-        private _factories;
-        private _resources;
-        private _queue;
+        private readonly _registry;
+        private readonly _resources;
+        private readonly _manifest;
+        private readonly _inFlight;
+        private readonly _typeIds;
+        private readonly _preventStoreKeys;
+        private readonly _stores;
         private _resourcePath;
         private _requestOptions;
-        private _database;
-        readonly onQueueResource: Signal<[ResourceQueueItem]>;
-        readonly onStartLoading: Signal<[number, number, ResourceQueueItem[]]>;
-        readonly onLoadResource: Signal<[number, number, unknown]>;
-        readonly onFinishLoading: Signal<[number, number, ResourceContainer]>;
-        constructor(options: LoaderOptions);
-        get factories(): Map<ResourceTypes, ResourceFactory>;
-        get queue(): Array<ResourceQueueItem>;
-        get resources(): ResourceContainer;
+        private _concurrency;
+        private _nextTypeId;
+        private _backgroundQueue;
+        private _backgroundActive;
+        private _backgroundTotal;
+        private _backgroundLoaded;
+        private _backgroundResolve;
+        readonly onProgress: Signal<[loaded: number, total: number]>;
+        readonly onLoaded: Signal<[type: AssetConstructor, alias: string, resource: unknown]>;
+        readonly onError: Signal<[type: AssetConstructor, alias: string, error: Error]>;
+        constructor(options?: LoaderOptions);
+        register<T>(type: AssetConstructor<T>, factory: AssetFactory<T>): this;
+        add(type: Loadable, path: string): this;
+        add(type: Loadable, paths: ReadonlyArray<string>): this;
+        add(type: Loadable, items: Readonly<Record<string, string>>): this;
+        load<T = unknown>(type: typeof Json, path: string, options?: unknown): Promise<T>;
+        load<T = unknown>(type: typeof Json, paths: ReadonlyArray<string>, options?: unknown): Promise<Array<T>>;
+        load<T = unknown, K extends string = string>(type: typeof Json, items: Readonly<Record<K, string>>, options?: unknown): Promise<Record<K, T>>;
+        load<T extends Loadable>(type: T, path: string, options?: unknown): Promise<LoadReturn<T>>;
+        load<T extends Loadable>(type: T, paths: ReadonlyArray<string>, options?: unknown): Promise<Array<LoadReturn<T>>>;
+        load<T extends Loadable, K extends string>(type: T, items: Readonly<Record<K, string>>, options?: unknown): Promise<Record<K, LoadReturn<T>>>;
+        backgroundLoad(): void;
+        loadAll(): Promise<void>;
+        setConcurrency(n: number): this;
+        get<T = unknown>(type: typeof Json, alias: string): T;
+        get<T extends Loadable>(type: T, alias: string): LoadReturn<T>;
+        peek<T = unknown>(type: typeof Json, alias: string): T | null;
+        peek<T extends Loadable>(type: T, alias: string): LoadReturn<T> | null;
+        has(type: Loadable, alias: string): boolean;
+        unload(type: Loadable, alias: string): this;
+        unloadAll(type?: Loadable): this;
         get resourcePath(): string;
-        set resourcePath(resourcePath: string);
+        set resourcePath(value: string);
         get requestOptions(): RequestInit;
-        set requestOptions(requestOptions: RequestInit);
-        get database(): Database | null;
-        set database(database: Database | null);
-        addFactory(type: ResourceTypes, factory: ResourceFactory): this;
-        getFactory(type: ResourceTypes): ResourceFactory;
-        add(type: ResourceTypes, items: Record<string, string>, options?: unknown): this;
-        load(callback?: () => void): Promise<ResourceContainer>;
-        loadItem(queueItem: ResourceQueueItem): Promise<unknown>;
-        private getResources;
-        reset({ signals, queue, resources }?: {
-            signals?: boolean | undefined;
-            queue?: boolean | undefined;
-            resources?: boolean | undefined;
-        }): this;
+        set requestOptions(value: RequestInit);
         destroy(): void;
+        private _loadSingle;
+        private _fetch;
+        private _drainBackground;
+        private _boostFromQueue;
+        private _onBackgroundItemDone;
+        private _startBackgroundEntry;
+        private _trackInFlight;
+        private _addManifestEntry;
+        private _getManifestEntry;
+        private _hasResource;
+        private _storeResource;
+        private _key;
+        private _resolveUrl;
+        private _registerBuiltinFactories;
     }
 }
 declare module "core/Scene" {
     import type { Time } from "core/Time";
     import type { Loader } from "resources/Loader";
-    import type { ResourceContainer } from "resources/ResourceContainer";
     import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     import { Container } from "rendering/Container";
     import type { SceneNode } from "core/SceneNode";
@@ -1905,36 +1933,11 @@ declare module "core/Scene" {
         draw?: (renderManager: SceneRenderRuntime) => void;
         unload?: (loader: Loader) => Promise<void> | void;
     }
-    /**
-     * The intersection of a Scene instance with the definition object T.
-     * Returned by {@link Scene.create} so both Scene members and user-defined
-     * methods/properties are accessible with proper types.
-     */
     export type SceneInstance<T extends SceneData = SceneData> = Scene & T;
     export class Scene {
         private _app;
         private readonly _root;
-        /**
-         * Preferred factory for the object-literal style.
-         *
-         * Inside callback methods, `this` is untyped (`any`) so user-defined fields
-         * (`this._sprite`, etc.) can be freely assigned and used without casts.
-         * Scene members (`app`, `root`, `addChild`, …) are accessible but untyped
-         * inside the callbacks; they are fully typed on the returned `SceneInstance`.
-         * - Arrow functions ignore `ThisType` — use method shorthand (`init() {}`)
-         *   rather than arrow functions (`init: () => {}`) so `this` binds correctly.
-         *
-         * `destroy` is intentionally excluded from the definition: the base `destroy`
-         * disposes the root container and clears the app reference. To run cleanup
-         * on scene teardown, override `destroy()` in a subclass instead.
-         *
-         * @example
-         * const scene = Scene.create({
-         *     init(resources) { this._sprite = new Sprite(...); },
-         *     update(delta)   { (this._sprite as Sprite).rotate(delta.seconds * 360); },
-         * });
-         */
-        static create<T extends SceneData>(definition: T & ThisType<any>): SceneInstance<T>;
+        static create<T extends SceneData>(definition: T & ThisType<SceneInstance<T>>): SceneInstance<T>;
         constructor();
         get app(): Application | null;
         set app(app: Application | null);
@@ -1970,10 +1973,10 @@ declare module "core/SceneManager" {
         private _unloadScene;
     }
 }
-declare module "rendering/webgl2/ShaderMappings" {
-    export const primitiveByteSizeMapping: Record<number, number>;
-    export const primitiveArrayConstructors: Record<number, Float32ArrayConstructor | Int32ArrayConstructor | Uint8ArrayConstructor>;
-    export const primitiveTypeNames: Record<number, string>;
+declare module "rendering/webgl2/WebGl2ShaderMappings" {
+    export const webGl2PrimitiveByteSizeMapping: Record<number, number>;
+    export const webGl2PrimitiveArrayConstructors: Record<number, Float32ArrayConstructor | Int32ArrayConstructor | Uint8ArrayConstructor>;
+    export const webGl2PrimitiveTypeNames: Record<number, string>;
 }
 declare module "rendering/shader/ShaderAttribute" {
     export class ShaderAttribute {
@@ -1986,16 +1989,16 @@ declare module "rendering/shader/ShaderAttribute" {
         destroy(): void;
     }
 }
-declare module "rendering/webgl2/RenderBuffer" {
+declare module "rendering/webgl2/WebGl2RenderBuffer" {
     import type { BufferTypes, BufferUsage } from "rendering/types";
     import type { TypedArray } from "core/types";
     type DataContainer = ArrayBuffer | SharedArrayBuffer | ArrayBufferView | TypedArray;
-    export interface RenderBufferRuntime {
-        bind(buffer: RenderBuffer): void;
-        upload(buffer: RenderBuffer, offset: number): void;
-        destroy(buffer: RenderBuffer): void;
+    export interface WebGl2RenderBufferRuntime {
+        bind(buffer: WebGl2RenderBuffer): void;
+        upload(buffer: WebGl2RenderBuffer, offset: number): void;
+        destroy(buffer: WebGl2RenderBuffer): void;
     }
-    export class RenderBuffer {
+    export class WebGl2RenderBuffer {
         private readonly _type;
         private readonly _usage;
         private _runtime;
@@ -2006,19 +2009,19 @@ declare module "rendering/webgl2/RenderBuffer" {
         get usage(): BufferUsage;
         get data(): DataContainer;
         get version(): number;
-        connect(runtime: RenderBufferRuntime): this;
+        connect(runtime: WebGl2RenderBufferRuntime): this;
         disconnect(): this;
         upload(data: DataContainer, offset?: number): void;
         bind(): void;
         destroy(): void;
     }
 }
-declare module "rendering/webgl2/VertexArrayObject" {
+declare module "rendering/webgl2/WebGl2VertexArrayObject" {
     import { RenderingPrimitives } from "rendering/types";
     import type { ShaderAttribute } from "rendering/shader/ShaderAttribute";
-    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
+    import type { WebGl2RenderBuffer } from "rendering/webgl2/WebGl2RenderBuffer";
     interface VaoAttribute {
-        readonly buffer: RenderBuffer;
+        readonly buffer: WebGl2RenderBuffer;
         readonly location: number;
         readonly size: number;
         readonly type: number;
@@ -2026,13 +2029,13 @@ declare module "rendering/webgl2/VertexArrayObject" {
         readonly stride: number;
         readonly start: number;
     }
-    export interface VertexArrayObjectRuntime {
-        bind(vao: VertexArrayObject): void;
-        unbind(vao: VertexArrayObject): void;
-        draw(vao: VertexArrayObject, size: number, start: number, type: RenderingPrimitives): void;
-        destroy(vao: VertexArrayObject): void;
+    export interface WebGl2VertexArrayObjectRuntime {
+        bind(vao: WebGl2VertexArrayObject): void;
+        unbind(vao: WebGl2VertexArrayObject): void;
+        draw(vao: WebGl2VertexArrayObject, size: number, start: number, type: RenderingPrimitives): void;
+        destroy(vao: WebGl2VertexArrayObject): void;
     }
-    export class VertexArrayObject {
+    export class WebGl2VertexArrayObject {
         private readonly _attributes;
         private _indexBuffer;
         private _drawMode;
@@ -2040,15 +2043,15 @@ declare module "rendering/webgl2/VertexArrayObject" {
         private _version;
         constructor(drawMode?: RenderingPrimitives);
         get attributes(): Array<VaoAttribute>;
-        get indexBuffer(): RenderBuffer | null;
+        get indexBuffer(): WebGl2RenderBuffer | null;
         get drawMode(): RenderingPrimitives;
         get version(): number;
-        connect(runtime: VertexArrayObjectRuntime): this;
+        connect(runtime: WebGl2VertexArrayObjectRuntime): this;
         disconnect(): this;
         bind(): this;
         unbind(): this;
-        addAttribute(buffer: RenderBuffer, attribute: ShaderAttribute, type?: number, normalized?: boolean, stride?: number, start?: number): this;
-        addIndex(buffer: RenderBuffer): this;
+        addAttribute(buffer: WebGl2RenderBuffer, attribute: ShaderAttribute, type?: number, normalized?: boolean, stride?: number, start?: number): this;
+        addIndex(buffer: WebGl2RenderBuffer): this;
         clear(): this;
         draw(size: number, start: number, type?: RenderingPrimitives): this;
         destroy(): void;
@@ -2123,14 +2126,14 @@ declare module "rendering/webgl2/WebGl2RendererRuntime" {
     import type { RenderBackendType } from "rendering/RenderBackendType";
     import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     import type { Shader } from "rendering/shader/Shader";
-    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { WebGl2VertexArrayObject } from "rendering/webgl2/WebGl2VertexArrayObject";
     import type { Texture } from "rendering/texture/Texture";
     import type { RenderTexture } from "rendering/texture/RenderTexture";
     export interface WebGl2RendererRuntime extends SceneRenderRuntime {
         readonly backendType: RenderBackendType.WebGl2;
         readonly context: WebGL2RenderingContext;
         bindShader(shader: Shader | null): this;
-        bindVertexArrayObject(vao: VertexArrayObject | null): this;
+        bindVertexArrayObject(vao: WebGl2VertexArrayObject | null): this;
         bindTexture(texture: Texture | RenderTexture | null, unit?: number): this;
         setBlendMode(blendMode: BlendModes | null): this;
     }
@@ -2181,9 +2184,9 @@ declare module "rendering/webgl2/AbstractWebGl2Renderer" {
         protected getRuntimeOrNull(): WebGl2RendererRuntime | null;
     }
 }
-declare module "rendering/webgl2/ShaderBlock" {
+declare module "rendering/webgl2/WebGl2ShaderBlock" {
     import { ShaderUniform } from "rendering/shader/ShaderUniform";
-    export class ShaderBlock {
+    export class WebGl2ShaderBlock {
         readonly index: number;
         readonly name: string;
         readonly binding: number;
@@ -2202,13 +2205,13 @@ declare module "rendering/webgl2/ShaderBlock" {
 }
 declare module "rendering/webgl2/WebGl2ShaderRuntime" {
     import type { ShaderRuntime } from "rendering/shader/Shader";
-    export function createWebGlShaderRuntime(gl: WebGL2RenderingContext): ShaderRuntime;
+    export function createWebGl2ShaderRuntime(gl: WebGL2RenderingContext): ShaderRuntime;
 }
 declare module "rendering/webgl2/AbstractWebGl2BatchedRenderer" {
     import { AbstractWebGl2Renderer } from "rendering/webgl2/AbstractWebGl2Renderer";
     import { Shader } from "rendering/shader/Shader";
-    import type { VertexArrayObject, VertexArrayObjectRuntime } from "rendering/webgl2/VertexArrayObject";
-    import { RenderBuffer, type RenderBufferRuntime } from "rendering/webgl2/RenderBuffer";
+    import type { WebGl2VertexArrayObject, WebGl2VertexArrayObjectRuntime } from "rendering/webgl2/WebGl2VertexArrayObject";
+    import { WebGl2RenderBuffer, type WebGl2RenderBufferRuntime } from "rendering/webgl2/WebGl2RenderBuffer";
     import type { Texture } from "rendering/texture/Texture";
     import type { BlendModes } from "rendering/types";
     import type { View } from "rendering/View";
@@ -2221,7 +2224,7 @@ declare module "rendering/webgl2/AbstractWebGl2BatchedRenderer" {
     }
     interface RendererConnection {
         readonly gl: WebGL2RenderingContext;
-        readonly buffers: Map<RenderBuffer, ManagedBufferState>;
+        readonly buffers: Map<WebGl2RenderBuffer, ManagedBufferState>;
         readonly vaoHandle: WebGLVertexArrayObject;
     }
     export abstract class AbstractWebGl2BatchedRenderer extends AbstractWebGl2Renderer<Drawable> {
@@ -2237,9 +2240,9 @@ declare module "rendering/webgl2/AbstractWebGl2BatchedRenderer" {
         protected currentBlendMode: BlendModes | null;
         protected currentView: View | null;
         protected currentViewId: number;
-        protected vao: VertexArrayObject | null;
-        protected indexBuffer: RenderBuffer | null;
-        protected vertexBuffer: RenderBuffer | null;
+        protected vao: WebGl2VertexArrayObject | null;
+        protected indexBuffer: WebGl2RenderBuffer | null;
+        protected vertexBuffer: WebGl2RenderBuffer | null;
         protected connection: RendererConnection | null;
         protected constructor(batchSize: number, attributeCount: number, vertexSource: string, fragmentSource: string);
         flush(): void;
@@ -2247,23 +2250,23 @@ declare module "rendering/webgl2/AbstractWebGl2BatchedRenderer" {
         protected onConnect(runtime: WebGl2RendererRuntime): void;
         protected onDisconnect(): void;
         abstract render(drawable: Drawable): void;
-        protected abstract createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
+        protected abstract createVao(gl: WebGL2RenderingContext, indexBuffer: WebGl2RenderBuffer, vertexBuffer: WebGl2RenderBuffer): WebGl2VertexArrayObject;
         protected abstract updateView(view: View): void;
         protected createConnection(gl: WebGL2RenderingContext): RendererConnection;
-        protected createBufferRuntime(connection: RendererConnection): RenderBufferRuntime;
-        protected createVaoRuntime(connection: RendererConnection): VertexArrayObjectRuntime;
+        protected createBufferRuntime(connection: RendererConnection): WebGl2RenderBufferRuntime;
+        protected createVaoRuntime(connection: RendererConnection): WebGl2VertexArrayObjectRuntime;
     }
 }
 declare module "rendering/webgl2/WebGl2SpriteRenderer" {
-    import { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
-    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
+    import { WebGl2VertexArrayObject } from "rendering/webgl2/WebGl2VertexArrayObject";
+    import type { WebGl2RenderBuffer } from "rendering/webgl2/WebGl2RenderBuffer";
     import type { Sprite } from "rendering/sprite/Sprite";
     import { AbstractWebGl2BatchedRenderer } from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
     import type { View } from "rendering/View";
     export class WebGl2SpriteRenderer extends AbstractWebGl2BatchedRenderer {
         constructor(batchSize: number);
         render(sprite: Sprite): this;
-        protected createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
+        protected createVao(gl: WebGL2RenderingContext, indexBuffer: WebGl2RenderBuffer, vertexBuffer: WebGl2RenderBuffer): WebGl2VertexArrayObject;
         protected updateView(view: View): this;
     }
 }
@@ -2424,15 +2427,15 @@ declare module "particles/ParticleSystem" {
     }
 }
 declare module "rendering/webgl2/WebGl2ParticleRenderer" {
-    import type { RenderBuffer } from "rendering/webgl2/RenderBuffer";
-    import { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { WebGl2RenderBuffer } from "rendering/webgl2/WebGl2RenderBuffer";
+    import { WebGl2VertexArrayObject } from "rendering/webgl2/WebGl2VertexArrayObject";
     import type { ParticleSystem } from "particles/ParticleSystem";
     import { AbstractWebGl2BatchedRenderer } from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
     import type { View } from "rendering/View";
     export class WebGl2ParticleRenderer extends AbstractWebGl2BatchedRenderer {
         constructor(batchSize: number);
         render(system: ParticleSystem): this;
-        protected createVao(gl: WebGL2RenderingContext, indexBuffer: RenderBuffer, vertexBuffer: RenderBuffer): VertexArrayObject;
+        protected createVao(gl: WebGL2RenderingContext, indexBuffer: WebGl2RenderBuffer, vertexBuffer: WebGl2RenderBuffer): WebGl2VertexArrayObject;
         protected updateView(view: View): this;
     }
 }
@@ -2548,7 +2551,7 @@ declare module "rendering/webgl2/WebGl2RenderManager" {
     import type { Drawable } from "rendering/Drawable";
     import type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
     import type { Shader } from "rendering/shader/Shader";
-    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { WebGl2VertexArrayObject } from "rendering/webgl2/WebGl2VertexArrayObject";
     import type { View } from "rendering/View";
     import type { Application } from "core/Application";
     export class WebGl2RenderManager implements WebGl2RendererRuntime {
@@ -2585,7 +2588,7 @@ declare module "rendering/webgl2/WebGl2RenderManager" {
         execute(pass: RenderPass): this;
         setRenderTarget(target: RenderTarget | null): this;
         setView(view: View | null): this;
-        bindVertexArrayObject(vao: VertexArrayObject | null): this;
+        bindVertexArrayObject(vao: WebGl2VertexArrayObject | null): this;
         bindShader(shader: Shader | null): this;
         bindTexture(texture: Texture | RenderTexture | null, unit?: number): this;
         setBlendMode(blendMode: BlendModes | null): this;
@@ -2659,7 +2662,7 @@ declare module "rendering/webgpu/AbstractWebGpuRenderer" {
         protected getRuntimeOrNull(): WebGpuRendererRuntime | null;
     }
 }
-declare module "rendering/webgpu/webgpuBlendState" {
+declare module "rendering/webgpu/WebGpuBlendState" {
     import { BlendModes } from "rendering/types";
     /**
      * Returns the GPUBlendState for a given ExoJS blend mode.
@@ -2780,7 +2783,7 @@ declare module "rendering/webgpu/WebGpuRenderManager" {
     import type { RenderPass } from "rendering/RenderPass";
     import type { Shader } from "rendering/shader/Shader";
     import type { Texture } from "rendering/texture/Texture";
-    import type { VertexArrayObject } from "rendering/webgl2/VertexArrayObject";
+    import type { WebGl2VertexArrayObject } from "rendering/webgl2/WebGl2VertexArrayObject";
     import type { View } from "rendering/View";
     import type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
     import { RenderTarget } from "rendering/RenderTarget";
@@ -2823,7 +2826,7 @@ declare module "rendering/webgpu/WebGpuRenderManager" {
         setShader(shader: Shader | null): this;
         setTexture(texture: Texture | RenderTexture | null, _unit?: number): this;
         setBlendMode(blendMode: BlendModes | null): this;
-        setVao(vao: VertexArrayObject | null): this;
+        setVao(vao: WebGl2VertexArrayObject | null): this;
         setRenderTarget(target: RenderTarget | null): this;
         setView(view: View | null): this;
         clear(color?: Color): this;
@@ -3379,7 +3382,7 @@ declare module "core/Application" {
     import { Color } from "core/Color";
     import type { Time } from "core/Time";
     import type { Scene } from "core/Scene";
-    import type { Database } from "resources/Database";
+    import type { CacheStore } from "resources/CacheStore";
     import type { SceneRenderRuntime } from "rendering/SceneRenderRuntime";
     import type { GamepadDefinition } from "input/GamepadDefinitions";
     export enum ApplicationStatus {
@@ -3402,7 +3405,7 @@ declare module "core/Application" {
         webglAttributes: WebGLContextAttributes;
         resourcePath: string;
         requestOptions: RequestInit;
-        database?: Database;
+        cache?: CacheStore | ReadonlyArray<CacheStore>;
         backend?: BackendConfig;
     }
     export interface WebGl2BackendConfig {
@@ -3954,10 +3957,10 @@ declare module "rendering/index" {
     export * from "rendering/video/Video";
     export * from "rendering/webgl2/AbstractWebGl2BatchedRenderer";
     export * from "rendering/webgl2/AbstractWebGl2Renderer";
-    export * from "rendering/webgl2/RenderBuffer";
-    export * from "rendering/webgl2/ShaderBlock";
-    export * from "rendering/webgl2/ShaderMappings";
-    export * from "rendering/webgl2/VertexArrayObject";
+    export * from "rendering/webgl2/WebGl2RenderBuffer";
+    export * from "rendering/webgl2/WebGl2ShaderBlock";
+    export * from "rendering/webgl2/WebGl2ShaderMappings";
+    export * from "rendering/webgl2/WebGl2VertexArrayObject";
     export * from "rendering/webgl2/WebGl2ParticleRenderer";
     export * from "rendering/webgl2/WebGl2PrimitiveRenderer";
     export type { WebGl2RendererRuntime } from "rendering/webgl2/WebGl2RendererRuntime";
@@ -3965,7 +3968,7 @@ declare module "rendering/index" {
     export * from "rendering/webgl2/WebGl2ShaderRuntime";
     export * from "rendering/webgl2/WebGl2SpriteRenderer";
     export * from "rendering/webgpu/AbstractWebGpuRenderer";
-    export * from "rendering/webgpu/webgpuBlendState";
+    export * from "rendering/webgpu/WebGpuBlendState";
     export * from "rendering/webgpu/WebGpuParticleRenderer";
     export * from "rendering/webgpu/WebGpuPrimitiveRenderer";
     export type { WebGpuRendererRuntime } from "rendering/webgpu/WebGpuRendererRuntime";
@@ -3982,41 +3985,104 @@ declare module "rendering/index" {
     export * from "rendering/SceneRenderRuntime";
     export * from "rendering/View";
 }
-declare module "index" {
-    export * from "core/index";
-    export * from "audio/index";
-    export * from "input/index";
-    export * from "math/index";
-    export * from "particles/index";
-    export * from "rendering/index";
+declare module "resources/CacheStrategy" {
+    import type { AssetFactory } from "resources/AssetFactory";
+    import type { CacheStore } from "resources/CacheStore";
+    export interface CacheRequest {
+        readonly storageName: string;
+        readonly key: string;
+        readonly url: string;
+        readonly requestOptions: RequestInit;
+        readonly factory: AssetFactory;
+    }
+    export interface CacheStrategy {
+        resolve(request: CacheRequest, stores: ReadonlyArray<CacheStore>): Promise<unknown>;
+    }
 }
-declare module "resources/IndexedDbDatabase" {
-    import type { Database } from "resources/Database";
-    import { ResourceTypes } from "core/types";
-    export class IndexedDbDatabase implements Database {
+declare module "resources/CacheFirstStrategy" {
+    import type { CacheRequest, CacheStrategy } from "resources/CacheStrategy";
+    import type { CacheStore } from "resources/CacheStore";
+    export class CacheFirstStrategy implements CacheStrategy {
+        resolve(request: CacheRequest, stores: ReadonlyArray<CacheStore>): Promise<unknown>;
+    }
+}
+declare module "resources/NetworkOnlyStrategy" {
+    import type { CacheRequest, CacheStrategy } from "resources/CacheStrategy";
+    import type { CacheStore } from "resources/CacheStore";
+    export class NetworkOnlyStrategy implements CacheStrategy {
+        resolve(request: CacheRequest, _stores: ReadonlyArray<CacheStore>): Promise<unknown>;
+    }
+}
+declare module "resources/Database" {
+    export interface Database {
         readonly name: string;
         readonly version: number;
-        private readonly _onCloseHandler;
-        private _connected;
-        private _database;
-        get connected(): boolean;
-        constructor(name: string, version: number);
-        getObjectStore(type: ResourceTypes, transactionMode?: IDBTransactionMode): Promise<IDBObjectStore>;
+        readonly connected: boolean;
         connect(): Promise<boolean>;
         disconnect(): Promise<boolean>;
-        load<T = unknown>(type: ResourceTypes, name: string): Promise<T | null>;
-        save(type: ResourceTypes, name: string, data: unknown): Promise<void>;
-        delete(type: ResourceTypes, name: string): Promise<boolean>;
-        clearStorage(type: ResourceTypes): Promise<boolean>;
+        load<T = unknown>(type: string, name: string): Promise<T | null>;
+        save(type: string, name: string, data: unknown): Promise<void>;
+        delete(type: string, name: string): Promise<boolean>;
+        clearStorage(type: string): Promise<boolean>;
         deleteStorage(): Promise<boolean>;
         destroy(): void;
     }
 }
+declare module "resources/IndexedDbDatabase" {
+    import type { Database } from "resources/Database";
+    export class IndexedDbDatabase implements Database {
+        readonly name: string;
+        readonly version: number;
+        private readonly _storeNames;
+        private readonly _migrations;
+        private readonly _onCloseHandler;
+        private _connected;
+        private _database;
+        get connected(): boolean;
+        constructor(name: string, version?: number, storeNames?: ReadonlyArray<string>, migrations?: Record<number, (db: IDBDatabase, transaction: IDBTransaction) => boolean>);
+        getObjectStore(type: string, transactionMode?: IDBTransactionMode): Promise<IDBObjectStore>;
+        connect(): Promise<boolean>;
+        disconnect(): Promise<boolean>;
+        load<T = unknown>(type: string, name: string): Promise<T | null>;
+        save(type: string, name: string, data: unknown): Promise<void>;
+        delete(type: string, name: string): Promise<boolean>;
+        clearStorage(type: string): Promise<boolean>;
+        deleteStorage(): Promise<boolean>;
+        destroy(): void;
+    }
+}
+declare module "resources/IndexedDbStore" {
+    import type { CacheStore } from "resources/CacheStore";
+    export interface IndexedDbStoreOptions {
+        name: string;
+        version?: number;
+        storeNames?: ReadonlyArray<string>;
+        migrations?: Record<number, (db: IDBDatabase, transaction: IDBTransaction) => boolean>;
+    }
+    export class IndexedDbStore implements CacheStore {
+        private readonly _db;
+        constructor(nameOrOptions: string | IndexedDbStoreOptions);
+        load(storageName: string, key: string): Promise<unknown | null>;
+        save(storageName: string, key: string, data: unknown): Promise<void>;
+        delete(storageName: string, key: string): Promise<boolean>;
+        clear(storageName: string): Promise<boolean>;
+        destroy(): void;
+    }
+}
 declare module "resources/index" {
+    export * from "resources/AssetFactory";
+    export * from "resources/AbstractAssetFactory";
+    export * from "resources/tokens";
+    export * from "resources/CacheStore";
+    export * from "resources/CacheStrategy";
+    export * from "resources/CacheFirstStrategy";
+    export * from "resources/NetworkOnlyStrategy";
+    export * from "resources/IndexedDbStore";
+    export * from "resources/FactoryRegistry";
+    export * from "resources/Loader";
     export * from "resources/Database";
-    export * from "resources/ResourceFactory";
+    export * from "resources/IndexedDbDatabase";
     export * from "resources/utils";
-    export * from "resources/factories/AbstractResourceFactory";
     export * from "resources/factories/FontFactory";
     export * from "resources/factories/ImageFactory";
     export * from "resources/factories/JsonFactory";
@@ -4026,7 +4092,16 @@ declare module "resources/index" {
     export * from "resources/factories/TextFactory";
     export * from "resources/factories/TextureFactory";
     export * from "resources/factories/VideoFactory";
-    export * from "resources/IndexedDbDatabase";
-    export * from "resources/Loader";
-    export * from "resources/ResourceContainer";
+    export * from "resources/factories/BinaryFactory";
+    export * from "resources/factories/VttFactory";
+    export * from "resources/factories/WasmFactory";
+}
+declare module "index" {
+    export * from "core/index";
+    export * from "audio/index";
+    export * from "input/index";
+    export * from "math/index";
+    export * from "particles/index";
+    export * from "rendering/index";
+    export * from "resources/index";
 }
