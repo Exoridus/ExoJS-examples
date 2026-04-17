@@ -10061,13 +10061,9 @@ class FontFactory extends AbstractAssetFactory {
         if (source.byteLength < 4) {
             throw new SyntaxError(`Invalid font data: expected at least 4 bytes, received ${source.byteLength}.`);
         }
-        let fontFace;
-        try {
-            fontFace = await new FontFace(family, source, descriptors).load();
-        }
-        catch (error) {
+        const fontFace = await new FontFace(family, source, descriptors).load().catch(() => {
             throw new SyntaxError(`Invalid font data in ArrayBuffer (${source.byteLength} bytes).`);
-        }
+        });
         if (addToDocument !== false) {
             document.fonts.add(fontFace);
             this._addedFontFaces.push(fontFace);
@@ -10723,14 +10719,10 @@ class Loader {
             throw new Error(`Failed to fetch "${alias}" from "${url}" (${response.status} ${response.statusText}).`);
         }
         source = await factory.process(response);
-        let resource;
-        try {
-            resource = await factory.create(source, options);
-        }
-        catch (error) {
+        const resource = await factory.create(source, options).catch((error) => {
             const message = error instanceof Error ? error.message : String(error);
             throw new Error(`Failed to create "${alias}" from "${url}": ${message}`);
-        }
+        });
         // Write to caches
         for (const store of this._stores) {
             try {
@@ -13964,7 +13956,7 @@ class NetworkOnlyStrategy {
     }
 }
 
-const DEFAULT_STORE_NAMES = [
+const defaultStoreNames = [
     'font', 'video', 'music', 'sound', 'image', 'texture',
     'text', 'svg', 'json', 'binary', 'wasm', 'vtt',
 ];
@@ -13972,7 +13964,7 @@ class IndexedDbDatabase {
     get connected() {
         return this._connected;
     }
-    constructor(name, version = 1, storeNames = DEFAULT_STORE_NAMES, migrations) {
+    constructor(name, version = 1, storeNames = defaultStoreNames, migrations) {
         this._onCloseHandler = this.disconnect.bind(this);
         this._connected = false;
         this._database = null;
