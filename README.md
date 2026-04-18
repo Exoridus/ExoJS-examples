@@ -1,8 +1,18 @@
-# ExoJS Examples
+# ExoJS Examples — superseded
+
+> **This repository is superseded. Examples and the live preview site are now part of the main [Exoridus/ExoJS](https://github.com/Exoridus/ExoJS) repository.**
+>
+> - Canonical source examples: <https://github.com/Exoridus/ExoJS/tree/master/examples>
+> - Live preview site: <https://exoridus.github.io/ExoJS/>
+> - Site source: <https://github.com/Exoridus/ExoJS/tree/master/examples-site>
+>
+> No further updates will land here. The code below reflects the last standalone state of the site before consolidation and is kept for historical reference.
+
+---
 
 This repository contains the interactive example browser for ExoJS. It bundles a set of small demos, shows the source code in an in-browser editor, and renders the selected example in a live preview frame.
 
-Live site: https://exoridus.github.io/ExoJS-examples/
+Live site (historical): https://exoridus.github.io/ExoJS-examples/
 
 The app is built so it can be hosted from a subfolder, and the published `dist/` output is what gets deployed to GitHub Pages.
 
